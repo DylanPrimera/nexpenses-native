@@ -8,6 +8,7 @@ import { View } from "react-native";
 import { EXPENSE_DESCRIPTION_MAX, EXPENSE_TITLE_MAX, type ExpenseFormValues } from "../schemas";
 import { CategoryField } from "./CategoryField";
 import { OverBudgetWarning } from "./OverBudgetWarning";
+import { PasteNoticeSection } from "./PasteNoticeSection";
 import { PaymentTypeSelector } from "./PaymentTypeSelector";
 import { RecurringSaveSwitch } from "./RecurringSaveSwitch";
 import { RecurringUseSection } from "./RecurringUseSection";
@@ -17,6 +18,7 @@ export function ExpenseFormFields({ available, editing }: { available: number; e
 
   return (
     <View className="gap-4">
+      {editing ? null : <PasteNoticeSection />}
       {editing ? null : <RecurringUseSection />}
       <FormCurrencyField
         name="amount"

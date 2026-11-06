@@ -1,8 +1,4 @@
-import {
-  fieldPlaceholderClass,
-  fieldSurfaceClass,
-  fieldTextClass,
-} from "@/shared/components/ui/field-classes";
+import { fieldInputClass, fieldSurfaceClass } from "@/shared/components/ui/field-classes";
 import { ScopedTextInput } from "@/shared/components/ui/scoped-text-input";
 import { useFocusState } from "@/shared/components/ui/use-focus-state";
 import { TextInput } from "react-native";
@@ -16,7 +12,6 @@ function Textarea({
   invalid,
   multiline = true,
   numberOfLines = 8,
-  placeholderClassName,
   onFocus,
   onBlur,
   ...props
@@ -25,8 +20,7 @@ function Textarea({
   const surfaceClass = fieldSurfaceClass(invalid, focus.focused);
   return (
     <ScopedTextInput
-      className={`min-h-24 w-full flex-row rounded-md border px-3 py-2.5 font-figtree-regular text-base ${fieldTextClass(invalid)} ${surfaceClass} ${props.editable === false ? "opacity-50" : ""} ${className ?? ""}`}
-      placeholderClassName={placeholderClassName ?? fieldPlaceholderClass(invalid, focus.focused)}
+      className={`min-h-24 w-full flex-row rounded-md border px-3 py-2.5 font-figtree-regular text-base ${fieldInputClass(invalid, focus.focused)} ${surfaceClass} ${props.editable === false ? "opacity-50" : ""} ${className ?? ""}`}
       aria-invalid={invalid}
       multiline={multiline}
       numberOfLines={numberOfLines}

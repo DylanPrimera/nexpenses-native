@@ -16,7 +16,7 @@ export const expenseSchema = z
     title: z.string().trim().min(1, messages.Expense.validation_title).max(EXPENSE_TITLE_MAX),
     description: z.string().trim().min(1, messages.Expense.validation_description).max(EXPENSE_DESCRIPTION_MAX),
     paymentType: z.enum(["cash", "debit_card", "credit_card"]),
-    source: z.enum(["manual", "recurring"]),
+    source: z.enum(["manual", "recurring", "notice"]),
     recurringId: z.string(),
     saveAsRecurring: z.boolean(),
   })
