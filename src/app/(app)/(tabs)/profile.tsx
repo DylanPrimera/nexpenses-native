@@ -1,6 +1,7 @@
 import { useAuthStore } from "@/features/auth";
-import { ThemedButton, ThemedText, ThemedView, useAppTheme } from "@/shared";
-import { Switch, View } from "react-native";
+import { Switch, ThemedButton, ThemedText, ThemedView, useAppTheme } from "@/shared";
+import { Link, type Href } from "expo-router";
+import { View } from "react-native";
 
 export default function ProfileScreen() {
   const { firstName, lastName, logout } = useAuthStore();
@@ -23,25 +24,26 @@ export default function ProfileScreen() {
 
         <View className="flex-row items-center justify-between">
           <ThemedText>Usar tema del sistema</ThemedText>
-          <Switch
-            value={preference === "system"}
-            onValueChange={setSystemTheme}
-            trackColor={{ true: colors.primary }}
-          />
+          <Switch checked={preference === "system"} onCheckedChange={setSystemTheme} />
         </View>
 
         <View className="flex-row items-center justify-between">
           <ThemedText>Modo oscuro</ThemedText>
           <Switch
-            value={resolvedScheme === "dark"}
+            checked={resolvedScheme === "dark"}
             disabled={preference === "system"}
-            onValueChange={setDarkMode}
-            trackColor={{ true: colors.primary }}
+            onCheckedChange={setDarkMode}
           />
         </View>
       </View>
 
       <ThemedButton onPress={() => void logout()}>Cerrar sesión</ThemedButton>
+
+      {__DEV__ ? (
+        <Link href={"/ui-kit" as Href} className="text-center font-figtree-medium text-sm text-primary">
+          UI kit (solo dev)
+        </Link>
+      ) : null}
     </ThemedView>
   );
 }
