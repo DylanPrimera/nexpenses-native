@@ -37,3 +37,11 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# tests (local-only, Dylan's decision): keep on disk, never commit
+**/__tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+coverage/
