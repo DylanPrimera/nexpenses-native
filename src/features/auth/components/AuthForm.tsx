@@ -5,24 +5,33 @@ import {
   type LoginFormValues,
   type RegisterFormValues,
 } from "@/features/auth/schemas";
+import { BackButton, Button, FormField, Icon, Separator, Text, useAppTheme } from "@/shared";
 import {
-  ThemedButton,
-  ThemedLink,
-  ThemedText,
-  ThemedTextInput,
-} from "@/shared";
-import { useAppTheme } from "@/shared/theme";
+  IconArrowRight,
+  IconId,
+  IconLock,
+  IconLockCheck,
+  IconMail,
+  IconPigMoney,
+  IconUser,
+  IconUserPlus,
+} from "@tabler/icons-react-native";
+import { Link } from "expo-router";
 import { Formik } from "formik";
-import type { ComponentPropsWithoutRef } from "react";
+import { useRef } from "react";
 import {
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
   View,
+  type TextInput,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 
+type TextInputRef = React.ComponentRef<typeof TextInput>;
 type Mode = "login" | "register";
 
 interface AuthFormProps {
@@ -42,122 +51,149 @@ const registerInitial: RegisterFormValues = {
   confirmPassword: "",
 };
 
+const EMAIL_INPUT = {
+  placeholder: "ana@example.com",
+  autoComplete: "email",
+  textContentType: "emailAddress",
+  keyboardType: "email-address",
+  autoCapitalize: "none",
+  autoCorrect: false,
+} as const;
+
 export function AuthForm({
   mode,
-  loading,
+  loading = false,
   formError,
   onSubmitLogin,
   onSubmitRegister,
 }: AuthFormProps) {
   const { colors } = useAppTheme();
+  const insets = useSafeAreaInsets();
+  const lastNameRef = useRef<TextInputRef>(null);
+  const emailRef = useRef<TextInputRef>(null);
+  const passwordRef = useRef<TextInputRef>(null);
+  const confirmRef = useRef<TextInputRef>(null);
   const isRegister = mode === "register";
   const title = isRegister ? authCopy.register_title : authCopy.login_title;
+  const description = isRegister ? authCopy.register_description : authCopy.login_description;
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1, backgroundColor: colors.background }}
+      className="flex-1 bg-background"
     >
       <ScrollView
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="grow px-6"
         contentContainerStyle={{
-          flexGrow: 1,
-          justifyContent: "center",
-          paddingHorizontal: 24,
-          paddingVertical: 48,
+          paddingTop: insets.top + (isRegister ? 8 : 32),
+          paddingBottom: insets.bottom + 24,
         }}
       >
-        <View className="mx-auto w-full max-w-sm gap-2">
-          <ThemedText className="mb-1 text-center font-figtree-semibold text-2xl">
-            Nexpenses
-          </ThemedText>
-          <ThemedText className="mb-6 font-figtree-semibold text-3xl">
-            {title}
-          </ThemedText>
+        {isRegister ? (
+          <View className="mb-4 items-start">
+            <BackButton href="/(auth)/login" accessibilityLabel={authCopy.back_to_login} />
+          </View>
+        ) : null}
+        <View className="w-full flex-1 justify-center">
+          <View className="mb-6 items-center justify-center gap-2">
+            <IconPigMoney size={100} color={colors.primary} />
+            <Text className="font-figtree-semibold text-2xl tracking-tight">Nexpenses</Text>
+          </View>
+
+          <View className="mb-8 items-center gap-2">
+            <Text
+              role="heading"
+              className="text-center font-figtree-semibold text-4xl tracking-tight"
+            >
+              {title}
+            </Text>
+            <Text className="text-center text-base text-muted-foreground">{description}</Text>
+          </View>
 
           {isRegister ? (
             <Formik
               initialValues={registerInitial}
               validationSchema={toFormikValidationSchema(registerSchema)}
-              validateOnChange
+              validateOnMount
               onSubmit={async (values) => {
                 await onSubmitRegister(values);
               }}
             >
-              {({
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                values,
-                errors,
-                touched,
-                isValid,
-              }) => (
-                <View className="gap-3">
-                  <Field
+              {({ handleSubmit, isValid }) => (
+                <View className="gap-4">
+                  <FormField
+                    name="firstName"
                     label={authCopy.first_name}
-                    value={values.firstName}
-                    onChangeText={handleChange("firstName")}
-                    onBlur={handleBlur("firstName")}
-                    error={touched.firstName ? errors.firstName : undefined}
-                    autoComplete="given-name"
+                    icon={IconUser}
                     placeholder="Escribe tu nombre"
+                    autoComplete="given-name"
+                    textContentType="givenName"
+                    autoCapitalize="words"
+                    returnKeyType="next"
+                    submitBehavior="submit"
+                    onSubmitEditing={() => lastNameRef.current?.focus()}
                   />
-                  <Field
+                  <FormField
+                    ref={lastNameRef}
+                    name="lastName"
                     label={authCopy.last_name}
-                    value={values.lastName}
-                    onChangeText={handleChange("lastName")}
-                    onBlur={handleBlur("lastName")}
-                    error={touched.lastName ? errors.lastName : undefined}
-                    autoComplete="family-name"
+                    icon={IconId}
                     placeholder="Escribe tu apellido"
+                    autoComplete="family-name"
+                    textContentType="familyName"
+                    autoCapitalize="words"
+                    returnKeyType="next"
+                    submitBehavior="submit"
+                    onSubmitEditing={() => emailRef.current?.focus()}
                   />
-                  <Field
+                  <FormField
+                    ref={emailRef}
+                    name="email"
                     label={authCopy.email}
-                    value={values.email}
-                    onChangeText={handleChange("email")}
-                    onBlur={handleBlur("email")}
-                    error={touched.email ? errors.email : undefined}
-                    autoComplete="email"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    placeholder="ana@example.com"
+                    icon={IconMail}
+                    {...EMAIL_INPUT}
+                    returnKeyType="next"
+                    submitBehavior="submit"
+                    onSubmitEditing={() => passwordRef.current?.focus()}
                   />
-                  <Field
+                  <FormField
+                    ref={passwordRef}
+                    name="password"
                     label={authCopy.password}
-                    value={values.password}
-                    onChangeText={handleChange("password")}
-                    onBlur={handleBlur("password")}
-                    error={touched.password ? errors.password : undefined}
-                    secureTextEntry
-                    autoComplete="new-password"
+                    icon={IconLock}
                     placeholder="Escribe tu contraseña"
-                  />
-                  <Field
-                    label="Confirmar contraseña"
-                    value={values.confirmPassword}
-                    onChangeText={handleChange("confirmPassword")}
-                    onBlur={handleBlur("confirmPassword")}
-                    error={
-                      touched.confirmPassword
-                        ? errors.confirmPassword
-                        : undefined
-                    }
-                    secureTextEntry
+                    secureToggle
                     autoComplete="new-password"
-                    placeholder="Repite tu contraseña"
+                    textContentType="newPassword"
+                    returnKeyType="next"
+                    submitBehavior="submit"
+                    onSubmitEditing={() => confirmRef.current?.focus()}
                   />
-                  <ThemedButton
-                    onPress={() => handleSubmit()}
+                  <FormField
+                    ref={confirmRef}
+                    name="confirmPassword"
+                    label={authCopy.confirm_password}
+                    icon={IconLockCheck}
+                    placeholder="Repite tu contraseña"
+                    secureToggle
+                    autoComplete="new-password"
+                    textContentType="newPassword"
+                    returnKeyType="go"
+                    onSubmitEditing={() => {
+                      if (isValid && !loading) handleSubmit();
+                    }}
+                  />
+                  <SubmitBlock
+                    label={authCopy.register_action}
+                    loading={loading}
                     disabled={loading || !isValid}
-                  >
-                    {authCopy.register_action}
-                  </ThemedButton>
-                  {formError ? (
-                    <ThemedText className="text-sm text-destructive">
-                      {formError}
-                    </ThemedText>
-                  ) : null}
+                    isRegister={isRegister}
+                    formError={formError}
+                    onPress={() => handleSubmit()}
+                  />
                 </View>
               )}
             </Formik>
@@ -165,100 +201,113 @@ export function AuthForm({
             <Formik
               initialValues={loginInitial}
               validationSchema={toFormikValidationSchema(loginSchema)}
-              validateOnChange
+              validateOnMount
               onSubmit={async (values) => {
                 await onSubmitLogin(values);
               }}
             >
-              {({
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                values,
-                errors,
-                touched,
-                isValid,
-              }) => (
-                <View className="gap-3">
-                  <Field
+              {({ handleSubmit, isValid }) => (
+                <View className="gap-4">
+                  <FormField
+                    ref={emailRef}
+                    name="email"
                     label={authCopy.email}
-                    value={values.email}
-                    onChangeText={handleChange("email")}
-                    onBlur={handleBlur("email")}
-                    error={touched.email ? errors.email : undefined}
-                    autoComplete="email"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    placeholder="ana@example.com"
+                    icon={IconMail}
+                    {...EMAIL_INPUT}
+                    returnKeyType="next"
+                    submitBehavior="submit"
+                    onSubmitEditing={() => passwordRef.current?.focus()}
                   />
-                  <Field
+                  <FormField
+                    ref={passwordRef}
+                    name="password"
                     label={authCopy.password}
-                    value={values.password}
-                    onChangeText={handleChange("password")}
-                    onBlur={handleBlur("password")}
-                    error={touched.password ? errors.password : undefined}
-                    secureTextEntry
-                    autoComplete="password"
+                    icon={IconLock}
                     placeholder="Escribe tu contraseña"
+                    secureToggle
+                    autoComplete="current-password"
+                    textContentType="password"
+                    returnKeyType="go"
+                    onSubmitEditing={() => {
+                      if (isValid && !loading) handleSubmit();
+                    }}
                   />
-                  <ThemedButton
-                    onPress={() => handleSubmit()}
+                  <SubmitBlock
+                    label={authCopy.login_action}
+                    loading={loading}
                     disabled={loading || !isValid}
-                  >
-                    {authCopy.login_action}
-                  </ThemedButton>
-                  {formError ? (
-                    <ThemedText className="text-sm text-destructive">
-                      {formError}
-                    </ThemedText>
-                  ) : null}
+                    isRegister={isRegister}
+                    formError={formError}
+                    onPress={() => handleSubmit()}
+                  />
                 </View>
               )}
             </Formik>
           )}
 
-          <View className="my-5 flex-row items-center gap-3">
-            <View className="h-px flex-1 bg-light-border dark:bg-dark-border" />
-            <ThemedText muted>{authCopy.or}</ThemedText>
-            <View className="h-px flex-1 bg-light-border dark:bg-dark-border" />
+          <View className="my-6 flex-row items-center gap-3">
+            <Separator className="flex-1" />
+            <Text className="text-sm text-muted-foreground">{authCopy.or}</Text>
+            <Separator className="flex-1" />
           </View>
 
-          <Pressable
-            disabled
-            className="h-12 items-center justify-center rounded-lg border border-light-border opacity-50 dark:border-dark-border"
-          >
-            <ThemedText muted>{authCopy.google}</ThemedText>
-          </Pressable>
+          <Button variant="outline" size="lg" className="w-full" disabled>
+            <Text>{authCopy.google}</Text>
+          </Button>
 
-          {mode === "login" ? (
-            <ThemedLink href="/(auth)/register" className="mt-4 text-center">
-              {authCopy.go_register}
-            </ThemedLink>
-          ) : (
-            <ThemedLink href="/(auth)/login" className="mt-4 text-center">
-              {authCopy.go_login}
-            </ThemedLink>
-          )}
+          <Link href={isRegister ? "/(auth)/login" : "/(auth)/register"} replace asChild>
+            <Pressable className="mt-2 self-center px-4 py-3" hitSlop={8}>
+              <Text className="text-center text-sm text-muted-foreground">
+                {isRegister ? authCopy.has_account_prompt : authCopy.no_account_prompt}{" "}
+                <Text className="font-figtree-semibold text-sm text-primary underline">
+                  {isRegister ? authCopy.has_account_action : authCopy.no_account_action}
+                </Text>
+              </Text>
+            </Pressable>
+          </Link>
         </View>
       </ScrollView>
+
     </KeyboardAvoidingView>
   );
 }
 
-function Field({
+function SubmitBlock({
   label,
-  error,
-  ...props
+  loading,
+  disabled,
+  isRegister,
+  formError,
+  onPress,
 }: {
   label: string;
-  error?: string;
-} & ComponentPropsWithoutRef<typeof ThemedTextInput>) {
+  loading: boolean;
+  disabled: boolean;
+  isRegister: boolean;
+  formError?: string | null;
+  onPress: () => void;
+}) {
+  const { colors } = useAppTheme();
   return (
-    <View className="gap-1.5">
-      <ThemedText className="text-sm font-figtree-medium">{label}</ThemedText>
-      <ThemedTextInput {...props} />
-      {error ? (
-        <ThemedText className="text-sm text-destructive">{error}</ThemedText>
+    <View className="mt-2">
+      <Button
+        size="lg"
+        className="w-full gap-2"
+        disabled={disabled}
+        aria-busy={loading}
+        onPress={onPress}
+      >
+        <Text>{label}</Text>
+        {loading ? (
+          <ActivityIndicator size="small" color={colors.primaryForeground} />
+        ) : (
+          <Icon as={!isRegister ? IconArrowRight : IconUserPlus} size={18} />
+        )}
+      </Button>
+      {formError ? (
+        <Text role="alert" className="mt-3 text-sm text-destructive">
+          {formError}
+        </Text>
       ) : null}
     </View>
   );
