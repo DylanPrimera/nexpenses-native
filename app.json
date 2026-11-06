@@ -8,70 +8,41 @@
     "scheme": "nexpenses",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/icon.png",
       "supportsTablet": true,
-      "bundleIdentifier": "com.nexpenses.app"
+      "bundleIdentifier": "com.nexpenses.rn"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#49129c",
+        "backgroundColor": "#4eedb8",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.nexpenses.app",
-      "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
-        "android.permission.READ_MEDIA_IMAGES",
-        "android.permission.READ_MEDIA_VIDEO",
-        "android.permission.READ_MEDIA_AUDIO"
-      ]
-    },
-    "web": {
-      "favicon": "./assets/images/favicon.png"
+      "package": "com.nexpenses.rn"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#49129c",
+          "backgroundColor": "#eef2f0",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 160,
+          "dark": {
+            "backgroundColor": "#0f1416",
+            "image": "./assets/images/splash-icon.png",
+            "imageWidth": 160
+          }
         }
       ],
       "expo-font",
       "expo-secure-store",
       "expo-status-bar",
       [
-        "expo-camera",
+        "expo-system-ui",
         {
-          "cameraPermission": "Permite a $(PRODUCT_NAME) acceder a tu cámara.",
-          "microphonePermission": "Permite a $(PRODUCT_NAME) acceder a tu micrófono.",
-          "recordAudioAndroid": false
-        }
-      ],
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "Permite a $(PRODUCT_NAME) acceder a tus fotos."
-        }
-      ],
-      [
-        "expo-media-library",
-        {
-          "photosPermission": "Permite a $(PRODUCT_NAME) acceder a tus fotos.",
-          "saveToLibraryPermission": "Permite a $(PRODUCT_NAME) guardar fotos en tu biblioteca.",
-          "isImagePicker": false,
-          "androidGranularPermissions": [
-            "AUDIO",
-            "PHOTOS",
-            "VIDEO"
-          ]
+          "backgroundColor": "#eef2f0"
         }
       ]
     ],

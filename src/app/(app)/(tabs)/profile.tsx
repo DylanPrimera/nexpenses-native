@@ -3,18 +3,22 @@ import { ThemedButton, ThemedText, ThemedView, useAppTheme } from "@/shared";
 import { Switch, View } from "react-native";
 
 export default function ProfileScreen() {
-  const { user, logout } = useAuthStore();
-  const { preference, resolvedScheme, colors, setDarkMode, setSystemTheme } = useAppTheme();
+  const { firstName, lastName, logout } = useAuthStore();
+  const { preference, resolvedScheme, colors, setDarkMode, setSystemTheme } =
+    useAppTheme();
+  const displayName = [firstName, lastName].filter(Boolean).join(" ") || "Usuario";
 
   return (
     <ThemedView className="flex-1 gap-6 px-6 py-8">
       <View className="gap-1">
         <ThemedText variant="title">Perfil</ThemedText>
-        <ThemedText muted>{user?.fullName ?? "Usuario"}</ThemedText>
-        <ThemedText muted>{user?.email ?? ""}</ThemedText>
+        <ThemedText muted>{displayName}</ThemedText>
       </View>
 
-      <View className="gap-4 rounded-xl p-4" style={{ backgroundColor: colors.card }}>
+      <View
+        className="gap-4 rounded-xl p-4"
+        style={{ backgroundColor: colors.card }}
+      >
         <ThemedText variant="subtitle">Apariencia</ThemedText>
 
         <View className="flex-row items-center justify-between">

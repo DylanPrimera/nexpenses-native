@@ -1,4 +1,5 @@
-import { queryClient } from "@/core";
+import { queryClient, setUnauthorizedHandler } from "@/core";
+import { useAuthStore } from "@/features/auth";
 import { AppColors, AppThemeProvider } from "@/shared";
 import {
   Figtree_300Light,
@@ -12,6 +13,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
+import * as SystemUI from "expo-system-ui";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -37,10 +39,22 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
+    void SystemUI.setBackgroundColorAsync(background);
+  }, [background]);
+
+  useEffect(() => {
     if (loaded || error) {
       SplashScreen.hideAsync();
     }
   }, [loaded, error]);
+
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      // Toast UI arrives in phase 1 (sonner-native). Logout clears SecureStore token.
+      void useAuthStore.getState().logout();
+    });
+    return () => setUnauthorizedHandler(null);
+  }, []);
 
   if (!loaded && !error) {
     return null;
@@ -51,8 +65,8 @@ export default function RootLayout() {
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <QueryClientProvider client={queryClient}>
           <AppThemeProvider>
-            <StatusBar style="auto" />
-            <Stack screenOptions={{ headerShown: false }} />
+            <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: background } }} />
           </AppThemeProvider>
         </QueryClientProvider>
       </SafeAreaProvider>

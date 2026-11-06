@@ -9,7 +9,11 @@
       "@/assets/*": [
         "./assets/*"
       ]
-    }
+    },
+    "resolveJsonModule": true,
+    "types": [
+      "jest"
+    ]
   },
   "include": [
     "**/*.ts",
@@ -18,5 +22,9 @@
     "expo-env.d.ts",
     "nativewind-env.d.ts",
     "css-env.d.ts"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__tests__/**"
   ]
 }

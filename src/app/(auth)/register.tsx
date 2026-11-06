@@ -1,14 +1,16 @@
 import { AuthForm, useRegister } from "@/features/auth";
 
 export default function RegisterScreen() {
-  const { submit, isLoading } = useRegister();
+  const { submit, isLoading, formError } = useRegister();
 
   return (
     <AuthForm
       mode="register"
       loading={isLoading}
-      onSubmit={async ({ fullName, email, password }) => {
-        await submit(fullName, email, password);
+      formError={formError}
+      onSubmitLogin={async () => undefined}
+      onSubmitRegister={async (values) => {
+        await submit(values);
       }}
     />
   );

@@ -1,28 +1,25 @@
-export interface User {
+/** Public user returned inside Nest auth `data.user` (publicUserSelect). */
+export interface AuthUser {
   id: string;
+  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  fullName: string;
-  isActive?: boolean;
-  roles?: string[];
+  budget: number;
+  cycleStartedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface AuthPayload {
-  user: User;
-  token: string;
-}
-
-/** Raw backend auth response (login / register / check-status). */
-export interface AuthApiResponse {
-  id: string;
-  email: string;
-  fullName: string;
-  isActive?: boolean;
-  roles?: string[];
+/** Nest auth success payload after envelope peel. */
+export interface AuthData {
+  user: AuthUser;
   token: string;
 }
 
 export const AUTH_PATHS = {
   login: "/auth/login",
   register: "/auth/register",
-  checkStatus: "/auth/check-status",
+  google: "/auth/google",
+  me: "/auth/me",
 } as const;

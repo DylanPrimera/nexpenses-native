@@ -1,5 +1,6 @@
 export { FAB } from "./FAB";
 export { FullScreenLoader } from "./FullScreenLoader";
+export { Icon } from "./Icon";
 export { MenuIconButton } from "./MenuIconButton";
 export { ThemedButton } from "./ThemedButton";
 export { ThemedLink } from "./ThemedLink";

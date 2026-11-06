@@ -1,5 +1,6 @@
 import { useAppTheme } from "@/shared";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { Icon } from "@/shared/components/ui/Icon";
+import { IconHome, IconUser } from "@tabler/icons-react-native";
 import { Tabs } from "expo-router";
 
 export default function TabsLayout() {
@@ -24,16 +25,7 @@ export default function TabsLayout() {
         options={{
           title: "Inicio",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={String(color)} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="media"
-        options={{
-          title: "Media",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="images-outline" size={size} color={String(color)} />
+            <Icon as={IconHome} size={size} color={String(color)} />
           ),
         }}
       />
@@ -42,7 +34,7 @@ export default function TabsLayout() {
         options={{
           title: "Perfil",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={String(color)} />
+            <Icon as={IconUser} size={size} color={String(color)} />
           ),
         }}
       />

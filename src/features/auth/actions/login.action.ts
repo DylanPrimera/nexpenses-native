@@ -1,27 +1,43 @@
-import { apiClient } from "@/core";
-import { isAxiosError } from "axios";
-import { AUTH_PATHS, type AuthApiResponse, type AuthPayload } from "../interfaces";
-import { AuthMapper } from "../mappers";
+import { apiClient, isApiError } from "@/core";
+import { AUTH_PATHS, type AuthData } from "../interfaces";
+import { spanishAuthError } from "../lib/auth-messages";
 
-export const loginAction = async (email: string, password: string): Promise<AuthPayload | null> => {
+export class AuthActionError extends Error {
+  readonly status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "AuthActionError";
+    this.status = status;
+  }
+}
+
+function rethrowSpanish(error: unknown): never {
+  if (isApiError(error)) {
+    throw new AuthActionError(
+      spanishAuthError(error.status, error.message),
+      error.status,
+    );
+  }
+  if (error instanceof AuthActionError) throw error;
+  if (error instanceof Error) throw error;
+  throw new AuthActionError("No se pudo completar. Inténtalo de nuevo.", 0);
+}
+
+export async function loginAction(
+  email: string,
+  password: string,
+): Promise<AuthData> {
   try {
-    const { data } = await apiClient.post<AuthApiResponse>(AUTH_PATHS.login, {
-      email: email.toLowerCase().trim(),
+    const { data } = await apiClient.post<AuthData>(AUTH_PATHS.login, {
+      email: email.trim().toLowerCase(),
       password,
     });
-    return AuthMapper.fromApiResponse(data);
-  } catch (error) {
-    // Log the real cause (network error vs 401 vs 400) instead of hiding it.
-    if (isAxiosError(error)) {
-      console.warn("loginAction failed", {
-        baseURL: error.config?.baseURL,
-        status: error.response?.status,
-        data: error.response?.data,
-        message: error.message,
-      });
-    } else {
-      console.warn("loginAction failed", error);
+    if (!data?.token || !data.user?.id) {
+      throw new AuthActionError("No se pudo completar. Inténtalo de nuevo.", 0);
     }
-    return null;
+    return data;
+  } catch (error) {
+    rethrowSpanish(error);
   }
-};
+}

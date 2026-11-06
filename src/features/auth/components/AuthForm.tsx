@@ -1,183 +1,265 @@
+import { authCopy } from "@/features/auth/lib/auth-messages";
+import {
+  loginSchema,
+  registerSchema,
+  type LoginFormValues,
+  type RegisterFormValues,
+} from "@/features/auth/schemas";
 import {
   ThemedButton,
   ThemedLink,
   ThemedText,
   ThemedTextInput,
-  ThemedView,
 } from "@/shared";
 import { useAppTheme } from "@/shared/theme";
 import { Formik } from "formik";
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, useWindowDimensions, View } from "react-native";
+import type { ComponentPropsWithoutRef } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  View,
+} from "react-native";
+import { toFormikValidationSchema } from "zod-formik-adapter";
 
-export interface AuthFormValues {
-  fullName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
+type Mode = "login" | "register";
 
 interface AuthFormProps {
-  mode: "login" | "register";
+  mode: Mode;
   loading?: boolean;
-  onSubmit: (values: AuthFormValues) => void | Promise<void>;
+  formError?: string | null;
+  onSubmitLogin: (values: LoginFormValues) => void | Promise<void>;
+  onSubmitRegister: (values: RegisterFormValues) => void | Promise<void>;
 }
 
-const initialValues: AuthFormValues = {
-  fullName: "",
+const loginInitial: LoginFormValues = { email: "", password: "" };
+const registerInitial: RegisterFormValues = {
+  firstName: "",
+  lastName: "",
   email: "",
   password: "",
   confirmPassword: "",
 };
 
-export const AuthForm = ({ mode, loading, onSubmit }: AuthFormProps) => {
-  const { height } = useWindowDimensions();
+export function AuthForm({
+  mode,
+  loading,
+  formError,
+  onSubmitLogin,
+  onSubmitRegister,
+}: AuthFormProps) {
   const { colors } = useAppTheme();
   const isRegister = mode === "register";
-
-  const validate = (values: AuthFormValues) => {
-    const errors: Partial<Record<keyof AuthFormValues, string>> = {};
-
-    if (isRegister && !values.fullName.trim()) {
-      errors.fullName = "Requerido";
-    }
-    if (!values.email.trim()) {
-      errors.email = "Requerido";
-    }
-    if (!values.password.trim()) {
-      errors.password = "Requerido";
-    }
-    if (isRegister) {
-      if (!values.confirmPassword.trim()) {
-        errors.confirmPassword = "Requerido";
-      } else if (values.password !== values.confirmPassword) {
-        errors.confirmPassword = "No coinciden";
-      }
-    }
-
-    return errors;
-  };
+  const title = isRegister ? authCopy.register_title : authCopy.login_title;
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: colors.background }}
     >
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        style={{ flex: 1, backgroundColor: colors.background, paddingHorizontal: 40 }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: "center",
+          paddingHorizontal: 24,
+          paddingVertical: 48,
+        }}
       >
-        <Formik
-          initialValues={initialValues}
-          validate={validate}
-          onSubmit={async (values) => {
-            if (
-              !values.email.trim() ||
-              !values.password.trim() ||
-              (isRegister && (!values.fullName.trim() || !values.confirmPassword.trim()))
-            ) {
-              Alert.alert("Error", "Por favor completa todos los campos");
-              return;
-            }
-            if (isRegister && values.password !== values.confirmPassword) {
-              Alert.alert("Error", "Las contraseñas no coinciden");
-              return;
-            }
-            await onSubmit(values);
-          }}
-        >
-          {({ handleChange, handleSubmit, values, errors, touched }) => (
-            <ThemedView style={{ backgroundColor: "transparent" }}>
-              <View style={{ paddingTop: height * 0.25 }}>
-                <ThemedText variant="title">
-                  {isRegister ? "Crear cuenta" : "Iniciar sesión"}
-                </ThemedText>
-                <ThemedText muted className="mt-1">
-                  {isRegister
-                    ? "Completa el formulario. Todos los campos son obligatorios."
-                    : "¡Bienvenido de nuevo! Ingresa tus datos."}
-                </ThemedText>
-              </View>
+        <View className="mx-auto w-full max-w-sm gap-2">
+          <ThemedText className="mb-1 text-center font-figtree-semibold text-2xl">
+            Nexpenses
+          </ThemedText>
+          <ThemedText className="mb-6 font-figtree-semibold text-3xl">
+            {title}
+          </ThemedText>
 
-              <View style={{ marginTop: 20 }}>
-                {isRegister ? (
-                  <ThemedTextInput
-                    placeholder="Nombre completo"
-                    autoCapitalize="words"
-                    icon="person-outline"
-                    value={values.fullName}
-                    onChangeText={handleChange("fullName")}
+          {isRegister ? (
+            <Formik
+              initialValues={registerInitial}
+              validationSchema={toFormikValidationSchema(registerSchema)}
+              validateOnChange
+              onSubmit={async (values) => {
+                await onSubmitRegister(values);
+              }}
+            >
+              {({
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                values,
+                errors,
+                touched,
+                isValid,
+              }) => (
+                <View className="gap-3">
+                  <Field
+                    label={authCopy.first_name}
+                    value={values.firstName}
+                    onChangeText={handleChange("firstName")}
+                    onBlur={handleBlur("firstName")}
+                    error={touched.firstName ? errors.firstName : undefined}
+                    autoComplete="given-name"
+                    placeholder="Escribe tu nombre"
                   />
-                ) : null}
-
-                <ThemedTextInput
-                  placeholder="Correo"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  icon="mail-outline"
-                  value={values.email}
-                  onChangeText={handleChange("email")}
-                />
-                {touched.email && errors.email ? (
-                  <ThemedText muted className="mb-2">{errors.email}</ThemedText>
-                ) : null}
-
-                <ThemedTextInput
-                  placeholder="Contraseña"
-                  secureTextEntry
-                  autoCapitalize="none"
-                  icon="lock-closed-outline"
-                  value={values.password}
-                  onChangeText={handleChange("password")}
-                />
-
-                {isRegister ? (
-                  <ThemedTextInput
-                    placeholder="Confirmar contraseña"
-                    secureTextEntry
+                  <Field
+                    label={authCopy.last_name}
+                    value={values.lastName}
+                    onChangeText={handleChange("lastName")}
+                    onBlur={handleBlur("lastName")}
+                    error={touched.lastName ? errors.lastName : undefined}
+                    autoComplete="family-name"
+                    placeholder="Escribe tu apellido"
+                  />
+                  <Field
+                    label={authCopy.email}
+                    value={values.email}
+                    onChangeText={handleChange("email")}
+                    onBlur={handleBlur("email")}
+                    error={touched.email ? errors.email : undefined}
+                    autoComplete="email"
+                    keyboardType="email-address"
                     autoCapitalize="none"
-                    icon="lock-closed-outline"
+                    placeholder="ana@example.com"
+                  />
+                  <Field
+                    label={authCopy.password}
+                    value={values.password}
+                    onChangeText={handleChange("password")}
+                    onBlur={handleBlur("password")}
+                    error={touched.password ? errors.password : undefined}
+                    secureTextEntry
+                    autoComplete="new-password"
+                    placeholder="Escribe tu contraseña"
+                  />
+                  <Field
+                    label="Confirmar contraseña"
                     value={values.confirmPassword}
                     onChangeText={handleChange("confirmPassword")}
+                    onBlur={handleBlur("confirmPassword")}
+                    error={
+                      touched.confirmPassword
+                        ? errors.confirmPassword
+                        : undefined
+                    }
+                    secureTextEntry
+                    autoComplete="new-password"
+                    placeholder="Repite tu contraseña"
                   />
-                ) : null}
-                {touched.confirmPassword && errors.confirmPassword ? (
-                  <ThemedText muted className="mb-2">{errors.confirmPassword}</ThemedText>
-                ) : null}
-              </View>
-
-              <View style={{ marginTop: 20 }}>
-                <ThemedButton
-                  icon={isRegister ? "checkmark-circle-outline" : "arrow-forward-outline"}
-                  loading={loading}
-                  onPress={() => handleSubmit()}
-                >
-                  {isRegister ? "Registrarme" : "Entrar"}
-                </ThemedButton>
-              </View>
-
-              <View
-                style={{
-                  marginTop: 20,
-                  flexDirection: "row",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  gap: 4,
-                }}
-              >
-                <ThemedText>
-                  {isRegister ? "¿Ya tienes cuenta?" : "¿No tienes cuenta?"}
-                </ThemedText>
-                <ThemedLink
-                  href={isRegister ? "/(auth)/login" : "/(auth)/register"}
-                  style={{ textDecorationLine: "underline" }}
-                >
-                  {isRegister ? "Inicia sesión" : "Regístrate"}
-                </ThemedLink>
-              </View>
-            </ThemedView>
+                  <ThemedButton
+                    onPress={() => handleSubmit()}
+                    disabled={loading || !isValid}
+                  >
+                    {authCopy.register_action}
+                  </ThemedButton>
+                  {formError ? (
+                    <ThemedText className="text-sm text-destructive">
+                      {formError}
+                    </ThemedText>
+                  ) : null}
+                </View>
+              )}
+            </Formik>
+          ) : (
+            <Formik
+              initialValues={loginInitial}
+              validationSchema={toFormikValidationSchema(loginSchema)}
+              validateOnChange
+              onSubmit={async (values) => {
+                await onSubmitLogin(values);
+              }}
+            >
+              {({
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                values,
+                errors,
+                touched,
+                isValid,
+              }) => (
+                <View className="gap-3">
+                  <Field
+                    label={authCopy.email}
+                    value={values.email}
+                    onChangeText={handleChange("email")}
+                    onBlur={handleBlur("email")}
+                    error={touched.email ? errors.email : undefined}
+                    autoComplete="email"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    placeholder="ana@example.com"
+                  />
+                  <Field
+                    label={authCopy.password}
+                    value={values.password}
+                    onChangeText={handleChange("password")}
+                    onBlur={handleBlur("password")}
+                    error={touched.password ? errors.password : undefined}
+                    secureTextEntry
+                    autoComplete="password"
+                    placeholder="Escribe tu contraseña"
+                  />
+                  <ThemedButton
+                    onPress={() => handleSubmit()}
+                    disabled={loading || !isValid}
+                  >
+                    {authCopy.login_action}
+                  </ThemedButton>
+                  {formError ? (
+                    <ThemedText className="text-sm text-destructive">
+                      {formError}
+                    </ThemedText>
+                  ) : null}
+                </View>
+              )}
+            </Formik>
           )}
-        </Formik>
+
+          <View className="my-5 flex-row items-center gap-3">
+            <View className="h-px flex-1 bg-light-border dark:bg-dark-border" />
+            <ThemedText muted>{authCopy.or}</ThemedText>
+            <View className="h-px flex-1 bg-light-border dark:bg-dark-border" />
+          </View>
+
+          <Pressable
+            disabled
+            className="h-12 items-center justify-center rounded-lg border border-light-border opacity-50 dark:border-dark-border"
+          >
+            <ThemedText muted>{authCopy.google}</ThemedText>
+          </Pressable>
+
+          {mode === "login" ? (
+            <ThemedLink href="/(auth)/register" className="mt-4 text-center">
+              {authCopy.go_register}
+            </ThemedLink>
+          ) : (
+            <ThemedLink href="/(auth)/login" className="mt-4 text-center">
+              {authCopy.go_login}
+            </ThemedLink>
+          )}
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
-};
+}
+
+function Field({
+  label,
+  error,
+  ...props
+}: {
+  label: string;
+  error?: string;
+} & ComponentPropsWithoutRef<typeof ThemedTextInput>) {
+  return (
+    <View className="gap-1.5">
+      <ThemedText className="text-sm font-figtree-medium">{label}</ThemedText>
+      <ThemedTextInput {...props} />
+      {error ? (
+        <ThemedText className="text-sm text-destructive">{error}</ThemedText>
+      ) : null}
+    </View>
+  );
+}

@@ -1,26 +1,31 @@
 import { useState } from "react";
-import { Alert } from "react-native";
+import { AuthActionError } from "../actions";
+import { authCopy } from "../lib/auth-messages";
+import type { LoginFormValues } from "../schemas";
 import { useAuthStore } from "../store";
 
 export const useLogin = () => {
   const { login } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const submit = async (email: string, password: string) => {
+  const submit = async (values: LoginFormValues) => {
     setIsLoading(true);
+    setFormError(null);
     try {
-      const ok = await login(email, password);
-      if (!ok) {
-        Alert.alert("Error", "Ocurrió un error al iniciar sesión");
-      }
-      return ok;
-    } catch {
-      Alert.alert("Error", "Ocurrió un error al iniciar sesión");
+      await login(values.email, values.password);
+      return true;
+    } catch (error) {
+      setFormError(
+        error instanceof AuthActionError
+          ? error.message
+          : authCopy.generic_error,
+      );
       return false;
     } finally {
       setIsLoading(false);
     }
   };
 
-  return { submit, isLoading };
+  return { submit, isLoading, formError };
 };
