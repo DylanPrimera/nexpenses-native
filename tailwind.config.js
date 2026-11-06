@@ -20,6 +20,7 @@ module.exports = {
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
+          pressed: "hsl(var(--secondary-pressed))",
           foreground: "hsl(var(--secondary-foreground))",
         },
         destructive: {

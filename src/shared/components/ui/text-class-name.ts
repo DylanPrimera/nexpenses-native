@@ -1,10 +1,17 @@
+const TEXT_SIZE = /^text-(xs|sm|base|lg|xl|[2-9]xl|\[\d+(\.\d+)?(px|rem|em)\])$/;
+const TEXT_NON_COLOR = /^text-(left|center|right|justify|start|end|auto)$/;
+
 const TEXT_GROUPS = [
   {
     fallback: 'text-foreground',
-    pattern:
-      /^text-(foreground|primary|primary-foreground|secondary|secondary-foreground|muted-foreground|accent-foreground|popover-foreground|card-foreground|destructive|white|black|transparent)(\/\d+)?$/,
+    pattern: {
+      test: (token: string) =>
+        /^text-([a-z][a-z0-9-]*(\/\d+)?|\[#[0-9a-fA-F]+\])$/.test(token) &&
+        !TEXT_SIZE.test(token) &&
+        !TEXT_NON_COLOR.test(token),
+    },
   },
-  { fallback: 'text-base', pattern: /^text-(xs|sm|base|lg|xl|[2-9]xl)$/ },
+  { fallback: 'text-base', pattern: TEXT_SIZE },
   { fallback: 'font-figtree-regular', pattern: /^font-(figtree-[a-z]+|mono)$/ },
 ] as const;
 
