@@ -13,6 +13,12 @@ export interface CategoryList {
 export const CATEGORY_PATHS = {
   list: "/categories",
   getOrCreate: "/categories/get-or-create",
+  detail: (id: string) => `/categories/${id}`,
 } as const;
+
+export interface UpdateCategoryInput {
+  id: string;
+  name: string;
+}
 
 export const CATEGORY_LIST_LIMIT = 100;
