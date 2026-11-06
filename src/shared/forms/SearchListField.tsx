@@ -1,3 +1,4 @@
+import { fieldPlaceholderClass, fieldSurfaceClass } from "@/shared/components/ui/field-classes";
 import { Icon } from "@/shared/components/ui/Icon";
 import { Text } from "@/shared/components/ui/text";
 import { messages } from "@/shared/i18n";
@@ -54,7 +55,8 @@ export function SearchListField<T>({
     ? sorted.filter((item) => filterItem(item, normalizedQuery))
     : sorted;
 
-  const borderClass = hasError ? "border-destructive" : open ? "border-ring" : "border-foreground/25";
+  const surfaceClass = fieldSurfaceClass(hasError, open);
+  const mutedClass = fieldPlaceholderClass(hasError, open);
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
@@ -72,9 +74,7 @@ export function SearchListField<T>({
 
   return (
     <>
-      <View
-        className={`h-12 w-full flex-row items-center rounded-lg border bg-field pl-4 ${borderClass}`}
-      >
+      <View className={`h-12 w-full flex-row items-center rounded-lg border pl-4 ${surfaceClass}`}>
         <Pressable
           role="button"
           accessibilityLabel={placeholder}
@@ -86,8 +86,8 @@ export function SearchListField<T>({
             <View className="min-w-0 flex-1">{renderSelected(selected)}</View>
           ) : (
             <>
-              <Icon as={IconSearch} size={18} className="text-muted-foreground" />
-              <Text numberOfLines={1} className="flex-1 text-muted-foreground">
+              <Icon as={IconSearch} size={18} className={mutedClass} />
+              <Text numberOfLines={1} className={`flex-1 ${mutedClass}`}>
                 {placeholder}
               </Text>
             </>
@@ -100,7 +100,7 @@ export function SearchListField<T>({
             onPress={() => onChange("")}
             className="size-11 items-center justify-center"
           >
-            <Icon as={IconX} size={16} className="text-muted-foreground" />
+            <Icon as={IconX} size={16} className={mutedClass} />
           </Pressable>
         ) : null}
         <Pressable
@@ -109,7 +109,7 @@ export function SearchListField<T>({
           onPress={() => setOpen(true)}
           className={`h-full items-center justify-center pr-3 ${selected ? "" : "pl-2"}`}
         >
-          <Icon as={IconChevronDown} size={18} className="text-muted-foreground" />
+          <Icon as={IconChevronDown} size={18} className={mutedClass} />
         </Pressable>
       </View>
 

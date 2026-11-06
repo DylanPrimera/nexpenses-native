@@ -1,3 +1,8 @@
+import {
+  fieldIconClass,
+  fieldInputClass,
+  fieldSurfaceClass,
+} from "@/shared/components/ui/field-classes";
 import { useEffect, useRef, useState } from "react";
 import { Text, TextInput, View } from "react-native";
 import {
@@ -45,11 +50,7 @@ export function CurrencyInput({
         className="absolute bottom-0 left-3 top-0 z-10 justify-center"
         aria-hidden
       >
-        <Text
-          className={`font-figtree-semibold text-lg ${hasError ? "text-destructive" : "text-primary"}`}
-        >
-          $
-        </Text>
+        <Text className={`font-figtree-semibold text-lg ${fieldIconClass(hasError, true)}`}>$</Text>
       </View>
       <TextInput
         value={displayValue}
@@ -74,7 +75,7 @@ export function CurrencyInput({
         }}
         editable={editable}
         aria-invalid={hasError}
-        className={`h-12 w-full rounded-lg border bg-field py-2 pl-8 pr-4 font-figtree-regular text-base text-foreground placeholder:text-muted-foreground ${hasError ? "border-destructive" : focused ? "border-ring" : "border-foreground/25"} ${editable === false ? "opacity-50" : ""} ${className ?? ""}`}
+        className={`h-12 w-full rounded-lg border py-2 pl-8 pr-4 font-figtree-regular text-base ${fieldInputClass(hasError, focused)} ${fieldSurfaceClass(hasError, focused)} ${editable === false ? "opacity-50" : ""} ${className ?? ""}`}
         {...props}
       />
     </View>

@@ -1,3 +1,9 @@
+import {
+  fieldIconClass,
+  fieldPlaceholderClass,
+  fieldSurfaceClass,
+  fieldTextClass,
+} from "@/shared/components/ui/field-classes";
 import { Calendar } from "@/shared/components/ui/Calendar";
 import { formatPickedDate } from "@/shared/components/ui/calendar-grid";
 import { Icon } from "@/shared/components/ui/Icon";
@@ -29,7 +35,10 @@ export function DatePickerField({
 }: DatePickerFieldProps) {
   const [open, setOpen] = useState(false);
   const hasValue = value.trim().length > 0;
-  const borderClass = hasError ? "border-destructive" : open ? "border-ring" : "border-foreground/25";
+  const surfaceClass = fieldSurfaceClass(hasError, open);
+  const valueClass = hasValue
+    ? fieldTextClass(hasError)
+    : fieldPlaceholderClass(hasError, open);
 
   return (
     <>
@@ -39,14 +48,10 @@ export function DatePickerField({
         aria-invalid={hasError}
         disabled={disabled}
         onPress={() => setOpen(true)}
-        className={`h-12 w-full flex-row items-center gap-3 rounded-lg border bg-field px-4 ${borderClass} ${disabled ? "opacity-50" : ""}`}
+        className={`h-12 w-full flex-row items-center gap-3 rounded-lg border px-4 ${surfaceClass} ${disabled ? "opacity-50" : ""}`}
       >
-        <Icon
-          as={IconCalendar}
-          size={20}
-          className={hasError ? "text-destructive" : "text-muted-foreground"}
-        />
-        <Text numberOfLines={1} className={`flex-1 ${hasValue ? "text-foreground" : "text-muted-foreground"}`}>
+        <Icon as={IconCalendar} size={20} className={fieldIconClass(hasError, open)} />
+        <Text numberOfLines={1} className={`flex-1 ${valueClass}`}>
           {hasValue ? formatPickedDate(value) : placeholder}
         </Text>
       </Pressable>

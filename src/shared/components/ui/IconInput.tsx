@@ -1,11 +1,12 @@
+import {
+  fieldIconClass,
+  fieldInputClass,
+  fieldSurfaceClass,
+} from "@/shared/components/ui/field-classes";
 import { Icon } from "@/shared/components/ui/Icon";
 import { useFocusState } from "@/shared/components/ui/use-focus-state";
 import { messages } from "@/shared/i18n";
-import {
-  IconEye,
-  IconEyeOff,
-  type Icon as TablerIconType,
-} from "@tabler/icons-react-native";
+import { IconEye, IconEyeOff, type Icon as TablerIconType } from "@tabler/icons-react-native";
 import { useRef, useState } from "react";
 import { Pressable, TextInput } from "react-native";
 
@@ -33,16 +34,8 @@ function IconInput({
   const innerRef = useRef<TextInputRef | null>(null);
   const focus = useFocusState(onFocus, onBlur);
   const [hidden, setHidden] = useState(true);
-  const iconClass = invalid
-    ? "text-destructive"
-    : focus.focused
-      ? "text-primary"
-      : "text-muted-foreground";
-  const borderClass = invalid
-    ? "border-destructive"
-    : focus.focused
-      ? "border-ring"
-      : "border-foreground/25";
+  const iconClass = fieldIconClass(invalid, focus.focused);
+  const surfaceClass = fieldSurfaceClass(invalid, focus.focused);
 
   const setRefs = (node: TextInputRef | null) => {
     innerRef.current = node;
@@ -54,13 +47,9 @@ function IconInput({
     <Pressable
       accessible={false}
       onPress={() => innerRef.current?.focus()}
-      className={`h-12 w-full flex-row items-center gap-3 rounded-lg border bg-field px-4 ${borderClass} ${editable === false ? "opacity-50" : ""} ${className ?? ""}`}
+      className={`h-12 w-full flex-row items-center gap-3 rounded-lg border px-4 ${surfaceClass} ${editable === false ? "opacity-50" : ""} ${className ?? ""}`}
     >
-      <Icon
-        as={icon}
-        size={20}
-        className={iconClass}
-      />
+      <Icon as={icon} size={20} className={iconClass} />
       <TextInput
         ref={setRefs}
         editable={editable}
@@ -68,13 +57,15 @@ function IconInput({
         aria-invalid={invalid}
         onFocus={focus.onFocus}
         onBlur={focus.onBlur}
-        className="h-full flex-1 py-0 font-figtree-regular text-base text-foreground placeholder:text-muted-foreground"
+        className={`h-full flex-1 py-0 font-figtree-regular text-base ${fieldInputClass(invalid, focus.focused)}`}
         {...props}
       />
       {secureToggle ? (
         <Pressable
           role="button"
-          accessibilityLabel={hidden ? messages.Common.show_password : messages.Common.hide_password}
+          accessibilityLabel={
+            hidden ? messages.Common.show_password : messages.Common.hide_password
+          }
           accessibilityState={{ checked: !hidden }}
           disabled={editable === false}
           onPress={() => setHidden((v) => !v)}

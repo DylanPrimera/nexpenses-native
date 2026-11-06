@@ -1,9 +1,14 @@
+import {
+  fieldPlaceholderClass,
+  fieldSurfaceClass,
+  fieldTextClass,
+} from "@/shared/components/ui/field-classes";
 import { useFocusState } from "@/shared/components/ui/use-focus-state";
 import { TextInput } from "react-native";
 
 type TextareaProps = React.ComponentProps<typeof TextInput> & {
-    invalid?: boolean;
-  };
+  invalid?: boolean;
+};
 
 function Textarea({
   className,
@@ -16,15 +21,11 @@ function Textarea({
   ...props
 }: TextareaProps) {
   const focus = useFocusState(onFocus, onBlur);
-  const borderClass = invalid
-    ? "border-destructive"
-    : focus.focused
-      ? "border-ring"
-      : "border-foreground/25";
+  const surfaceClass = fieldSurfaceClass(invalid, focus.focused);
   return (
     <TextInput
-      className={`min-h-24 w-full flex-row rounded-md border bg-field px-3 py-2.5 font-figtree-regular text-base text-foreground ${borderClass} ${props.editable === false ? "opacity-50" : ""} ${className ?? ""}`}
-      placeholderClassName={placeholderClassName ?? "text-muted-foreground"}
+      className={`min-h-24 w-full flex-row rounded-md border px-3 py-2.5 font-figtree-regular text-base ${fieldTextClass(invalid)} ${surfaceClass} ${props.editable === false ? "opacity-50" : ""} ${className ?? ""}`}
+      placeholderClassName={placeholderClassName ?? fieldPlaceholderClass(invalid, focus.focused)}
       aria-invalid={invalid}
       multiline={multiline}
       numberOfLines={numberOfLines}
