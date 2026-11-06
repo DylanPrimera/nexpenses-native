@@ -3,6 +3,7 @@ export * from "./components";
 export * from "./forms";
 export * from "./hooks";
 export * from "./motion";
+export * from "./overlays";
 export * from "./theme";
 export * from "./toast";
 export * from "./utils";

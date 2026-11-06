@@ -2,6 +2,7 @@ import { queryClient, setUnauthorizedHandler } from "@/core";
 import { useAuthStore } from "@/features/auth";
 import { AppColors, AppThemeProvider } from "@/shared";
 import { messages } from "@/shared/i18n";
+import { OverlayBlurProvider, OverlayBlurTarget } from "@/shared/overlays";
 import { AppToaster, showToast } from "@/shared/toast";
 import {
   Figtree_300Light,
@@ -11,6 +12,7 @@ import {
   Figtree_700Bold,
   useFonts,
 } from "@expo-google-fonts/figtree";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PortalHost } from "@rn-primitives/portal";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
@@ -71,7 +73,13 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <AppThemeProvider>
             <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: background } }} />
+            <OverlayBlurProvider>
+              <BottomSheetModalProvider>
+                <OverlayBlurTarget>
+                  <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: background } }} />
+                </OverlayBlurTarget>
+              </BottomSheetModalProvider>
+            </OverlayBlurProvider>
             <AppToaster />
             <PortalHost />
           </AppThemeProvider>

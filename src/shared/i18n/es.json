@@ -466,7 +466,14 @@
 		"delete": "Eliminar",
 		"delete_description": "¿Estás seguro? Esta acción no se puede deshacer.",
 		"permanent_action": "Acción permanente",
-		"back": "Volver atrás"
+		"back": "Volver atrás",
+		"search": "Buscar",
+		"clear": "Limpiar",
+		"no_results": "Sin resultados",
+		"empty_list": "No hay elementos",
+		"previous_month": "Mes anterior",
+		"next_month": "Mes siguiente",
+		"select_date": "Elige una fecha"
 	},
 	"WhatsNew": {
 		"items": {
