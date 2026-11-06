@@ -17,14 +17,13 @@ import {
 
 const THEME_STORAGE_KEY = "currentTheme";
 
-type ThemePreference = "light" | "dark" | "system";
+export type ThemePreference = "light" | "dark" | "system";
 
 interface ThemeContextValue {
   preference: ThemePreference;
   resolvedScheme: "light" | "dark";
   colors: ThemePalette;
-  setDarkMode: (value: boolean) => void;
-  setSystemTheme: (enabled: boolean) => void;
+  setThemePreference: (value: ThemePreference) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -63,9 +62,8 @@ export const AppThemeProvider = ({ children }: PropsWithChildren) => {
     });
   }, [setColorScheme]);
 
-  const setDarkMode = useCallback(
-    (value: boolean) => {
-      const next: ThemePreference = value ? "dark" : "light";
+  const setThemePreference = useCallback(
+    (next: ThemePreference) => {
       setPreference(next);
       setColorScheme(next);
       void persist(next);
@@ -73,31 +71,14 @@ export const AppThemeProvider = ({ children }: PropsWithChildren) => {
     [persist, setColorScheme],
   );
 
-  const setSystemTheme = useCallback(
-    (enabled: boolean) => {
-      if (enabled) {
-        setPreference("system");
-        setColorScheme("system");
-        void persist("system");
-        return;
-      }
-      const next: ThemePreference = colorScheme === "dark" ? "dark" : "light";
-      setPreference(next);
-      setColorScheme(next);
-      void persist(next);
-    },
-    [colorScheme, persist, setColorScheme],
-  );
-
   const value = useMemo(
     () => ({
       preference,
       resolvedScheme,
       colors,
-      setDarkMode,
-      setSystemTheme,
+      setThemePreference,
     }),
-    [preference, resolvedScheme, colors, setDarkMode, setSystemTheme],
+    [preference, resolvedScheme, colors, setThemePreference],
   );
 
   return (
