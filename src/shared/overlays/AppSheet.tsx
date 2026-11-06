@@ -100,7 +100,6 @@ export function AppSheet({
       footerComponent={footer ? renderFooter : undefined}
       keyboardBehavior="interactive"
       keyboardBlurBehavior="restore"
-      android_keyboardInputMode="adjustResize"
     >
       <BottomSheetScrollView
         keyboardShouldPersistTaps="handled"

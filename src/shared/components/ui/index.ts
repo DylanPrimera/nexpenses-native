@@ -2,6 +2,7 @@ export { FullScreenLoader } from "./FullScreenLoader";
 export { BackButton } from "./BackButton";
 export { Calendar, type CalendarProps } from "./Calendar";
 export { EmptyState, type EmptyStateProps } from "./EmptyState";
+export { KeyboardScrollView, type KeyboardScrollViewProps } from "./KeyboardScrollView";
 export { Button, buttonTextVariants, buttonVariants, type ButtonProps } from "./button";
 export {
   Field,

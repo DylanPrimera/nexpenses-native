@@ -11,6 +11,7 @@ import {
   FieldLabel,
   Icon,
   Input,
+  KeyboardScrollView,
   Label,
   SearchListField,
   playErrorSound,
@@ -34,7 +35,7 @@ import { formatCOPCurrency } from "@/core/utils/currency";
 import { IconCheck, IconPlus, IconTrash } from "@tabler/icons-react-native";
 import { Redirect, Stack } from "expo-router";
 import { useState } from "react";
-import { ScrollView, View } from "react-native";
+import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const DEMO_CATEGORIES = [
@@ -62,11 +63,10 @@ export default function UiKitScreen() {
   return (
     <>
       <Stack.Screen options={{ title: "UI kit" }} />
-      <ScrollView
+      <KeyboardScrollView
         className="flex-1 bg-background"
         contentContainerClassName="gap-6 px-4 pt-4"
         contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
-        keyboardShouldPersistTaps="handled"
       >
         <Text variant="h4">Botones</Text>
         <View className="flex-row flex-wrap gap-2">
@@ -248,7 +248,7 @@ export default function UiKitScreen() {
             <Text>error</Text>
           </Button>
         </View>
-      </ScrollView>
+      </KeyboardScrollView>
     </>
   );
 }

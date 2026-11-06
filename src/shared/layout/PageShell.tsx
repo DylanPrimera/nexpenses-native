@@ -1,8 +1,9 @@
 import { Icon } from "@/shared/components/ui/Icon";
+import { KeyboardScrollView } from "@/shared/components/ui/KeyboardScrollView";
 import { Text } from "@/shared/components/ui/text";
 import { messages } from "@/shared/i18n";
 import { IconPigMoney } from "@tabler/icons-react-native";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CONTENT_MAX_WIDTH, NAV_CONTENT_CLEARANCE } from "./layout-metrics";
 
@@ -36,15 +37,14 @@ export function PageShell({ screenLabel, children, headerAction, contentClassNam
           {headerAction}
         </View>
       </View>
-      <ScrollView
+      <KeyboardScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: insets.bottom + NAV_CONTENT_CLEARANCE }}
-        keyboardShouldPersistTaps="handled"
       >
         <View style={styles.centered} className={`px-4 pt-4 ${contentClassName ?? ""}`}>
           {children}
         </View>
-      </ScrollView>
+      </KeyboardScrollView>
     </View>
   );
 }

@@ -22,6 +22,7 @@ import * as SystemUI from "expo-system-ui";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import {
   initialWindowMetrics,
   SafeAreaProvider,
@@ -70,20 +71,22 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-        <QueryClientProvider client={queryClient}>
-          <AppThemeProvider>
-            <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-            <OverlayBlurProvider>
-              <BottomSheetModalProvider>
-                <OverlayBlurTarget>
-                  <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: background } }} />
-                </OverlayBlurTarget>
-              </BottomSheetModalProvider>
-            </OverlayBlurProvider>
-            <AppToaster />
-            <PortalHost />
-          </AppThemeProvider>
-        </QueryClientProvider>
+        <KeyboardProvider>
+          <QueryClientProvider client={queryClient}>
+            <AppThemeProvider>
+              <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+              <OverlayBlurProvider>
+                <BottomSheetModalProvider>
+                  <OverlayBlurTarget>
+                    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: background } }} />
+                  </OverlayBlurTarget>
+                </BottomSheetModalProvider>
+              </OverlayBlurProvider>
+              <AppToaster />
+              <PortalHost />
+            </AppThemeProvider>
+          </QueryClientProvider>
+        </KeyboardProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
