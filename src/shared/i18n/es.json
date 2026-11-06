@@ -498,6 +498,7 @@
 	},
 	"Auth": {
 		"login_title": "Iniciar sesión",
+		"session_expired": "Tu sesión expiró. Inicia sesión de nuevo.",
 		"register_title": "Crear cuenta",
 		"migrate_title": "Necesitas una cuenta",
 		"migrate_body": "Estoy haciendo cambios para que Nexpenses sea más cómoda de usar, y uno importante es que tus datos gastos, deudas y presupuesto queden ligados a una cuenta que tú creas. Si ya venías usando la app en este dispositivo, al registrarte con correo o entrar con Google conservas lo que tenías. Continuar con Google es rápido y fiable: Google solo nos comparte tu nombre y tu correo; Nexpenses nunca ve tu contraseña de Google ni puede entrar al resto de tu cuenta.",

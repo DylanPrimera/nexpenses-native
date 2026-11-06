@@ -1,3 +1,4 @@
+import { playPressSound } from "@/shared/audio/ui-sound";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { StyleProp, TouchableOpacity, ViewStyle } from "react-native";
 
@@ -12,7 +13,10 @@ interface FABProps {
 export const FAB = ({ style, iconName, onPress }: FABProps) => {
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={() => {
+        playPressSound();
+        onPress();
+      }}
       style={[
         {
           position: "absolute",
