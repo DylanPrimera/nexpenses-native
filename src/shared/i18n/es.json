@@ -478,7 +478,11 @@
 		"coming_soon_debts": "Pronto podrás gestionar tus tarjetas y créditos desde la app.",
 		"in_progress_title": "En construcción",
 		"in_progress_description": "Esta sección llega en una próxima actualización.",
-		"add_expense_soon": "El formulario para registrar gastos llega en la siguiente fase."
+		"add_expense_soon": "El formulario para registrar gastos llega en la siguiente fase.",
+		"error_generic": "Algo salió mal. Intenta de nuevo.",
+		"load_error_title": "No pudimos cargar tus datos",
+		"load_error_description": "Revisa tu conexión y vuelve a intentarlo.",
+		"retry": "Reintentar"
 	},
 	"WhatsNew": {
 		"items": {

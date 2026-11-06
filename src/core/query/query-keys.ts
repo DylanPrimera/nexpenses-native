@@ -7,9 +7,14 @@ export const queryKeys = {
     profile: ["user", "profile"] as const,
   },
   summary: {
-    cycle: (cycleKey: string) => ["summary", cycleKey] as const,
+    all: ["summary"] as const,
+    cycle: ["summary", "cycle"] as const,
   },
   expenses: {
-    cycle: (cycleKey: string) => ["expenses", "cycle", cycleKey] as const,
+    all: ["expenses"] as const,
+    cycle: (cycleStartedAt: string) => ["expenses", "cycle", cycleStartedAt] as const,
+  },
+  categories: {
+    all: ["categories"] as const,
   },
 };
