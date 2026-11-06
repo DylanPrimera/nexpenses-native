@@ -1,43 +1,42 @@
-import { useAppTheme } from "@/shared";
-import { Icon } from "@/shared/components/ui/Icon";
-import { IconHome, IconUser } from "@tabler/icons-react-native";
-import { Tabs } from "expo-router";
+import { AddExpenseSheet } from "@/features/expenses";
+import { DURATION_FAST_MS, EASE_OUT_BEZIER } from "@/shared/motion";
+import { BottomNav } from "@/shared/navigation";
+import { useAppTheme } from "@/shared/theme";
+import { Tabs } from "expo-router/js-tabs";
+import { useState } from "react";
+import { Easing } from "react-native";
+import { useReducedMotion } from "react-native-reanimated";
+
+const FADE_SPEC = {
+  animation: "timing",
+  config: { duration: DURATION_FAST_MS, easing: Easing.bezier(...EASE_OUT_BEZIER) },
+} as const;
 
 export default function TabsLayout() {
+  const reduced = useReducedMotion();
   const { colors } = useAppTheme();
+  const [addOpen, setAddOpen] = useState(false);
 
   return (
-    <Tabs
-      screenOptions={{
-        headerShadowVisible: false,
-        headerStyle: { backgroundColor: colors.background },
-        headerTintColor: colors.text,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.muted,
-        tabBarStyle: {
-          backgroundColor: colors.card,
-          borderTopColor: colors.border,
-        },
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Inicio",
-          tabBarIcon: ({ color, size }) => (
-            <Icon as={IconHome} size={size} color={String(color)} />
-          ),
+    <>
+      <Tabs
+        backBehavior="firstRoute"
+        tabBar={(props) => <BottomNav {...props} onAddPress={() => setAddOpen(true)} />}
+        screenOptions={{
+          headerShown: false,
+          animation: reduced ? "none" : "fade",
+          transitionSpec: FADE_SPEC,
+          sceneStyle: { backgroundColor: colors.background },
         }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Perfil",
-          tabBarIcon: ({ color, size }) => (
-            <Icon as={IconUser} size={size} color={String(color)} />
-          ),
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen name="index" />
+        <Tabs.Screen name="history" />
+        <Tabs.Screen name="recurring" />
+        <Tabs.Screen name="categories" />
+        <Tabs.Screen name="debts" />
+        <Tabs.Screen name="settings" />
+      </Tabs>
+      <AddExpenseSheet isOpen={addOpen} onChange={setAddOpen} />
+    </>
   );
 }

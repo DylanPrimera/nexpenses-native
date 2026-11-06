@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Nexpenses tokens (hex→HSL) from Next app/globals.css — RNR/NativeWind TW3 ready */
 @layer base {
   :root {
   --stitch-primary: 160 82% 62%;
@@ -31,6 +30,7 @@
   --ring: 160 84% 32%;
     --radius: 0.375rem;
     --nav-pill-bg: 140 16% 96%;
+    --nav-active-bg: 157.5 33.3% 85.9%;
   }
 
   .dark:root {
@@ -60,5 +60,6 @@
   --ring: 160 82% 62%;
     --radius: 0.375rem;
     --nav-pill-bg: 197 11% 12%;
+    --nav-active-bg: 165.5 31.4% 20.6%;
   }
 }

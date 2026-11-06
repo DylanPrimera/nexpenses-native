@@ -1,19 +1,13 @@
-import { formatCOPCurrency } from "@/core/utils/currency";
-import { Icon, ThemedText, ThemedView } from "@/shared";
-import { IconPigMoney } from "@tabler/icons-react-native";
-import { useAppTheme } from "@/shared/theme";
+import { AccountDrawer } from "@/features/auth";
+import { EmptyState } from "@/shared";
+import { messages } from "@/shared/i18n";
+import { PageShell } from "@/shared/layout";
+import { IconHome } from "@tabler/icons-react-native";
 
-export default function HomeScreen() {
-  const { colors, resolvedScheme } = useAppTheme();
-
+export default function DashboardScreen() {
   return (
-    <ThemedView className="flex-1 items-center justify-center gap-4 px-6">
-      <Icon as={IconPigMoney} size={48} color={colors.primary} />
-      <ThemedText className="font-figtree-semibold text-2xl">Nexpenses</ThemedText>
-      <ThemedText className="text-center text-light-muted dark:text-dark-muted">
-        Fase 0 — fundaciones. Tema {resolvedScheme}. Ejemplo COP:{" "}
-        {formatCOPCurrency(20000)}
-      </ThemedText>
-    </ThemedView>
+    <PageShell screenLabel={messages.Nav.dashboard} headerAction={<AccountDrawer />}>
+      <EmptyState icon={IconHome} title={messages.Common.in_progress_title} description={messages.Common.in_progress_description} />
+    </PageShell>
   );
 }

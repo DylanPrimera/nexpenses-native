@@ -473,7 +473,12 @@
 		"empty_list": "No hay elementos",
 		"previous_month": "Mes anterior",
 		"next_month": "Mes siguiente",
-		"select_date": "Elige una fecha"
+		"select_date": "Elige una fecha",
+		"coming_soon": "Próximamente",
+		"coming_soon_debts": "Pronto podrás gestionar tus tarjetas y créditos desde la app.",
+		"in_progress_title": "En construcción",
+		"in_progress_description": "Esta sección llega en una próxima actualización.",
+		"add_expense_soon": "El formulario para registrar gastos llega en la siguiente fase."
 	},
 	"WhatsNew": {
 		"items": {
