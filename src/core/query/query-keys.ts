@@ -17,4 +17,13 @@ export const queryKeys = {
   categories: {
     all: ["categories"] as const,
   },
+  history: {
+    all: ["history"] as const,
+    list: (
+      { year, month }: { year: number; month: number },
+      { categoryId, paymentType, search }: { categoryId: string; paymentType: string; search: string },
+    ) => ["history", "list", year, month, categoryId, paymentType, search.trim()] as const,
+    month: ({ year, month }: { year: number; month: number }) => ["history", "month", year, month] as const,
+    count: ({ year, month }: { year: number; month: number }) => ["history", "count", year, month] as const,
+  },
 };

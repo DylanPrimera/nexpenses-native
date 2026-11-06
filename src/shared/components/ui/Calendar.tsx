@@ -34,6 +34,11 @@ type CalendarProps = {
   minDate?: string;
   maxDate?: string;
   className?: string;
+  month?: string;
+  onMonthChange?: (month: string) => void;
+  markedDays?: ReadonlySet<string>;
+  showHeader?: boolean;
+  showOutsideDays?: boolean;
 };
 
 const WEEKDAYS = weekdayLabels();
@@ -58,17 +63,26 @@ function dayTextClass(selected: boolean, outside: boolean) {
   return "text-foreground";
 }
 
+function dayDotClass(selected: boolean, marked: boolean) {
+  if (!marked) return "bg-transparent";
+  return selected ? "bg-primary-foreground" : "bg-primary";
+}
+
 function CalendarCell({
   day,
   selected,
   today,
   disabled,
+  marked,
+  showDots,
   onPress,
 }: {
   day: CalendarDay;
   selected: boolean;
   today: boolean;
   disabled: boolean;
+  marked: boolean;
+  showDots: boolean;
   onPress: () => void;
 }) {
   return (
@@ -84,24 +98,45 @@ function CalendarCell({
         className={`flex-1 items-center justify-center rounded-full ${dayCircleClass(selected, today)}`}
       >
         <Text className={`text-sm ${dayTextClass(selected, day.outside)}`}>{day.day}</Text>
+        {showDots ? <View className={`mt-0.5 size-1 rounded-full ${dayDotClass(selected, marked)}`} /> : null}
       </View>
     </Pressable>
   );
 }
 
-export function Calendar({ value, onChange, minDate, maxDate, className }: CalendarProps) {
-  const [month, setMonth] = useState(() => monthKey(value));
+export function Calendar({
+  value,
+  onChange,
+  minDate,
+  maxDate,
+  className,
+  month: controlledMonth,
+  onMonthChange,
+  markedDays,
+  showHeader = true,
+  showOutsideDays = true,
+}: CalendarProps) {
+  const [innerMonth, setInnerMonth] = useState(() => monthKey(value));
+  const month = controlledMonth ?? innerMonth;
+  const [shownMonth, setShownMonth] = useState(month);
   const [direction, setDirection] = useState(1);
+  if (shownMonth !== month) {
+    setDirection(month > shownMonth ? 1 : -1);
+    setShownMonth(month);
+  }
   const reduced = useReducedMotion();
   const dragX = useSharedValue(0);
   const days = buildMonthGrid(month);
   const today = todayKey();
   const selectedKey = value?.slice(0, 10);
-  const weeks = Array.from({ length: 6 }, (_, week) => days.slice(week * 7, week * 7 + 7));
+  const weeks = Array.from({ length: 6 }, (_, week) => days.slice(week * 7, week * 7 + 7)).filter(
+    (week) => showOutsideDays || week.some((day) => !day.outside),
+  );
 
   const goToMonth = (step: number) => {
-    setDirection(step);
-    setMonth((current) => shiftMonth(current, step));
+    const next = shiftMonth(month, step);
+    if (controlledMonth === undefined) setInnerMonth(next);
+    onMonthChange?.(next);
   };
 
   const swipe = Gesture.Pan()
@@ -124,25 +159,27 @@ export function Calendar({ value, onChange, minDate, maxDate, className }: Calen
 
   return (
     <View className={`w-full gap-3 ${className ?? ""}`}>
-      <View className="h-9 flex-row items-center justify-between">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          accessibilityLabel={messages.Common.previous_month}
-          onPress={() => goToMonth(-1)}
-        >
-          <Icon as={IconChevronLeft} size={18} />
-        </Button>
-        <Text className="font-figtree-medium text-sm capitalize">{monthCaption(month)}</Text>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          accessibilityLabel={messages.Common.next_month}
-          onPress={() => goToMonth(1)}
-        >
-          <Icon as={IconChevronRight} size={18} />
-        </Button>
-      </View>
+      {showHeader ? (
+        <View className="h-9 flex-row items-center justify-between">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            accessibilityLabel={messages.Common.previous_month}
+            onPress={() => goToMonth(-1)}
+          >
+            <Icon as={IconChevronLeft} size={18} />
+          </Button>
+          <Text className="font-figtree-medium text-sm capitalize">{monthCaption(month)}</Text>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            accessibilityLabel={messages.Common.next_month}
+            onPress={() => goToMonth(1)}
+          >
+            <Icon as={IconChevronRight} size={18} />
+          </Button>
+        </View>
+      ) : null}
 
       <View className="flex-row">
         {WEEKDAYS.map((label) => (
@@ -157,16 +194,22 @@ export function Calendar({ value, onChange, minDate, maxDate, className }: Calen
           <Animated.View key={month} entering={monthEntering(direction)}>
             {weeks.map((week) => (
               <View key={week[0].key} className="flex-row">
-                {week.map((day) => (
-                  <CalendarCell
-                    key={day.key}
-                    day={day}
-                    selected={day.key === selectedKey}
-                    today={day.key === today}
-                    disabled={isDayDisabled(day.key, minDate, maxDate)}
-                    onPress={() => onChange(day.key)}
-                  />
-                ))}
+                {week.map((day) =>
+                  day.outside && !showOutsideDays ? (
+                    <View key={day.key} className="aspect-square flex-1" />
+                  ) : (
+                    <CalendarCell
+                      key={day.key}
+                      day={day}
+                      selected={day.key === selectedKey}
+                      today={day.key === today}
+                      disabled={isDayDisabled(day.key, minDate, maxDate)}
+                      marked={markedDays?.has(day.key) ?? false}
+                      showDots={markedDays !== undefined}
+                      onPress={() => onChange(day.key)}
+                    />
+                  ),
+                )}
               </View>
             ))}
           </Animated.View>
