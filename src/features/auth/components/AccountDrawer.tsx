@@ -56,7 +56,7 @@ export function AccountDrawer() {
           </Text>
         </View>
         <Button
-          variant="outline"
+          variant="secondary"
           size="lg"
           className="mt-auto w-full"
           onPress={() => {
