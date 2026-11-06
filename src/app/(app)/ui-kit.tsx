@@ -1,5 +1,9 @@
+import { AccountDrawer } from "@/features/auth";
 import {
+  AppSheet,
   Button,
+  ConfirmDialog,
+  DatePickerField,
   CurrencyInput,
   Field,
   FieldDescription,
@@ -8,6 +12,7 @@ import {
   Icon,
   Input,
   Label,
+  SearchListField,
   playErrorSound,
   playModalClose,
   playModalOpen,
@@ -26,17 +31,29 @@ import {
   Textarea,
 } from "@/shared";
 import { formatCOPCurrency } from "@/core/utils/currency";
-import { IconPlus, IconTrash } from "@tabler/icons-react-native";
+import { IconCheck, IconPlus, IconTrash } from "@tabler/icons-react-native";
 import { Redirect, Stack } from "expo-router";
 import { useState } from "react";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const DEMO_CATEGORIES = [
+  { id: "food", name: "Comida" },
+  { id: "transport", name: "Transporte" },
+  { id: "home", name: "Hogar" },
+  { id: "health", name: "Salud" },
+  { id: "fun", name: "Ocio" },
+];
 
 export default function UiKitScreen() {
   const insets = useSafeAreaInsets();
   const [amount, setAmount] = useState(0);
   const [email, setEmail] = useState("");
   const [enabled, setEnabled] = useState(true);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [date, setDate] = useState("");
+  const [categoryId, setCategoryId] = useState("");
 
   if (!__DEV__) return <Redirect href="/" />;
 
@@ -142,6 +159,63 @@ export default function UiKitScreen() {
             <Skeleton className="h-3 w-28 rounded-md" />
           </View>
         </View>
+
+        <Separator />
+
+        <Text variant="h4">Overlays</Text>
+        <View className="flex-row flex-wrap items-center gap-2">
+          <Button variant="outline" onPress={() => setSheetOpen(true)}>
+            <Text>Abrir sheet</Text>
+          </Button>
+          <Button variant="destructive" onPress={() => setConfirmOpen(true)}>
+            <Icon as={IconTrash} size={16} />
+            <Text>Confirmar borrado</Text>
+          </Button>
+          <AccountDrawer />
+        </View>
+        <DatePickerField value={date} onChange={setDate} />
+        <SearchListField
+          value={categoryId}
+          onChange={setCategoryId}
+          items={DEMO_CATEGORIES}
+          getItemId={(item) => item.id}
+          filterItem={(item, q) => item.name.toLowerCase().includes(q)}
+          renderSelected={(item) => <Text numberOfLines={1}>{item.name}</Text>}
+          renderOption={(item, selected) => (
+            <Text className={`text-sm ${selected ? "font-figtree-semibold" : ""}`}>{item.name}</Text>
+          )}
+          placeholder="Elige una categoría"
+        />
+        <AppSheet
+          isOpen={sheetOpen}
+          onChange={setSheetOpen}
+          header={<Text className="font-figtree-semibold text-lg tracking-tight">Nuevo gasto</Text>}
+          footer={
+            <View className="flex-row gap-2">
+              <Button variant="secondary" size="lg" className="flex-1" onPress={() => setSheetOpen(false)}>
+                <Text>Cancelar</Text>
+              </Button>
+              <Button size="lg" className="flex-1" onPress={() => setSheetOpen(false)}>
+                <Icon as={IconCheck} size={18} />
+                <Text className="font-figtree-semibold">Guardar</Text>
+              </Button>
+            </View>
+          }
+        >
+          <View className="gap-3">
+            <CurrencyInput value={amount} onChange={setAmount} />
+            <Text variant="muted">Contenido de ejemplo con estilo GlobalModal.</Text>
+          </View>
+        </AppSheet>
+        <ConfirmDialog
+          isOpen={confirmOpen}
+          title="¿Eliminar gasto?"
+          description="Se eliminará este gasto de tu historial."
+          confirmLabel="Eliminar"
+          preview={{ title: "Almuerzo", amount: formatCOPCurrency(25000) }}
+          onConfirm={() => showToast("success", "Gasto eliminado")}
+          onClose={() => setConfirmOpen(false)}
+        />
 
         <Separator />
 
