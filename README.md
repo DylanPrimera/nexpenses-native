@@ -1,37 +1,12 @@
-# nexpenses-native
+# Nexpenses
 
-App nativa **Nexpenses** (Expo SDK 58). Fuente de diseño/comportamiento: Next.js `nexpenses`. Solo **iOS y Android** (`com.nexpenses.rn`; no usar `…native` — `native` es palabra reservada en Java/Android). Scheme: `nexpenses`.
+> Monthly budget and expense tracking in COP — Expo / React Native app for iOS and Android, powered by the Nest API.
 
-## Fase 0 (fundaciones)
-
-- Tokens HSL en `src/global.css` + hex en `src/shared/theme/colors.ts`
-- Axios + unwrap envelope Nest + hook 401 (`setUnauthorizedHandler`)
-- Utils COP / budget-cycle / dates + Zod schemas + tests jest-expo
-- Tabler icons + Figtree; splash/status `#eef2f0` / `#0f1416`
-- `PRODUCT.md` + `DESIGN.md`
-
-## Arranque
-
-```bash
-cp .env.example .env   # completa URLs (no commitear .env)
-pnpm install
-pnpm typecheck
-pnpm lint
-pnpm test
-pnpm android           # o pnpm ios — no dejes el proceso colgado en CI/agente
-```
-
-## Env
-
-```
-EXPO_PUBLIC_STAGE=dev
-EXPO_PUBLIC_API_URL=          # prod
-EXPO_PUBLIC_API_URL_IOS=
-EXPO_PUBLIC_API_URL_ANDROID=
-```
-
-## Scripts
-
-`pnpm start` · `pnpm android` · `pnpm ios` · `pnpm lint` · `pnpm typecheck` · `pnpm test`
-
-Sin script `web`. Sin `expo prebuild` desde el flujo habitual; APK en Android Studio.
+[![Expo](https://img.shields.io/badge/Expo_SDK-58-000020?style=flat-square&logo=expo&logoColor=white)](https://expo.dev/)
+[![React Native](https://img.shields.io/badge/React_Native-0.88-61DAFB?style=flat-square&logo=react&logoColor=white)](https://reactnative.dev/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![NativeWind](https://img.shields.io/badge/NativeWind-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://www.nativewind.dev/)
+[![TanStack Query](https://img.shields.io/badge/TanStack_Query-5-FF4154?style=flat-square&logo=reactquery&logoColor=white)](https://tanstack.com/query)
+[![Zustand](https://img.shields.io/badge/Zustand-5-443E38?style=flat-square)](https://zustand.docs.pmnd.rs/)
+[![pnpm](https://img.shields.io/badge/pnpm-10-F69220?style=flat-square&logo=pnpm&logoColor=white)](https://pnpm.io/)
