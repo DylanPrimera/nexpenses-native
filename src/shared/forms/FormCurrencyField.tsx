@@ -25,8 +25,8 @@ export function FormCurrencyField({
   ...inputProps
 }: FormCurrencyFieldProps) {
   const [field, meta] = useField<number>(name);
-  const { setFieldValue, setFieldTouched } = useFormikContext();
-  const error = visibleFieldError(meta);
+  const { setFieldValue, setFieldTouched, submitCount } = useFormikContext();
+  const error = visibleFieldError(meta, { empty: !field.value, submitted: submitCount > 0 });
 
   return (
     <Field invalid={!!error} className={containerClassName ?? "gap-2"}>

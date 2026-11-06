@@ -27,6 +27,7 @@ import {
   initialWindowMetrics,
   SafeAreaProvider,
 } from "react-native-safe-area-context";
+import "@/core/validations/zod-locale";
 import "../global.css";
 
 SplashScreen.preventAutoHideAsync();

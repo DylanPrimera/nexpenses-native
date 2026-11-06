@@ -37,7 +37,7 @@ export const registerSchema = z
       .max(80, "Máximo 80 caracteres"),
     email: emailSchema,
     password: passwordRegisterSchema,
-    confirmPassword: z.string().min(1, "Requerido"),
+    confirmPassword: z.string().min(1, "Confirma tu contraseña"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Las contraseñas no coinciden",

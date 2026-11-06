@@ -20,8 +20,8 @@ export function FormField({
   ...inputProps
 }: FormFieldProps) {
   const [field, meta] = useField<string>(name);
-  const { handleChange, handleBlur } = useFormikContext();
-  const error = visibleFieldError(meta);
+  const { handleChange, handleBlur, submitCount } = useFormikContext();
+  const error = visibleFieldError(meta, { empty: !field.value, submitted: submitCount > 0 });
 
   return (
     <Field invalid={!!error} className={containerClassName ?? "gap-2"}>

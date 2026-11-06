@@ -14,6 +14,7 @@ import {
   Separator,
   Text,
   useAppTheme,
+  zodFormikValidate,
 } from "@/shared";
 import {
   IconArrowRight,
@@ -30,7 +31,6 @@ import { Formik } from "formik";
 import { useRef } from "react";
 import { ActivityIndicator, Pressable, View, type TextInput } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { toFormikValidationSchema } from "zod-formik-adapter";
 
 type TextInputRef = React.ComponentRef<typeof TextInput>;
 type Mode = "login" | "register";
@@ -113,7 +113,7 @@ export function AuthForm({
         {isRegister ? (
           <Formik
             initialValues={registerInitial}
-            validationSchema={toFormikValidationSchema(registerSchema)}
+            validate={zodFormikValidate(registerSchema)}
             validateOnMount
             onSubmit={async (values) => {
               await onSubmitRegister(values);
@@ -197,7 +197,7 @@ export function AuthForm({
         ) : (
           <Formik
             initialValues={loginInitial}
-            validationSchema={toFormikValidationSchema(loginSchema)}
+            validate={zodFormikValidate(loginSchema)}
             validateOnMount
             onSubmit={async (values) => {
               await onSubmitLogin(values);
