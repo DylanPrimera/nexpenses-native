@@ -11,4 +11,4 @@ export { FormCurrencyField, type FormCurrencyFieldProps } from "./FormCurrencyFi
 export { FormField, type FormFieldProps } from "./FormField";
 export { FormFieldLabel } from "./FormFieldLabel";
 export { DatePickerField, type DatePickerFieldProps } from "./DatePickerField";
-export { SearchListField, type SearchListFieldProps } from "./SearchListField";
+export { SearchListField, type SearchListCreateOption, type SearchListFieldProps } from "./SearchListField";

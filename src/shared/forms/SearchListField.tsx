@@ -4,7 +4,7 @@ import { Text } from "@/shared/components/ui/text";
 import { messages } from "@/shared/i18n";
 import { AppSheet } from "@/shared/overlays/AppSheet";
 import { SheetTextInput } from "@/shared/overlays/SheetTextInput";
-import { IconCheck, IconChevronDown, IconSearch, IconX } from "@tabler/icons-react-native";
+import { IconCheck, IconChevronDown, IconPlus, IconSearch, IconX } from "@tabler/icons-react-native";
 import { useMemo, useState } from "react";
 import { Pressable, View } from "react-native";
 
@@ -25,6 +25,13 @@ type SearchListFieldProps<T> = {
   hasError?: boolean;
   onItemSelect?: (item: T) => void;
   listHeader?: React.ReactNode;
+  createOption?: SearchListCreateOption;
+};
+
+type SearchListCreateOption = {
+  label: (query: string) => string;
+  isAvailable: (normalizedQuery: string) => boolean;
+  onCreate: (query: string) => Promise<boolean>;
 };
 
 export function SearchListField<T>({
@@ -44,8 +51,10 @@ export function SearchListField<T>({
   hasError = false,
   onItemSelect,
   listHeader,
+  createOption,
 }: SearchListFieldProps<T>) {
   const [open, setOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [query, setQuery] = useState("");
   const selected = items.find((item) => getItemId(item) === value);
   const normalizedQuery = query.trim().toLowerCase();
@@ -54,6 +63,8 @@ export function SearchListField<T>({
   const filtered = normalizedQuery
     ? sorted.filter((item) => filterItem(item, normalizedQuery))
     : sorted;
+
+  const canCreate = !!createOption && !!normalizedQuery && createOption.isAvailable(normalizedQuery);
 
   const surfaceClass = fieldSurfaceClass(hasError, open);
   const mutedClass = fieldPlaceholderClass(hasError, open);
@@ -70,6 +81,14 @@ export function SearchListField<T>({
       onItemSelect?.(item);
     }
     handleOpenChange(false);
+  };
+
+  const handleCreate = async () => {
+    if (!createOption || creating) return;
+    setCreating(true);
+    const created = await createOption.onCreate(query.trim()).catch(() => false);
+    setCreating(false);
+    if (created) handleOpenChange(false);
   };
 
   return (
@@ -142,6 +161,19 @@ export function SearchListField<T>({
         }
       >
         {listHeader}
+        {canCreate && createOption ? (
+          <Pressable
+            role="button"
+            disabled={creating}
+            onPress={() => void handleCreate()}
+            className={`mb-1 min-h-12 flex-row items-center gap-2 rounded-md px-3 py-2.5 active:bg-muted ${creating ? "opacity-50" : ""}`}
+          >
+            <Icon as={IconPlus} size={16} className="text-primary" />
+            <Text numberOfLines={1} className="flex-1 font-figtree-medium text-sm text-primary">
+              {createOption.label(query.trim())}
+            </Text>
+          </Pressable>
+        ) : null}
         {filtered.length > 0 ? (
           <View className="gap-0.5">
             {filtered.map((item) => {
@@ -161,7 +193,7 @@ export function SearchListField<T>({
               );
             })}
           </View>
-        ) : (
+        ) : canCreate ? null : (
           <Text className="p-4 text-center text-xs text-muted-foreground">
             {normalizedQuery ? noResultsText : emptyListText}
           </Text>
@@ -171,4 +203,4 @@ export function SearchListField<T>({
   );
 }
 
-export type { SearchListFieldProps };
+export type { SearchListCreateOption, SearchListFieldProps };
