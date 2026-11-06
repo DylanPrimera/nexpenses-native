@@ -17,6 +17,9 @@ export const queryKeys = {
   categories: {
     all: ["categories"] as const,
   },
+  recurring: {
+    all: ["recurring"] as const,
+  },
   history: {
     all: ["history"] as const,
     list: (

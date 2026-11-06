@@ -34,17 +34,22 @@ export function expenseFormValues(expense?: Expense | null): ExpenseFormValues {
     title: expense?.title ?? "",
     description: expense?.description ?? "",
     paymentType: expense?.paymentType ?? "debit_card",
+    source: "manual",
+    recurringId: "",
+    saveAsRecurring: false,
   };
 }
 
-export function expenseInput(values: ExpenseFormValues): ExpenseInput {
-  return {
+export function expenseInput(values: ExpenseFormValues, creating = false): ExpenseInput {
+  const input: ExpenseInput = {
     amount: values.amount,
     categoryId: values.categoryId,
     title: values.title.trim(),
     description: values.description.trim(),
     paymentType: values.paymentType,
   };
+  if (creating && values.saveAsRecurring) input.saveAsRecurring = true;
+  return input;
 }
 
 export function availableForExpense(remaining: number, expense?: Expense | null): number {

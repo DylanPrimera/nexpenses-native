@@ -15,6 +15,7 @@ function invalidateExpenseData() {
     queryClient.invalidateQueries({ queryKey: queryKeys.summary.all }),
     queryClient.invalidateQueries({ queryKey: queryKeys.categories.all }),
     queryClient.invalidateQueries({ queryKey: queryKeys.history.all }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.recurring.all }),
   ]);
 }
 

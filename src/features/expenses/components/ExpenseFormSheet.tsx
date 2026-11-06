@@ -72,7 +72,7 @@ export function ExpenseFormSheet({ isOpen, onClose, expense }: ExpenseFormSheetP
     enableReinitialize: true,
     validate: zodFormikValidate(expenseSchema),
     onSubmit: async (values) => {
-      const input = expenseInput(values);
+      const input = expenseInput(values, !editing);
       try {
         if (expense) await updateExpense({ id: expense.id, input });
         else await createExpense(input);
@@ -106,7 +106,7 @@ export function ExpenseFormSheet({ isOpen, onClose, expense }: ExpenseFormSheetP
       }
     >
       <FormikProvider value={formik}>
-        <ExpenseFormFields available={available} />
+        <ExpenseFormFields available={available} editing={editing} />
       </FormikProvider>
     </AppSheet>
   );

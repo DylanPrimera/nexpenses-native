@@ -9,12 +9,15 @@ import { EXPENSE_DESCRIPTION_MAX, EXPENSE_TITLE_MAX, type ExpenseFormValues } fr
 import { CategoryField } from "./CategoryField";
 import { OverBudgetWarning } from "./OverBudgetWarning";
 import { PaymentTypeSelector } from "./PaymentTypeSelector";
+import { RecurringSaveSwitch } from "./RecurringSaveSwitch";
+import { RecurringUseSection } from "./RecurringUseSection";
 
-export function ExpenseFormFields({ available }: { available: number }) {
+export function ExpenseFormFields({ available, editing }: { available: number; editing: boolean }) {
   const { values, setFieldValue } = useFormikContext<ExpenseFormValues>();
 
   return (
     <View className="gap-4">
+      {editing ? null : <RecurringUseSection />}
       <FormCurrencyField
         name="amount"
         label={messages.Expense.amount_label}
@@ -44,6 +47,7 @@ export function ExpenseFormFields({ available }: { available: number }) {
         returnKeyType="done"
       />
       <OverBudgetWarning amount={values.amount} available={available} />
+      {editing ? null : <RecurringSaveSwitch />}
     </View>
   );
 }

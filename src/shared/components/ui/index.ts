@@ -30,6 +30,7 @@ export {
 export { Separator } from "./separator";
 export { Skeleton } from "./skeleton";
 export { Switch } from "./switch";
+export { SwitchRow, type SwitchRowProps } from "./SwitchRow";
 export { Text, TextClassContext } from "./text";
 export { Textarea, type TextareaProps } from "./textarea";
 export { FIELD_LABEL_CLASS, SURFACE_CLASS } from "./surface-classes";

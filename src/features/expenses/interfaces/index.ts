@@ -32,6 +32,7 @@ export interface ExpenseInput {
   title: string;
   description: string;
   paymentType: PaymentType;
+  saveAsRecurring?: boolean;
 }
 
 export const EXPENSE_PATHS = {
