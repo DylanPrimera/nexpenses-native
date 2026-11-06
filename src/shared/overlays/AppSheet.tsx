@@ -113,6 +113,7 @@ export function AppSheet({
       <BottomSheetScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingBottom: footer ? footerHeight : insets.bottom + 20 }}
+        showsVerticalScrollIndicator={false}
       >
         <SheetScope>
           {header ? <View className="px-5 pr-16 pt-1">{header}</View> : null}
@@ -121,7 +122,9 @@ export function AppSheet({
           </View>
         </SheetScope>
       </BottomSheetScrollView>
-      {showClose && dismissible ? <SheetCloseButton onPress={() => sheetRef.current?.dismiss()} /> : null}
+      {showClose && dismissible ? (
+        <SheetCloseButton onPress={() => sheetRef.current?.dismiss()} />
+      ) : null}
     </BottomSheetModal>
   );
 }
