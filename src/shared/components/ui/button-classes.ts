@@ -4,7 +4,7 @@ export type ButtonSize = "default" | "xs" | "sm" | "lg" | "icon" | "icon-xs" | "
 const variantClass: Record<ButtonVariant, string> = {
   default: "border border-transparent bg-primary active:bg-primary/80",
   outline:
-    "border border-border bg-background shadow-sm shadow-black/5 active:bg-field dark:border-input dark:bg-input/30 dark:active:bg-input/50",
+    "border border-border bg-background shadow-sm shadow-black/5 active:bg-muted dark:border-input dark:bg-input/30 dark:active:bg-input/50",
   secondary: "bg-primary/10 active:bg-primary/20",
   ghost: "border border-transparent bg-transparent active:bg-foreground/10 dark:active:bg-muted/50",
   destructive:

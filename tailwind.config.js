@@ -8,7 +8,6 @@ module.exports = {
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
-        field: "hsl(var(--field))",
         nav: {
           pill: "hsl(var(--nav-pill-bg))",
           active: "hsl(var(--nav-active-bg))",

@@ -137,7 +137,7 @@ export function SearchListField<T>({
         onChange={handleOpenChange}
         fullHeight
         header={
-          <View className="h-12 flex-row items-center gap-3 rounded-lg border border-foreground/25 bg-field px-4">
+          <View className="h-12 flex-row items-center gap-3 rounded-lg border border-border/70 bg-muted/70 px-4">
             <Icon as={IconSearch} size={18} className="text-muted-foreground" />
             <SheetTextInput
               value={query}

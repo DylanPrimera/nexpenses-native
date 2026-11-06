@@ -1,6 +1,6 @@
 export function fieldSurfaceClass(invalid: boolean | undefined, active: boolean) {
   if (invalid) return "border-destructive bg-destructive/10";
-  return active ? "border-ring bg-field" : "border-foreground/25 bg-field";
+  return active ? "border-ring bg-muted/70" : "border-border/70 bg-muted/70";
 }
 
 export function fieldIconClass(invalid: boolean | undefined, active: boolean) {
