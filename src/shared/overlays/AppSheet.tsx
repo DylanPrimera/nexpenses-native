@@ -29,6 +29,8 @@ type AppSheetProps = {
 };
 
 const MAX_HEIGHT_RATIO = 0.9;
+const SHEET_PAN_ACTIVE_Y: [number, number] = [-10, 10];
+const SHEET_PAN_FAIL_X: [number, number] = [-10, 10];
 
 export function AppSheet({
   isOpen,
@@ -98,6 +100,8 @@ export function AppSheet({
       maxDynamicContentSize={maxHeight}
       topInset={insets.top}
       enablePanDownToClose={dismissible}
+      activeOffsetY={SHEET_PAN_ACTIVE_Y}
+      failOffsetX={SHEET_PAN_FAIL_X}
       animationConfigs={animationConfigs}
       backdropComponent={dismissible ? SheetBackdrop : StaticSheetBackdrop}
       backgroundComponent={SheetBackground}
