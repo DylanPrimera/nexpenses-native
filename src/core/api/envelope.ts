@@ -1,9 +1,3 @@
-/**
- * Nest global response envelope helpers.
- * Success: { success: true, data, message }
- * Failure: { success: false, data: null, message, error: { statusCode, code, details? } }
- */
-
 export interface ApiEnvelopeError {
   statusCode?: number;
   code?: string;
@@ -52,7 +46,6 @@ function messageFromUnknown(value: unknown, fallback: string): string {
   return fallback;
 }
 
-/** Peel Nest envelope from an Axios response body. */
 export function peelEnvelope<T>(
   body: unknown,
   httpStatus: number,
@@ -100,12 +93,8 @@ export function peelEnvelope<T>(
     };
   }
 
-  // Non-envelope payload (should be rare with Nest TransformInterceptor).
   return {
     data: (body === null || body === undefined ? undefined : body) as T,
     message: "OK",
   };
 }
-
-/** @deprecated Use peelEnvelope — kept as alias during rename. */
-export const unwrapEnvelope = peelEnvelope;

@@ -3,7 +3,6 @@ export {
   ApiError,
   isApiError,
   peelEnvelope,
-  unwrapEnvelope,
   type ApiEnvelope,
   type ApiResult,
 } from "./envelope";

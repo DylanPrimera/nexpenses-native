@@ -42,9 +42,7 @@ apiClient.interceptors.response.use(
     const status = error.response?.status as number | undefined;
     const body = error.response?.data;
     if (status === 401) {
-      const msg =
-        typeof body?.message === "string" ? body.message : "Sesión expirada";
-      notifyUnauthorized(msg);
+      notifyUnauthorized();
     }
     if (error.response) {
       try {
