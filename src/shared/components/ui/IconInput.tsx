@@ -4,6 +4,7 @@ import {
   fieldSurfaceClass,
 } from "@/shared/components/ui/field-classes";
 import { Icon } from "@/shared/components/ui/Icon";
+import { ScopedTextInput } from "@/shared/components/ui/scoped-text-input";
 import { useFocusState } from "@/shared/components/ui/use-focus-state";
 import { messages } from "@/shared/i18n";
 import { IconEye, IconEyeOff, type Icon as TablerIconType } from "@tabler/icons-react-native";
@@ -50,7 +51,7 @@ function IconInput({
       className={`h-12 w-full flex-row items-center gap-3 rounded-lg border px-4 ${surfaceClass} ${editable === false ? "opacity-50" : ""} ${className ?? ""}`}
     >
       <Icon as={icon} size={20} className={iconClass} />
-      <TextInput
+      <ScopedTextInput
         ref={setRefs}
         editable={editable}
         secureTextEntry={secureToggle ? hidden : secureTextEntry}

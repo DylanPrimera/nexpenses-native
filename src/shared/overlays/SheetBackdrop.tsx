@@ -2,19 +2,29 @@ import { BottomSheetBackdrop, type BottomSheetBackdropProps } from "@gorhom/bott
 import { StyleSheet } from "react-native";
 import { OverlayScrim } from "./OverlayScrim";
 
-export function SheetBackdrop(props: BottomSheetBackdropProps) {
+type ScrimBackdropProps = BottomSheetBackdropProps & { pressBehavior: "close" | "none" };
+
+function ScrimBackdrop({ pressBehavior, ...props }: ScrimBackdropProps) {
   return (
     <BottomSheetBackdrop
       {...props}
       appearsOnIndex={0}
       disappearsOnIndex={-1}
       opacity={1}
-      pressBehavior="close"
+      pressBehavior={pressBehavior}
       style={[props.style, styles.transparent]}
     >
       <OverlayScrim />
     </BottomSheetBackdrop>
   );
+}
+
+export function SheetBackdrop(props: BottomSheetBackdropProps) {
+  return <ScrimBackdrop {...props} pressBehavior="close" />;
+}
+
+export function StaticSheetBackdrop(props: BottomSheetBackdropProps) {
+  return <ScrimBackdrop {...props} pressBehavior="none" />;
 }
 
 const styles = StyleSheet.create({

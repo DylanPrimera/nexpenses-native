@@ -1,4 +1,5 @@
 import { playModalClose, playModalOpen } from "@/shared/audio/ui-sound";
+import { SheetScope } from "@/shared/components/ui/scoped-text-input";
 import { DURATION_UI_MS, EASE_OUT, motionDuration } from "@/shared/motion/motion-presets";
 import {
   BottomSheetFooter,
@@ -11,7 +12,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useWindowDimensions, View } from "react-native";
 import { useReducedMotion } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { SheetBackdrop } from "./SheetBackdrop";
+import { SheetBackdrop, StaticSheetBackdrop } from "./SheetBackdrop";
 import { SheetBackground, SheetCloseButton, SheetHandle } from "./SheetChrome";
 import { useBlockAndroidBack } from "./use-block-android-back";
 
@@ -24,6 +25,7 @@ type AppSheetProps = {
   showClose?: boolean;
   fullHeight?: boolean;
   contentClassName?: string;
+  dismissible?: boolean;
 };
 
 const MAX_HEIGHT_RATIO = 0.9;
@@ -37,6 +39,7 @@ export function AppSheet({
   showClose = true,
   fullHeight = false,
   contentClassName,
+  dismissible = true,
 }: AppSheetProps) {
   const sheetRef = useRef<BottomSheetModal>(null);
   const presented = useRef(false);
@@ -78,7 +81,7 @@ export function AppSheet({
           className="border-t border-border bg-popover px-5 pt-4"
           style={{ paddingBottom: insets.bottom + 16 }}
         >
-          {footer}
+          <SheetScope>{footer}</SheetScope>
         </View>
       </BottomSheetFooter>
     ),
@@ -93,9 +96,9 @@ export function AppSheet({
       snapPoints={fullHeight ? [maxHeight] : undefined}
       maxDynamicContentSize={maxHeight}
       topInset={insets.top}
-      enablePanDownToClose
+      enablePanDownToClose={dismissible}
       animationConfigs={animationConfigs}
-      backdropComponent={SheetBackdrop}
+      backdropComponent={dismissible ? SheetBackdrop : StaticSheetBackdrop}
       backgroundComponent={SheetBackground}
       handleComponent={SheetHandle}
       footerComponent={footer ? renderFooter : undefined}
@@ -106,12 +109,14 @@ export function AppSheet({
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingBottom: footer ? footerHeight : insets.bottom + 20 }}
       >
-        {header ? <View className="px-5 pr-16 pt-1">{header}</View> : null}
-        <View className={`px-5 ${header ? "py-4" : "pt-1"} ${contentClassName ?? ""}`}>
-          {children}
-        </View>
+        <SheetScope>
+          {header ? <View className="px-5 pr-16 pt-1">{header}</View> : null}
+          <View className={`px-5 ${header ? "py-4" : "pt-1"} ${contentClassName ?? ""}`}>
+            {children}
+          </View>
+        </SheetScope>
       </BottomSheetScrollView>
-      {showClose ? <SheetCloseButton onPress={() => sheetRef.current?.dismiss()} /> : null}
+      {showClose && dismissible ? <SheetCloseButton onPress={() => sheetRef.current?.dismiss()} /> : null}
     </BottomSheetModal>
   );
 }

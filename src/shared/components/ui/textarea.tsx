@@ -3,6 +3,7 @@ import {
   fieldSurfaceClass,
   fieldTextClass,
 } from "@/shared/components/ui/field-classes";
+import { ScopedTextInput } from "@/shared/components/ui/scoped-text-input";
 import { useFocusState } from "@/shared/components/ui/use-focus-state";
 import { TextInput } from "react-native";
 
@@ -23,7 +24,7 @@ function Textarea({
   const focus = useFocusState(onFocus, onBlur);
   const surfaceClass = fieldSurfaceClass(invalid, focus.focused);
   return (
-    <TextInput
+    <ScopedTextInput
       className={`min-h-24 w-full flex-row rounded-md border px-3 py-2.5 font-figtree-regular text-base ${fieldTextClass(invalid)} ${surfaceClass} ${props.editable === false ? "opacity-50" : ""} ${className ?? ""}`}
       placeholderClassName={placeholderClassName ?? fieldPlaceholderClass(invalid, focus.focused)}
       aria-invalid={invalid}

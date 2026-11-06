@@ -3,6 +3,7 @@ import {
   fieldInputClass,
   fieldSurfaceClass,
 } from "@/shared/components/ui/field-classes";
+import { ScopedTextInput } from "@/shared/components/ui/scoped-text-input";
 import { useEffect, useRef, useState } from "react";
 import { Text, TextInput, View } from "react-native";
 import {
@@ -52,7 +53,7 @@ export function CurrencyInput({
       >
         <Text className={`font-figtree-semibold text-lg ${fieldIconClass(hasError, true)}`}>$</Text>
       </View>
-      <TextInput
+      <ScopedTextInput
         value={displayValue}
         keyboardType="number-pad"
         inputMode="numeric"
