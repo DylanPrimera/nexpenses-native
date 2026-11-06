@@ -460,6 +460,8 @@
 		"cancel": "Cancelar",
 		"confirm": "Confirmar",
 		"close": "Cerrar",
+		"show_password": "Mostrar contraseña",
+		"hide_password": "Ocultar contraseña",
 		"edit": "Editar",
 		"delete": "Eliminar",
 		"delete_description": "¿Estás seguro? Esta acción no se puede deshacer.",

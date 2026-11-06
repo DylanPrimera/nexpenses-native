@@ -1,7 +1,7 @@
-import { cn } from "@/core/utils/cn";
+import { TextClassContext } from "@/shared/components/ui/text";
 import type {
-  Icon as TablerIconType,
   IconProps as TablerIconProps,
+  Icon as TablerIconType,
 } from "@tabler/icons-react-native";
 import { cssInterop } from "nativewind";
 import * as React from "react";
@@ -26,17 +26,12 @@ cssInterop(IconImpl, {
   },
 });
 
-/** Tabler icon wrapper with NativeWind `className` (no Lucide). */
-export function Icon({
-  as: IconComponent,
-  className,
-  size = 24,
-  ...props
-}: IconProps) {
+export function Icon({ as: IconComponent, className, size = 24, ...props }: IconProps) {
+  const textClass = React.useContext(TextClassContext);
   return (
     <IconImpl
       as={IconComponent}
-      className={cn("text-foreground", className)}
+      className={[textClass, className].filter(Boolean).join(" ")}
       size={size}
       {...props}
     />

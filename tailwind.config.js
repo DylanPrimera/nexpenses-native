@@ -10,6 +10,7 @@ module.exports = {
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
+        field: "hsl(var(--field))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -65,9 +66,13 @@ module.exports = {
         },
       },
       borderRadius: {
+        sm: "0.225rem",
+        md: "0.3rem",
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        xl: "0.525rem",
+        "2xl": "0.675rem",
+        "3xl": "0.825rem",
+        "4xl": "0.975rem",
       },
       fontFamily: {
         "figtree-regular": ["Figtree_400Regular", "sans-serif"],
@@ -78,5 +83,5 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 };
