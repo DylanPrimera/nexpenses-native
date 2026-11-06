@@ -92,6 +92,7 @@ export function AppSheet({
       enableDynamicSizing={!fullHeight}
       snapPoints={fullHeight ? [maxHeight] : undefined}
       maxDynamicContentSize={maxHeight}
+      topInset={insets.top}
       enablePanDownToClose
       animationConfigs={animationConfigs}
       backdropComponent={SheetBackdrop}

@@ -12,12 +12,13 @@ import { IconX } from "@tabler/icons-react-native";
 import { useEffect, useState } from "react";
 import { Modal, Pressable, StyleSheet, useWindowDimensions, View } from "react-native";
 import Animated, {
+  type SharedValue,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
 import { scheduleOnRN } from "react-native-worklets";
 import { OverlayScrim } from "./OverlayScrim";
 
@@ -32,7 +33,6 @@ const DRAWER_GUTTER = 48;
 
 export function SideDrawer({ isOpen, onClose, children }: SideDrawerProps) {
   const reduced = useReducedMotion();
-  const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
   const width = Math.min(DRAWER_WIDTH, screenWidth - DRAWER_GUTTER);
   const [mounted, setMounted] = useState(isOpen);
@@ -51,11 +51,6 @@ export function SideDrawer({ isOpen, onClose, children }: SideDrawerProps) {
     });
   }, [isOpen, progress, reduced]);
 
-  const scrimStyle = useAnimatedStyle(() => ({ opacity: progress.value }));
-  const panelStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: (1 - progress.value) * width }],
-  }));
-
   const close = () => {
     playModalClose();
     onClose();
@@ -70,10 +65,35 @@ export function SideDrawer({ isOpen, onClose, children }: SideDrawerProps) {
       navigationBarTranslucent
       onRequestClose={() => {}}
     >
+      <SafeAreaProvider style={StyleSheet.absoluteFill}>
+        <DrawerLayer progress={progress} width={width} onClose={close}>
+          {children}
+        </DrawerLayer>
+      </SafeAreaProvider>
+    </Modal>
+  );
+}
+
+type DrawerLayerProps = {
+  progress: SharedValue<number>;
+  width: number;
+  onClose: () => void;
+  children: React.ReactNode;
+};
+
+function DrawerLayer({ progress, width, onClose, children }: DrawerLayerProps) {
+  const insets = useSafeAreaInsets();
+  const scrimStyle = useAnimatedStyle(() => ({ opacity: progress.value }));
+  const panelStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: (1 - progress.value) * width }],
+  }));
+
+  return (
+    <>
       <Animated.View style={[StyleSheet.absoluteFill, scrimStyle]}>
         <Pressable
           accessibilityLabel={messages.Common.close}
-          onPress={close}
+          onPress={onClose}
           style={StyleSheet.absoluteFill}
         >
           <OverlayScrim />
@@ -90,14 +110,14 @@ export function SideDrawer({ isOpen, onClose, children }: SideDrawerProps) {
           role="button"
           accessibilityLabel={messages.Common.close}
           hitSlop={ROUND_ICON_BUTTON_HIT_SLOP}
-          onPress={close}
+          onPress={onClose}
           style={{ top: insets.top + 16 }}
           className={`absolute right-4 ${ROUND_ICON_BUTTON_CLASS}`}
         >
           <Icon as={IconX} size={ROUND_ICON_BUTTON_ICON_SIZE} className={ROUND_ICON_BUTTON_ICON_CLASS} />
         </Pressable>
       </Animated.View>
-    </Modal>
+    </>
   );
 }
 
