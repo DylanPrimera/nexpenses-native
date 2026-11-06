@@ -91,6 +91,7 @@ export function AppSheet({
   return (
     <BottomSheetModal
       ref={sheetRef}
+      stackBehavior="push"
       onDismiss={handleDismiss}
       enableDynamicSizing={!fullHeight}
       snapPoints={fullHeight ? [maxHeight] : undefined}
