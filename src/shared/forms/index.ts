@@ -9,3 +9,4 @@ export { visibleFieldError } from "./field-meta";
 export { FormCurrencyField, type FormCurrencyFieldProps } from "./FormCurrencyField";
 export { FormField, type FormFieldProps } from "./FormField";
 export { FormFieldLabel } from "./FormFieldLabel";
+export { DatePickerField, type DatePickerFieldProps } from "./DatePickerField";

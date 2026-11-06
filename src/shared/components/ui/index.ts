@@ -8,6 +8,7 @@ export { ThemedTextInput } from "./ThemedTextInput";
 export { ThemedView } from "./ThemedView";
 
 export { BackButton } from "./BackButton";
+export { Calendar, type CalendarProps } from "./Calendar";
 export { Button, buttonTextVariants, buttonVariants, type ButtonProps } from "./button";
 export {
   Field,
