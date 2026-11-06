@@ -33,6 +33,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const { status, bootstrap } = useAuthStore();
   const background =
     colorScheme === "dark" ? AppColors.dark.background : AppColors.light.background;
 
@@ -49,10 +50,14 @@ export default function RootLayout() {
   }, [background]);
 
   useEffect(() => {
-    if (loaded || error) {
-      SplashScreen.hideAsync();
+    void bootstrap();
+  }, [bootstrap]);
+
+  useEffect(() => {
+    if ((loaded || error) && status !== "checking") {
+      void SplashScreen.hideAsync();
     }
-  }, [loaded, error]);
+  }, [loaded, error, status]);
 
   useEffect(() => {
     setUnauthorizedHandler(() => {

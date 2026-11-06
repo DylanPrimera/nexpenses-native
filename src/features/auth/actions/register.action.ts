@@ -1,16 +1,6 @@
-import { apiClient, isApiError } from "@/core";
+import { apiClient } from "@/core/api/api-client";
 import { AUTH_PATHS, type AuthData } from "../interfaces";
-import { spanishAuthError } from "../lib/auth-messages";
-import { AuthActionError } from "./login.action";
-
-function rethrowSpanish(error: unknown): never {
-  if (isApiError(error)) {
-    throw new AuthActionError(spanishAuthError(error.status, error.message), error.status);
-  }
-  if (error instanceof AuthActionError) throw error;
-  if (error instanceof Error) throw error;
-  throw new AuthActionError("No se pudo completar. Inténtalo de nuevo.", 0);
-}
+import { invalidAuthResponse, rethrowAuthError } from "../lib/auth-errors";
 
 export async function registerAction(input: {
   firstName: string;
@@ -25,9 +15,9 @@ export async function registerAction(input: {
       email: input.email.trim().toLowerCase(),
       password: input.password,
     });
+    if (!data?.token || !data.user?.id) throw invalidAuthResponse();
     return data;
   } catch (error) {
-    console.log("error", error);
-    rethrowSpanish(error);
+    rethrowAuthError(error);
   }
 }

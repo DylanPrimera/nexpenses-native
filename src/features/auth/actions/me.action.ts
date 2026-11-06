@@ -1,22 +1,13 @@
-import { apiClient, isApiError } from "@/core";
+import { apiClient } from "@/core/api/api-client";
 import { AUTH_PATHS, type AuthData } from "../interfaces";
-import { spanishAuthError } from "../lib/auth-messages";
-import { AuthActionError } from "./login.action";
+import { invalidAuthResponse, rethrowAuthError } from "../lib/auth-errors";
 
 export async function refreshSessionAction(): Promise<AuthData> {
   try {
     const { data } = await apiClient.get<AuthData>(AUTH_PATHS.me);
-    if (!data?.token || !data.user?.id) {
-      throw new AuthActionError("No se pudo completar. Inténtalo de nuevo.", 0);
-    }
+    if (!data?.token || !data.user?.id) throw invalidAuthResponse();
     return data;
   } catch (error) {
-    if (isApiError(error)) {
-      throw new AuthActionError(
-        spanishAuthError(error.status, error.message),
-        error.status,
-      );
-    }
-    throw error;
+    rethrowAuthError(error);
   }
 }

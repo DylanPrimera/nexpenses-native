@@ -1,4 +1,3 @@
-/** Public user returned inside Nest auth `data.user` (publicUserSelect). */
 export interface AuthUser {
   id: string;
   name: string;
@@ -11,7 +10,6 @@ export interface AuthUser {
   updatedAt: string;
 }
 
-/** Nest auth success payload after envelope peel. */
 export interface AuthData {
   user: AuthUser;
   token: string;

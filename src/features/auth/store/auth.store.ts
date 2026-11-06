@@ -1,13 +1,8 @@
-import { isApiError } from "@/core/api/envelope";
-import { isNetworkError } from "@/core/api/is-network-error";
+import { queryClient } from "@/core/query/query-client";
 import { create } from "zustand";
-import {
-  AuthActionError,
-  loginAction,
-  refreshSessionAction,
-  registerAction,
-} from "../actions";
+import { loginAction, refreshSessionAction, registerAction } from "../actions";
 import type { AuthUser } from "../interfaces";
+import { authErrorStatus } from "../lib/auth-errors";
 import {
   clearAllSession,
   readSessionMeta,
@@ -18,6 +13,8 @@ import {
 
 export type AuthStatus = "checking" | "authenticated" | "unauthenticated";
 
+type SessionUser = Pick<AuthUser, "id" | "firstName" | "lastName">;
+
 interface AuthState {
   status: AuthStatus;
   token?: string;
@@ -25,8 +22,7 @@ interface AuthState {
   firstName: string;
   lastName: string;
 
-  /** Apply Nest auth payload to memory + SecureStore/AsyncStorage. */
-  applySession: (token: string, user: Pick<AuthUser, "id" | "firstName" | "lastName">) => Promise<void>;
+  applySession: (token: string, user: SessionUser) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   register: (input: {
     firstName: string;
@@ -34,10 +30,18 @@ interface AuthState {
     email: string;
     password: string;
   }) => Promise<void>;
-  /** Boot: token → GET /auth/me; 401 clear; network keep cached session (Next-like). */
   bootstrap: () => Promise<void>;
+  refreshSession: () => Promise<void>;
   logout: () => Promise<void>;
 }
+
+const SIGNED_OUT = {
+  status: "unauthenticated",
+  token: undefined,
+  userId: undefined,
+  firstName: "",
+  lastName: "",
+} as const;
 
 export const useAuthStore = create<AuthState>()((set, get) => ({
   status: "checking",
@@ -47,120 +51,59 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   lastName: "",
 
   applySession: async (token, user) => {
+    const firstName = user.firstName?.trim() ?? "";
+    const lastName = user.lastName?.trim() ?? "";
     await saveToken(token);
-    await saveSessionMeta({
-      userId: user.id,
-      firstName: user.firstName?.trim() ?? "",
-      lastName: user.lastName?.trim() ?? "",
-    });
-    set({
-      status: "authenticated",
-      token,
-      userId: user.id,
-      firstName: user.firstName?.trim() ?? "",
-      lastName: user.lastName?.trim() ?? "",
-    });
+    await saveSessionMeta({ userId: user.id, firstName, lastName });
+    set({ status: "authenticated", token, userId: user.id, firstName, lastName });
   },
 
   login: async (email, password) => {
-    const data = await loginAction(email, password);
-    await get().applySession(data.token, data.user);
+    const { token, user } = await loginAction(email, password);
+    queryClient.removeQueries();
+    await get().applySession(token, user);
   },
 
   register: async (input) => {
-    const data = await registerAction(input);
-    await get().applySession(data.token, data.user);
+    const { token, user } = await registerAction(input);
+    queryClient.removeQueries();
+    await get().applySession(token, user);
   },
 
   bootstrap: async () => {
-    set({ status: "checking" });
-    const token = await readToken();
+    const token = await readToken().catch(() => null);
     if (!token) {
-      set({
-        status: "unauthenticated",
-        token: undefined,
-        userId: undefined,
-        firstName: "",
-        lastName: "",
-      });
+      set(SIGNED_OUT);
       return;
     }
-
-    const meta = await readSessionMeta();
-    // Optimistic restore while /auth/me runs
+    const meta = await readSessionMeta().catch(() => null);
     set({
+      status: "authenticated",
       token,
       userId: meta?.userId,
       firstName: meta?.firstName ?? "",
       lastName: meta?.lastName ?? "",
     });
+    await get().refreshSession();
+  },
 
+  refreshSession: async () => {
+    const { token: startToken } = get();
+    if (!startToken) return;
     try {
-      const data = await refreshSessionAction();
-      await get().applySession(data.token, data.user);
+      const { token, user } = await refreshSessionAction();
+      if (get().token !== startToken) return;
+      await get().applySession(token, user);
     } catch (error) {
-      const status =
-        error instanceof AuthActionError
-          ? error.status
-          : isApiError(error)
-            ? error.status
-            : 0;
-
-      if (status === 401) {
-        await clearAllSession();
-        set({
-          status: "unauthenticated",
-          token: undefined,
-          userId: undefined,
-          firstName: "",
-          lastName: "",
-        });
-        return;
+      if (authErrorStatus(error) === 401 && get().token === startToken) {
+        await get().logout();
       }
-
-      if (isNetworkError(error) || status === 0) {
-        // Mirror Next bootstrap: network failure keeps stored session.
-        set({
-          status: "authenticated",
-          token,
-          userId: meta?.userId,
-          firstName: meta?.firstName ?? "",
-          lastName: meta?.lastName ?? "",
-        });
-        return;
-      }
-
-      // Other API errors: keep session if we have meta, else unauth
-      if (meta?.userId) {
-        set({
-          status: "authenticated",
-          token,
-          userId: meta.userId,
-          firstName: meta.firstName,
-          lastName: meta.lastName,
-        });
-        return;
-      }
-
-      await clearAllSession();
-      set({
-        status: "unauthenticated",
-        token: undefined,
-        userId: undefined,
-        firstName: "",
-        lastName: "",
-      });
     }
   },
 
   logout: async () => {
     await clearAllSession();
-    set({
-      status: "unauthenticated",
-      token: undefined,
-      userId: undefined,
-      firstName: "",
-      lastName: "",
-    });
+    queryClient.clear();
+    set(SIGNED_OUT);
   },
 }));

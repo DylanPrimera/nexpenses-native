@@ -4,7 +4,6 @@ const Auth = messages.Auth;
 
 export const authCopy = Auth;
 
-/** Map Nest/English auth errors to Spanish UI copy (Next `spanishAuthError`). */
 export function spanishAuthError(status: number, message: string): string {
   const normalized = message.toLowerCase();
   if (normalized.includes("account already")) return Auth.account_exists;

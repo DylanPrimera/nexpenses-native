@@ -1,36 +1,25 @@
-import { useState } from "react";
-import { AuthActionError } from "../actions";
-import { authCopy } from "../lib/auth-messages";
+import { queryKeys } from "@/core/query/query-keys";
+import { useMutation } from "@tanstack/react-query";
+import { authErrorMessage } from "../lib/auth-errors";
 import type { RegisterFormValues } from "../schemas";
 import { useAuthStore } from "../store";
 
 export const useRegister = () => {
   const { register } = useAuthStore();
-  const [isLoading, setIsLoading] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
+  const { mutateAsync, isPending, error } = useMutation({
+    mutationKey: queryKeys.auth.register,
+    mutationFn: ({ firstName, lastName, email, password }: RegisterFormValues) =>
+      register({ firstName, lastName, email, password }),
+  });
 
   const submit = async (values: RegisterFormValues) => {
-    setIsLoading(true);
-    setFormError(null);
     try {
-      await register({
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email,
-        password: values.password,
-      });
+      await mutateAsync(values);
       return true;
-    } catch (error) {
-      setFormError(
-        error instanceof AuthActionError
-          ? error.message
-          : authCopy.generic_error,
-      );
+    } catch {
       return false;
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  return { submit, isLoading, formError };
+  return { submit, isLoading: isPending, formError: error ? authErrorMessage(error) : null };
 };
