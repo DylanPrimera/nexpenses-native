@@ -17,6 +17,12 @@ export const queryKeys = {
   categories: {
     all: ["categories"] as const,
   },
+  credits: {
+    all: ["credits"] as const,
+    list: ["credits", "list"] as const,
+    detail: (id: string) => ["credits", "detail", id] as const,
+    total: ["credits", "total"] as const,
+  },
   recurring: {
     all: ["recurring"] as const,
   },

@@ -117,6 +117,7 @@
 		"credit_empty_consumo": "Aún no hay créditos de consumo.",
 		"credit_loading": "Cargando créditos…",
 		"credit_linked": "Cuota de un crédito",
+		"credit_card_blocked": "Las cuotas de un crédito se pagan con débito o efectivo.",
 		"recurring_save_switch": "Marcar como pago recurrente",
 		"recurring_use_switch": "Usar un pago recurrente",
 		"recurring_select_label": "Pago recurrente",
@@ -337,7 +338,13 @@
 		"pdf_unlock_link": "desbloquear PDF",
 		"pdf_required": "Adjunta el extracto en PDF o ingresa los datos a mano",
 		"pdf_invalid": "El archivo tiene que ser un PDF",
-		"pdf_too_big": "El PDF supera el tamaño permitido (20 MB)",
+		"pdf_too_big": "El PDF supera el tamaño permitido (8 MB)",
+		"pdf_pick": "Elegir extracto PDF",
+		"pdf_replace": "Cambiar PDF",
+		"pdf_remove": "Quitar PDF",
+		"pdf_pick_error": "No se pudo abrir el selector de archivos",
+		"pdf_privacy_note": "Para leer el extracto, el PDF se envía a nuestro servidor y se sube de forma temporal a un almacenamiento privado, donde se intenta borrar después de procesarlo. Tu copia original no se modifica.",
+		"upload_progress": "Subiendo… {percent}%",
 		"rate_ea_label": "Tasa EA %",
 		"rate_mv_label": "Tasa MV %",
 		"rate_optional_hint": "Opcional. Si las llenas, se usan en las proyecciones.",
@@ -451,7 +458,8 @@
 		"validation_installment_current": "Indica la cuota actual",
 		"validation_term_months": "Indica el plazo en meses",
 		"pdf_optional_manual": "Opcional si ya ingresas los datos a mano.",
-		"saving_manual": "Guardando…"
+		"saving_manual": "Guardando…",
+		"fallback_name": "Crédito"
 	},
 	"Common": {
 		"loading": "Cargando...",

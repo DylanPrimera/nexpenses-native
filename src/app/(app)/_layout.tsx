@@ -24,6 +24,8 @@ export default function AppLayout() {
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="debts/new" options={{ headerShown: false }} />
+      <Stack.Screen name="debts/[id]" options={{ headerShown: false }} />
     </Stack>
   );
 }
