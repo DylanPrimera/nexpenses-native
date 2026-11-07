@@ -567,6 +567,11 @@
 		"invalid_credentials": "Correo o contraseña incorrectos.",
 		"google_unavailable": "Google no está disponible. Revisa la configuración del servidor.",
 		"google_failed": "No se pudo completar el ingreso con Google.",
+		"google_password_account": "Esta cuenta usa correo y contraseña. Inicia sesión con tu contraseña.",
+		"google_no_play_services": "Google Play Services no está disponible o está desactualizado. Actualízalo e inténtalo de nuevo.",
+		"google_config_error": "El ingreso con Google no está configurado correctamente en esta versión de la app.",
+		"google_offline": "Sin conexión. Revisa tu internet e inténtalo de nuevo.",
+		"google_no_token": "Google no devolvió la información necesaria. Inténtalo de nuevo.",
 		"google_waiting": "Conectando con Google…",
 		"generic_error": "No se pudo completar. Inténtalo de nuevo."
 	}

@@ -1,3 +1,4 @@
+import { GoogleSignInButton } from "@/features/auth/components/GoogleSignInButton";
 import { authCopy } from "@/features/auth/lib/auth-messages";
 import {
   loginSchema,
@@ -39,6 +40,8 @@ interface AuthFormProps {
   mode: Mode;
   loading?: boolean;
   formError?: string | null;
+  googleLoading?: boolean;
+  onGoogle: () => void | Promise<void>;
   onSubmitLogin: (values: LoginFormValues) => void | Promise<void>;
   onSubmitRegister: (values: RegisterFormValues) => void | Promise<void>;
 }
@@ -65,6 +68,8 @@ export function AuthForm({
   mode,
   loading = false,
   formError,
+  googleLoading = false,
+  onGoogle,
   onSubmitLogin,
   onSubmitRegister,
 }: AuthFormProps) {
@@ -75,6 +80,7 @@ export function AuthForm({
   const passwordRef = useRef<TextInputRef>(null);
   const confirmRef = useRef<TextInputRef>(null);
   const isRegister = mode === "register";
+  const busy = loading || googleLoading;
   const title = isRegister ? authCopy.register_title : authCopy.login_title;
   const description = isRegister ? authCopy.register_description : authCopy.login_description;
 
@@ -180,13 +186,13 @@ export function AuthForm({
                   textContentType="newPassword"
                   returnKeyType="go"
                   onSubmitEditing={() => {
-                    if (isValid && !loading) handleSubmit();
+                    if (isValid && !busy) handleSubmit();
                   }}
                 />
                 <SubmitBlock
                   label={authCopy.register_action}
                   loading={loading}
-                  disabled={loading || !isValid}
+                  disabled={busy || !isValid}
                   isRegister={isRegister}
                   formError={formError}
                   onPress={() => handleSubmit()}
@@ -226,13 +232,13 @@ export function AuthForm({
                   textContentType="password"
                   returnKeyType="go"
                   onSubmitEditing={() => {
-                    if (isValid && !loading) handleSubmit();
+                    if (isValid && !busy) handleSubmit();
                   }}
                 />
                 <SubmitBlock
                   label={authCopy.login_action}
                   loading={loading}
-                  disabled={loading || !isValid}
+                  disabled={busy || !isValid}
                   isRegister={isRegister}
                   formError={formError}
                   onPress={() => handleSubmit()}
@@ -248,9 +254,11 @@ export function AuthForm({
           <Separator className="flex-1" />
         </View>
 
-        <Button variant="outline" size="lg" className="w-full" disabled>
-          <Text>{authCopy.google}</Text>
-        </Button>
+        <GoogleSignInButton
+          loading={googleLoading}
+          disabled={loading}
+          onPress={() => void onGoogle()}
+        />
 
         <Link href={isRegister ? "/(auth)/login" : "/(auth)/register"} replace asChild>
           <Pressable className="mt-2 self-center px-4 py-3" hitSlop={8}>
