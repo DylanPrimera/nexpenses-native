@@ -1,3 +1,4 @@
+import type { AccessibilityFocusRef } from "@/shared/overlays/accessibility-focus";
 import { formatCOPCurrency } from "@/core/utils/currency";
 import { CategoryBadge } from "@/features/categories";
 import { Button } from "@/shared/components/ui/button";
@@ -14,6 +15,7 @@ import { recurringDisplay } from "../lib/recurring-display";
 type RecurringDetailSheetProps = {
   template: RecurringExpense | null;
   isOpen: boolean;
+  returnFocusRef?: AccessibilityFocusRef;
   onClose: () => void;
   onDelete: () => void;
 };
@@ -27,11 +29,18 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
   );
 }
 
-export function RecurringDetailSheet({ template, isOpen, onClose, onDelete }: RecurringDetailSheetProps) {
+export function RecurringDetailSheet({
+  returnFocusRef,
+  template,
+  isOpen,
+  onClose,
+  onDelete,
+}: RecurringDetailSheetProps) {
   const display = template ? recurringDisplay(template) : null;
 
   return (
     <AppSheet
+      returnFocusRef={returnFocusRef}
       isOpen={isOpen && !!template}
       onChange={(open) => {
         if (!open) onClose();
@@ -39,13 +48,18 @@ export function RecurringDetailSheet({ template, isOpen, onClose, onDelete }: Re
       header={
         <View className="flex-row items-center gap-3">
           <View className="size-11 items-center justify-center rounded-[0.875rem] bg-primary/15">
-            <Icon as={IconRepeat} size={22} strokeWidth={1.75} className="text-primary" />
+            <Icon as={IconRepeat} size={22} strokeWidth={1.75} className="text-primary-action" />
           </View>
           <View className="min-w-0 flex-1">
-            <Text role="heading" className="font-figtree-semibold text-lg leading-tight tracking-tight">
+            <Text
+              role="heading"
+              className="font-figtree-semibold text-lg leading-tight tracking-tight"
+            >
               {messages.Recurring.detail_title}
             </Text>
-            <Text className="mt-0.5 text-sm text-muted-foreground">{messages.Recurring.detail_subtitle}</Text>
+            <Text className="mt-0.5 text-sm text-muted-foreground">
+              {messages.Recurring.detail_subtitle}
+            </Text>
           </View>
         </View>
       }

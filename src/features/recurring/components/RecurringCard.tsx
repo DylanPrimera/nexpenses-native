@@ -1,3 +1,6 @@
+import { useWindowDimensions, Pressable, StyleSheet, View } from "react-native";
+import { useRef } from "react";
+import type { AccessibilityFocusRef } from "@/shared/overlays/accessibility-focus";
 import { formatCOPCurrency } from "@/core/utils/currency";
 import { Icon } from "@/shared/components/ui/Icon";
 import { Skeleton } from "@/shared/components/ui/skeleton";
@@ -5,17 +8,19 @@ import { SURFACE_CLASS } from "@/shared/components/ui/surface-classes";
 import { Text } from "@/shared/components/ui/text";
 import { messages } from "@/shared/i18n";
 import { IconRepeat, IconTrash } from "@tabler/icons-react-native";
-import { Pressable, View } from "react-native";
 import type { RecurringExpense } from "../interfaces";
 import { recurringDisplay } from "../lib/recurring-display";
 
 type RecurringCardProps = {
   template: RecurringExpense;
-  onOpen: (template: RecurringExpense) => void;
-  onDelete: (template: RecurringExpense) => void;
+  onOpen: (template: RecurringExpense, target?: AccessibilityFocusRef) => void;
+  onDelete: (template: RecurringExpense, target?: AccessibilityFocusRef) => void;
 };
 
 export function RecurringCard({ template, onOpen, onDelete }: RecurringCardProps) {
+  const { fontScale } = useWindowDimensions();
+  const openRef = useRef<React.ComponentRef<typeof Pressable>>(null);
+  const deleteRef = useRef<React.ComponentRef<typeof Pressable>>(null);
   const { categoryName, paymentLabel } = recurringDisplay(template);
 
   return (
@@ -23,14 +28,24 @@ export function RecurringCard({ template, onOpen, onDelete }: RecurringCardProps
       <Pressable
         role="button"
         accessibilityLabel={`${template.title}, ${formatCOPCurrency(template.amount)} ${messages.Common.currency}`}
-        onPress={() => onOpen(template)}
-        className="flex-row items-center gap-2 rounded-md active:opacity-80"
+        ref={openRef}
+        onPress={() => onOpen(template, openRef)}
+        style={StyleSheet.absoluteFill}
+        className="rounded-[0.875rem] active:bg-accent"
+      />
+      <View
+        pointerEvents="none"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        className="flex-row items-center gap-2"
       >
         <View className="size-11 items-center justify-center rounded-md bg-primary/15">
-          <Icon as={IconRepeat} size={22} strokeWidth={1.75} className="text-primary" />
+          <Icon as={IconRepeat} size={22} strokeWidth={1.75} className="text-primary-action" />
         </View>
         <View className="min-w-0 flex-1 gap-1">
-          <View className="flex-row items-center justify-between gap-2">
+          <View
+            className={`${fontScale >= 1.3 ? "flex-col items-start" : "flex-row items-center"} justify-between gap-2`}
+          >
             <Text numberOfLines={1} className="shrink font-figtree-semibold text-base">
               {template.title}
             </Text>
@@ -43,13 +58,14 @@ export function RecurringCard({ template, onOpen, onDelete }: RecurringCardProps
             {`${categoryName} · ${paymentLabel}`}
           </Text>
         </View>
-      </Pressable>
-      <View className="flex-row items-center justify-end">
+      </View>
+      <View pointerEvents="box-none" className="flex-row items-center justify-end">
         <Pressable
           role="button"
           accessibilityLabel={messages.Common.delete}
-          onPress={() => onDelete(template)}
-          className="size-11 items-center justify-center rounded-[0.5rem] active:bg-destructive/15"
+          ref={deleteRef}
+          onPress={() => onDelete(template, deleteRef)}
+          className="size-12 items-center justify-center rounded-[0.5rem] active:bg-destructive/15"
         >
           <Icon as={IconTrash} size={20} className="text-muted-foreground" />
         </Pressable>

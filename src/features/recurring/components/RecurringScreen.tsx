@@ -1,3 +1,5 @@
+import { useConnectivity } from "@/core/network/connectivity";
+import { getQueryDisplayState } from "@/shared/layout/query-display-state";
 import { AccountDrawer } from "@/features/auth";
 import { Button } from "@/shared/components/ui/button";
 import { EmptyState } from "@/shared/components/ui/EmptyState";
@@ -7,15 +9,29 @@ import { AppRefreshControl, PageShell, usePullToRefresh } from "@/shared/layout"
 import { IconCloudOff, IconRepeat } from "@tabler/icons-react-native";
 import { View } from "react-native";
 import { useRecurring } from "../hooks";
-import { RecurringCardSkeleton } from "./RecurringCard";
 import { RecurringList } from "./RecurringList";
 
 export function RecurringScreen() {
+  const { isReady, isOnline } = useConnectivity();
   const recurring = useRecurring();
   const { refreshing, onRefresh } = usePullToRefresh(() => recurring.refetch());
 
+  const state = getQueryDisplayState({
+    data: recurring.data,
+    isReady,
+    isOnline,
+    isError: recurring.isError,
+  });
   const content = () => {
-    if (recurring.isError && !recurring.data) {
+    if (state === "offline")
+      return (
+        <EmptyState
+          icon={IconCloudOff}
+          title={messages.Offline.offline_title}
+          description={messages.Offline.no_data}
+        />
+      );
+    if (state === "error") {
       return (
         <View className="gap-4">
           <EmptyState
@@ -29,15 +45,7 @@ export function RecurringScreen() {
         </View>
       );
     }
-    if (!recurring.data) {
-      return (
-        <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" className="gap-2.5">
-          <RecurringCardSkeleton />
-          <RecurringCardSkeleton />
-          <RecurringCardSkeleton />
-        </View>
-      );
-    }
+    if (!recurring.data) return null;
     if (recurring.data.length === 0) {
       return (
         <EmptyState
@@ -47,16 +55,29 @@ export function RecurringScreen() {
         />
       );
     }
-    return <RecurringList templates={recurring.data} />;
+    return null;
   };
 
   return (
     <PageShell
       screenLabel={messages.Nav.recurring}
       headerAction={<AccountDrawer />}
-      refreshControl={<AppRefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />}
-    >
-      {content()}
-    </PageShell>
+      renderScrollable={({ contentContainerStyle }) => (
+        <RecurringList
+          templates={recurring.data ?? []}
+          loading={state === "loading"}
+          contentContainerStyle={contentContainerStyle}
+          ListEmptyComponent={content() ?? undefined}
+          refreshControl={
+            <AppRefreshControl
+              refreshing={isOnline && refreshing}
+              onRefresh={() => {
+                if (isOnline) void onRefresh();
+              }}
+            />
+          }
+        />
+      )}
+    />
   );
 }
