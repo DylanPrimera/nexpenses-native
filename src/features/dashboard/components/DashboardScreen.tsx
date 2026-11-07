@@ -1,3 +1,5 @@
+import { useConnectivity } from "@/core/network/connectivity";
+import { usePendingExpenses } from "@/features/expenses/hooks/usePendingExpenses";
 import { AccountDrawer, useAuthStore } from "@/features/auth";
 import {
   BudgetEditSheet,
@@ -23,6 +25,8 @@ import { RecentExpenses } from "./RecentExpenses";
 
 export function DashboardScreen() {
   const { firstName } = useAuthStore();
+  const { isOnline } = useConnectivity();
+  const pending = usePendingExpenses();
   const profile = useProfile();
   const summary = useCycleSummary();
   const expenses = useCycleExpenses(summary.data?.cycleStartedAt);
@@ -32,7 +36,13 @@ export function DashboardScreen() {
   const budgetTargetRef = useTourTarget(TOUR_TARGETS.budget, focused);
   const recentTargetRef = useTourTarget(TOUR_TARGETS.recent, focused);
   const { refreshing, onRefresh } = usePullToRefresh(() =>
-    Promise.all([profile.refetch(), summary.refetch(), summary.data ? expenses.refetch() : undefined]),
+    isOnline && !pending.length
+      ? Promise.all([
+          profile.refetch(),
+          summary.refetch(),
+          summary.data ? expenses.refetch() : undefined,
+        ])
+      : Promise.resolve(),
   );
 
   const isFirstLaunch = profile.data?.budget === 0;
@@ -41,6 +51,15 @@ export function DashboardScreen() {
   const greetingName = firstName.trim();
 
   const content = () => {
+    if ((!profile.data || !summary.data) && (!isOnline || pending.length > 0))
+      return (
+        <View className="gap-4">
+          <Text className="text-sm text-muted-foreground">
+            {pending.length ? messages.Offline.partial : messages.Offline.no_data}
+          </Text>
+          <RecentExpenses expenses={pending.map((entry) => entry.expense)} isLoading={false} />
+        </View>
+      );
     if (hasError) {
       return (
         <View className="gap-4">
@@ -70,7 +89,9 @@ export function DashboardScreen() {
             ) : null}
             <Text
               className={
-                greetingName ? "text-xs text-muted-foreground" : "font-figtree-semibold text-lg tracking-tight"
+                greetingName
+                  ? "text-xs text-muted-foreground"
+                  : "font-figtree-semibold text-lg tracking-tight"
               }
             >
               {messages.Budget.cycle_summary}
@@ -93,6 +114,11 @@ export function DashboardScreen() {
 
         <View ref={budgetTargetRef} collapsable={false}>
           <BudgetProgressCard summary={cycle} />
+          {pending.length ? (
+            <Text className="mt-2 text-xs text-muted-foreground">
+              {messages.Offline.includes_pending}
+            </Text>
+          ) : null}
         </View>
 
         <View ref={recentTargetRef} collapsable={false}>
@@ -108,7 +134,9 @@ export function DashboardScreen() {
       headerAction={<AccountDrawer />}
       scrollRef={scrollRef}
       onScroll={onScroll}
-      refreshControl={<AppRefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />}
+      refreshControl={
+        <AppRefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />
+      }
     >
       {content()}
       <BudgetSetupSheet isOpen={isFirstLaunch} />

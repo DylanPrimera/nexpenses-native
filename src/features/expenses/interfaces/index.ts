@@ -54,3 +54,22 @@ export const EXPENSE_PATHS = {
 } as const;
 
 export const CYCLE_EXPENSES_LIMIT = 100;
+
+export interface CreateExpenseInput extends ExpenseInput {
+  id: string;
+  date: string;
+}
+export interface CreateExpenseVariables {
+  userId: string;
+  input: CreateExpenseInput;
+  optimisticExpense: Expense;
+}
+export interface PendingExpense {
+  userId: string;
+  expense: Expense;
+}
+
+export interface ExpenseReceipt {
+  expense: Expense;
+  acknowledgedAt: number;
+}

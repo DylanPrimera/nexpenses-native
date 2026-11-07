@@ -1,3 +1,4 @@
+import { usePendingExpenses } from "../hooks/usePendingExpenses";
 import { formatCOPCurrency } from "@/core/utils/currency";
 import { formatExpenseDate } from "@/core/utils/dates";
 import { CategoryBadge, withAlpha } from "@/features/categories";
@@ -20,18 +21,26 @@ type ExpenseCardProps = {
 
 export function ExpenseCard({ expense, onOpen, onEdit, onDelete }: ExpenseCardProps) {
   const { title, detail, categoryName, categoryColor } = expenseDisplay(expense);
+  const pending = usePendingExpenses().some((item) => item.expense.id === expense.id);
 
   return (
     <View className={`${SURFACE_CLASS} px-4 pb-1 pt-4`}>
       <Pressable
         role="button"
-        accessibilityLabel={`${title}, -${formatCOPCurrency(expense.amount)} ${messages.Common.currency}`}
+        accessibilityLabel={`${title}, -${formatCOPCurrency(expense.amount)} ${messages.Common.currency}${pending ? `, ${messages.Offline.pending}` : ""}`}
         onPress={() => onOpen(expense)}
         className="gap-2 rounded-md active:opacity-80"
       >
         <View className="flex-row items-center justify-between gap-2">
-          <Text className="font-figtree-medium text-xs text-muted-foreground">{formatExpenseDate(expense.date)}</Text>
+          <Text className="font-figtree-medium text-xs text-muted-foreground">
+            {formatExpenseDate(expense.date)}
+          </Text>
           <View className="shrink flex-row items-center gap-1">
+            {pending ? (
+              <Text className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                {messages.Offline.pending}
+              </Text>
+            ) : null}
             <CategoryBadge name={categoryName} color={categoryColor} size="sm" />
             <View className="rounded-md bg-primary/15 px-2 py-0.5">
               <Text numberOfLines={1} className="font-figtree-medium text-xs text-primary">

@@ -1,3 +1,4 @@
+import { useConnectivity } from "@/core/network/connectivity";
 import {
   CategoryBadge,
   normalizeCategoryName,
@@ -11,7 +12,7 @@ import { visibleFieldError } from "@/shared/forms/field-meta";
 import { FormFieldLabel } from "@/shared/forms/FormFieldLabel";
 import { SearchListField } from "@/shared/forms/SearchListField";
 import { messages, tx } from "@/shared/i18n";
-import { notifyError } from "@/shared/toast/notify";
+import { notifyActionError } from "@/shared/toast/notify";
 import { useField, useFormikContext } from "formik";
 import { View } from "react-native";
 
@@ -19,6 +20,7 @@ const sortByUsage = (items: Category[]) =>
   items.sort((a, b) => b.usageCount - a.usageCount || a.name.localeCompare(b.name));
 
 export function CategoryField({ name }: { name: string }) {
+  const { isOnline } = useConnectivity();
   const [field, meta] = useField<string>(name);
   const { setFieldValue, setFieldTouched, submitCount } = useFormikContext();
   const { data: categories = [] } = useCategories();
@@ -56,21 +58,33 @@ export function CategoryField({ name }: { name: string }) {
         placeholder={messages.Expense.category_placeholder}
         clearLabel={messages.Expense.clear_category}
         hasError={!!error}
-        createOption={{
-          label: (query) => tx(messages.Expense.category_create, { name: query }),
-          isAvailable: (query) => !categories.some((item) => normalizeCategoryName(item.name) === query),
-          onCreate: async (query) => {
-            try {
-              const category = await mutateAsync(query);
-              select(category.id);
-              return true;
-            } catch {
-              notifyError();
-              return false;
-            }
-          },
-        }}
+        createOption={
+          isOnline
+            ? {
+                label: (query) => tx(messages.Expense.category_create, { name: query }),
+                isAvailable: (query) =>
+                  !categories.some((item) => normalizeCategoryName(item.name) === query),
+                onCreate: async (query) => {
+                  try {
+                    const category = await mutateAsync(query);
+                    select(category.id);
+                    return true;
+                  } catch (error) {
+                    notifyActionError(error);
+                    return false;
+                  }
+                },
+              }
+            : undefined
+        }
       />
+      {!isOnline ? (
+        <Text className="text-xs text-muted-foreground">
+          {categories.length
+            ? messages.Offline.categories_cached
+            : messages.Offline.categories_missing}
+        </Text>
+      ) : null}
       <FieldError errors={error} />
     </Field>
   );

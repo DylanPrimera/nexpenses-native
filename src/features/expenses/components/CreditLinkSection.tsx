@@ -1,3 +1,4 @@
+import { useConnectivity } from "@/core/network/connectivity";
 import type { CreditKind, Credit } from "@/core/types/domain";
 import { creditInstallmentAmount, CreditKindPicker, useCredits } from "@/features/debts";
 import { Field, FieldError } from "@/shared/components/ui/Field";
@@ -138,6 +139,7 @@ function CreditPicker() {
 }
 
 export function CreditLinkSection({ editing }: { editing: boolean }) {
+  const { isOnline } = useConnectivity();
   const { values, setValues } = useFormikContext<ExpenseFormValues>();
   const linked = values.source === "credit";
   const switchDisabled = !editing && (values.source === "recurring" || values.source === "notice");
@@ -147,7 +149,7 @@ export function CreditLinkSection({ editing }: { editing: boolean }) {
       <SwitchRow
         label={messages.Expense.credit_switch}
         checked={linked}
-        disabled={switchDisabled}
+        disabled={switchDisabled || !isOnline}
         onCheckedChange={(checked) =>
           void setValues((current) => ({
             ...current,
@@ -159,6 +161,9 @@ export function CreditLinkSection({ editing }: { editing: boolean }) {
           }))
         }
       />
+      {!isOnline ? (
+        <Text className="text-xs text-muted-foreground">{messages.Offline.advanced_online}</Text>
+      ) : null}
       {linked ? <CreditPicker /> : null}
     </View>
   );
