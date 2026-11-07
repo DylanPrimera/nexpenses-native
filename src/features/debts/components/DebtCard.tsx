@@ -1,3 +1,4 @@
+import { useWindowDimensions, Pressable, View } from "react-native";
 import type { Credit } from "@/core/types/domain";
 import { Icon } from "@/shared/components/ui/Icon";
 import { Skeleton } from "@/shared/components/ui/skeleton";
@@ -6,13 +7,13 @@ import { Text } from "@/shared/components/ui/text";
 import { messages } from "@/shared/i18n";
 import { IconBuildingBank, IconCreditCard } from "@tabler/icons-react-native";
 import { router } from "expo-router";
-import { Pressable, View } from "react-native";
 import { creditMoney, formatDueDate, installmentLabel, showsBank } from "../lib/credit-display";
 import { creditStatus } from "../lib/credit-status";
 import { DebtFigure } from "./DebtFigure";
 import { StatusBadge } from "./StatusBadge";
 
 export function DebtCard({ credit }: { credit: Credit }) {
+  const { fontScale } = useWindowDimensions();
   const status = creditStatus(credit.dueDate, credit.balance);
   const position = installmentLabel(credit);
 
@@ -21,7 +22,7 @@ export function DebtCard({ credit }: { credit: Credit }) {
       role="button"
       accessibilityLabel={credit.displayName}
       onPress={() => router.push({ pathname: "/debts/[id]", params: { id: credit.id } })}
-      className={`${SURFACE_CLASS} gap-3 p-4 active:opacity-80`}
+      className={`${SURFACE_CLASS} gap-3 p-4 active:bg-accent`}
     >
       <View className="flex-row items-start gap-3">
         <View className="size-11 items-center justify-center rounded-md bg-primary/15">
@@ -29,11 +30,13 @@ export function DebtCard({ credit }: { credit: Credit }) {
             as={credit.kind === "TC" ? IconCreditCard : IconBuildingBank}
             size={22}
             strokeWidth={1.75}
-            className="text-primary"
+            className="text-primary-action"
           />
         </View>
         <View className="min-w-0 flex-1">
-          <View className="flex-row items-start justify-between gap-2">
+          <View
+            className={`${fontScale >= 1.3 ? "flex-col" : "flex-row"} items-start justify-between gap-2`}
+          >
             <Text numberOfLines={1} className="shrink font-figtree-semibold text-base">
               {credit.displayName}
             </Text>

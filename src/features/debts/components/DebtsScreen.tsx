@@ -1,3 +1,6 @@
+import { useConnectivity } from "@/core/network/connectivity";
+import { getQueryDisplayState } from "@/shared/layout/query-display-state";
+import { listRows } from "@/shared/layout/list-rows";
 import { AccountDrawer } from "@/features/auth";
 import { Button } from "@/shared/components/ui/button";
 import { EmptyState } from "@/shared/components/ui/EmptyState";
@@ -8,27 +11,14 @@ import { AppRefreshControl, PageShell, usePullToRefresh } from "@/shared/layout"
 import { notifyWarning } from "@/shared/toast/notify";
 import { IconCloudOff, IconCreditCard, IconPlus } from "@tabler/icons-react-native";
 import { router } from "expo-router";
-import { View } from "react-native";
+import { SectionList, View } from "react-native";
 import { useCredits, useCreditsTotal } from "../hooks";
 import { groupCredits, hasReachedCreditLimit } from "../lib/credit-display";
 import { DebtCard, DebtCardSkeleton } from "./DebtCard";
 import { DebtsTotalCard } from "./DebtsTotalCard";
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <View className="gap-2.5">
-      <Text
-        role="heading"
-        className="font-figtree-semibold text-xs uppercase tracking-wide text-muted-foreground"
-      >
-        {title}
-      </Text>
-      {children}
-    </View>
-  );
-}
-
 export function DebtsScreen() {
+  const { isReady, isOnline } = useConnectivity();
   const credits = useCredits();
   const total = useCreditsTotal(!!credits.data && credits.data.length > 0);
   const { refreshing, onRefresh } = usePullToRefresh(() =>
@@ -36,6 +26,10 @@ export function DebtsScreen() {
   );
 
   const openCreate = () => {
+    if (!isOnline) {
+      notifyWarning(messages.Offline.action_requires_connection);
+      return;
+    }
     if (hasReachedCreditLimit(credits.data?.length ?? 0)) {
       notifyWarning(messages.Debts.max_reached);
       return;
@@ -43,8 +37,22 @@ export function DebtsScreen() {
     router.push("/debts/new");
   };
 
+  const state = getQueryDisplayState({
+    data: credits.data,
+    isReady,
+    isOnline,
+    isError: credits.isError,
+  });
   const content = () => {
-    if (credits.isError && !credits.data) {
+    if (state === "offline")
+      return (
+        <EmptyState
+          icon={IconCloudOff}
+          title={messages.Offline.offline_title}
+          description={messages.Offline.debts_unavailable}
+        />
+      );
+    if (state === "error") {
       return (
         <View className="gap-4">
           <EmptyState
@@ -58,18 +66,7 @@ export function DebtsScreen() {
         </View>
       );
     }
-    if (!credits.data) {
-      return (
-        <View
-          accessibilityElementsHidden
-          importantForAccessibility="no-hide-descendants"
-          className="gap-2.5"
-        >
-          <DebtCardSkeleton />
-          <DebtCardSkeleton />
-        </View>
-      );
-    }
+    if (!credits.data) return null;
     if (credits.data.length === 0) {
       return (
         <EmptyState
@@ -79,42 +76,70 @@ export function DebtsScreen() {
         />
       );
     }
-    const { cards, loans } = groupCredits(credits.data);
-    return (
-      <View className="gap-5">
-        <DebtsTotalCard total={total.data} />
-        {cards.length > 0 ? (
-          <Section title={messages.Debts.section_tc}>
-            {cards.map((credit) => (
-              <DebtCard key={credit.id} credit={credit} />
-            ))}
-          </Section>
-        ) : null}
-        {loans.length > 0 ? (
-          <Section title={messages.Debts.section_consumo}>
-            {loans.map((credit) => (
-              <DebtCard key={credit.id} credit={credit} />
-            ))}
-          </Section>
-        ) : null}
-      </View>
-    );
+    return null;
   };
 
+  const { cards, loans } = groupCredits(credits.data ?? []);
+  const sections =
+    state === "loading"
+      ? [{ key: "loading", title: "", data: listRows<(typeof cards)[number]>([], true, 2) }]
+      : [
+          { key: "TC", title: messages.Debts.section_tc, data: listRows(cards) },
+          { key: "CONSUMO", title: messages.Debts.section_consumo, data: listRows(loans) },
+        ].filter((section) => section.data.length > 0);
   return (
     <PageShell
       screenLabel={messages.Nav.debts}
       headerAction={<AccountDrawer />}
-      contentClassName="gap-4"
-      refreshControl={
-        <AppRefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />
-      }
-    >
-      <Button size="lg" onPress={openCreate}>
-        <Icon as={IconPlus} size={20} strokeWidth={2.5} className="text-primary-foreground" />
-        <Text className="font-figtree-bold">{messages.Debts.add_credit}</Text>
-      </Button>
-      {content()}
-    </PageShell>
+      renderScrollable={({ contentContainerStyle }) => (
+        <SectionList
+          style={{ flex: 1 }}
+          sections={sections}
+          keyExtractor={(row) => row.id}
+          contentContainerStyle={contentContainerStyle}
+          stickySectionHeadersEnabled={false}
+          ListHeaderComponent={
+            <View className="gap-4 pb-3">
+              <Button size="lg" disabled={!isOnline} onPress={openCreate}>
+                <Icon as={IconPlus} size={20} className="text-primary-foreground" />
+                <Text>{messages.Debts.add_credit}</Text>
+              </Button>
+              {!isOnline ? <Text>{messages.Offline.action_requires_connection}</Text> : null}
+              {credits.data?.length ? <DebtsTotalCard total={total.data} /> : null}
+            </View>
+          }
+          ListEmptyComponent={content() ?? undefined}
+          renderSectionHeader={({ section }) =>
+            section.title ? (
+              <Text role="heading" className="pb-2 pt-3 font-figtree-semibold">
+                {section.title}
+              </Text>
+            ) : null
+          }
+          renderItem={({ item }) => (
+            <View className="pb-2.5">
+              {item.kind === "skeleton" ? (
+                <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+                  <DebtCardSkeleton />
+                </View>
+              ) : (
+                <DebtCard credit={item.record} />
+              )}
+            </View>
+          )}
+          refreshControl={
+            <AppRefreshControl
+              refreshing={isOnline && refreshing}
+              onRefresh={() => {
+                if (isOnline) void onRefresh();
+              }}
+            />
+          }
+          removeClippedSubviews={false}
+          initialNumToRender={10}
+          windowSize={7}
+        />
+      )}
+    />
   );
 }

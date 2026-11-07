@@ -5,7 +5,6 @@ import { View } from "react-native";
 import { formatRate } from "../lib/credit-rates";
 import { projectionModel } from "../lib/credit-projection";
 import { creditMoney } from "../lib/credit-display";
-import { DebtAmortization } from "./DebtAmortization";
 import { ProgressBar, Scenario, SectionTitle } from "./DebtCalculationParts";
 import { DebtCloseIn, DebtExtra } from "./DebtWhatIf";
 
@@ -25,7 +24,7 @@ function Mix({
         <View style={{ width: `${100 - capitalPct}%` }} className="h-full bg-foreground/25" />
       </View>
       <View className="flex-row justify-between">
-        <Text className="font-figtree-medium text-xs text-primary">
+        <Text className="font-figtree-medium text-xs text-primary-action">
           {`${messages.Debts.capital} ${creditMoney(capital)}`}
         </Text>
         <Text className="font-figtree-medium text-xs text-muted-foreground">
@@ -36,8 +35,13 @@ function Mix({
   );
 }
 
-export function DebtCalculations({ credit }: { credit: Credit }) {
-  const model = projectionModel(credit);
+export function DebtCalculations({
+  credit,
+  model,
+}: {
+  credit: Credit;
+  model: ReturnType<typeof projectionModel>;
+}) {
   const isCard = credit.kind === "TC";
   const showMix = !!model.baseline && model.mixTotal > 0 && !model.baseline.stalled;
 
@@ -83,7 +87,13 @@ export function DebtCalculations({ credit }: { credit: Credit }) {
           </View>
         )}
       </View>
-      {!isCard ? <DebtAmortization schedule={model.schedule} /> : null}
+    </View>
+  );
+}
+
+export function DebtCalculationsFooter({ model }: { model: ReturnType<typeof projectionModel> }) {
+  return (
+    <View className="gap-4">
       <DebtCloseIn model={model} />
       <DebtExtra model={model} />
     </View>

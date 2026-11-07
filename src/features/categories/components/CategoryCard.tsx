@@ -15,23 +15,25 @@ type CategoryCardProps = {
 
 export function CategoryCard({ category, onEdit }: CategoryCardProps) {
   return (
-    <View className={`${SURFACE_CLASS} flex-row items-center gap-3 py-2 pl-4 pr-2`}>
+    <Pressable
+      role="button"
+      accessibilityLabel={`${messages.Common.edit} ${category.name}`}
+      onPress={() => onEdit(category)}
+      className={`${SURFACE_CLASS} flex-row items-center gap-3 py-2 pl-4 pr-2 active:bg-primary/15`}
+    >
       <View style={{ backgroundColor: category.color }} className="size-3 rounded-full" />
       <View className="min-w-0 flex-1">
         <Text numberOfLines={1} className="font-figtree-semibold text-sm capitalize">
           {category.name}
         </Text>
-        <Text className="text-xs text-muted-foreground">{categoryCountLabel(category.usageCount)}</Text>
+        <Text className="text-xs text-muted-foreground">
+          {categoryCountLabel(category.usageCount)}
+        </Text>
       </View>
-      <Pressable
-        role="button"
-        accessibilityLabel={`${messages.Common.edit} ${category.name}`}
-        onPress={() => onEdit(category)}
-        className="size-11 items-center justify-center rounded-[0.5rem] active:bg-primary/15"
-      >
+      <View className="size-11 items-center justify-center rounded-[0.5rem]">
         <Icon as={IconPencil} size={20} className="text-muted-foreground" />
-      </Pressable>
-    </View>
+      </View>
+    </Pressable>
   );
 }
 

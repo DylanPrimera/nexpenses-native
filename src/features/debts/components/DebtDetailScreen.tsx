@@ -1,3 +1,4 @@
+import { useConnectivity } from "@/core/network/connectivity";
 import { isApiError } from "@/core/api";
 import { Button } from "@/shared/components/ui/button";
 import { BackButton } from "@/shared/components/ui/BackButton";
@@ -12,12 +13,14 @@ import { ConfirmDialog } from "@/shared/overlays/ConfirmDialog";
 import { notifyError, notifySuccess } from "@/shared/toast/notify";
 import { IconCloudOff, IconPencil, IconTrash } from "@tabler/icons-react-native";
 import { router } from "expo-router";
-import { useState } from "react";
-import { View } from "react-native";
+import { useMemo, useState } from "react";
+import { FlatList, View } from "react-native";
+import { projectionModel } from "../lib/credit-projection";
+import { AmortizationHeader, AmortizationRow, AmortizationFooter } from "./DebtAmortization";
 import { useCredit, useDeleteCredit } from "../hooks";
 import { creditErrorMessage } from "../lib/credit-errors";
 import { creditMoney, creditOwed } from "../lib/credit-display";
-import { DebtCalculations } from "./DebtCalculations";
+import { DebtCalculations, DebtCalculationsFooter } from "./DebtCalculations";
 import { DebtEditSheet } from "./DebtEditSheet";
 import { DebtFigures } from "./DebtFigures";
 
@@ -47,12 +50,18 @@ function DetailSkeleton() {
 }
 
 export function DebtDetailScreen({ id }: { id: string }) {
+  const { isOnline } = useConnectivity();
   const credit = useCredit(id);
   const { mutateAsync: deleteCredit } = useDeleteCredit();
   const { refreshing, onRefresh } = usePullToRefresh(() => credit.refetch());
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const data = credit.data;
+  const [expandedCredit, setExpandedCredit] = useState<string | null>(null);
+  const showAll = expandedCredit === id;
+  const model = useMemo(() => (data ? projectionModel(data) : undefined), [data]);
+  const schedule = data?.kind !== "TC" ? model?.schedule : null;
+  const rows = schedule?.rows ?? [];
 
   const confirmDelete = async () => {
     try {
@@ -73,14 +82,18 @@ export function DebtDetailScreen({ id }: { id: string }) {
             <Icon as={IconPencil} size={20} />
             <Text className="font-figtree-semibold">{messages.Debts.edit_section}</Text>
           </Button>
-          <DebtCalculations credit={data} />
-          <Button variant="destructive" size="lg" onPress={() => setDeleteOpen(true)}>
-            <Icon as={IconTrash} size={20} />
-            <Text className="font-figtree-semibold">{messages.Debts.delete_confirm}</Text>
-          </Button>
+          {model ? <DebtCalculations credit={data} model={model} /> : null}
         </View>
       );
     }
+    if (!isOnline)
+      return (
+        <EmptyState
+          icon={IconCloudOff}
+          title={messages.Offline.offline_title}
+          description={messages.Offline.debts_unavailable}
+        />
+      );
     if (credit.isError) {
       const missing = isApiError(credit.error) && credit.error.status === NOT_FOUND_STATUS;
       return (
@@ -102,18 +115,60 @@ export function DebtDetailScreen({ id }: { id: string }) {
   };
 
   return (
-    <PageShell
-      screenLabel={messages.Nav.debt_detail}
-      navClearance={false}
-      contentClassName="gap-4"
-      refreshControl={
-        <AppRefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />
-      }
-    >
-      <View className="flex-row">
-        <BackButton accessibilityLabel={messages.Common.back} onPress={goBack} />
-      </View>
-      {content()}
+    <>
+      <PageShell
+        screenLabel={messages.Nav.debt_detail}
+        navClearance={false}
+        contentClassName="gap-4"
+        renderScrollable={({ contentContainerStyle }) => (
+          <FlatList
+            style={{ flex: 1 }}
+            data={showAll ? rows : rows.slice(0, 8)}
+            keyExtractor={(row) => `${id}:${row.number}`}
+            contentContainerStyle={contentContainerStyle}
+            renderItem={({ item }) => <AmortizationRow row={item} />}
+            ListHeaderComponent={
+              <View className="gap-4">
+                <View className="flex-row">
+                  <BackButton accessibilityLabel={messages.Common.back} onPress={goBack} />
+                </View>
+                {content()}
+                {rows.length ? <AmortizationHeader /> : null}
+              </View>
+            }
+            ListFooterComponent={
+              data && model ? (
+                <View className="gap-4 pt-3">
+                  {schedule && rows.length ? (
+                    <AmortizationFooter
+                      schedule={schedule}
+                      showAll={showAll}
+                      onToggle={() => setExpandedCredit(showAll ? null : id)}
+                    />
+                  ) : null}
+                  <DebtCalculationsFooter model={model} />
+                  <Button variant="destructive" size="lg" onPress={() => setDeleteOpen(true)}>
+                    <Icon as={IconTrash} size={20} />
+                    <Text className="font-figtree-semibold">{messages.Debts.delete_confirm}</Text>
+                  </Button>
+                </View>
+              ) : undefined
+            }
+            refreshControl={
+              <AppRefreshControl
+                refreshing={isOnline && refreshing}
+                onRefresh={() => {
+                  if (isOnline) void onRefresh();
+                }}
+              />
+            }
+            keyboardShouldPersistTaps="handled"
+            initialNumToRender={10}
+            windowSize={7}
+            removeClippedSubviews={false}
+          />
+        )}
+      />
       {data ? (
         <>
           <DebtEditSheet credit={data} isOpen={editOpen} onClose={() => setEditOpen(false)} />
@@ -129,6 +184,6 @@ export function DebtDetailScreen({ id }: { id: string }) {
           />
         </>
       ) : null}
-    </PageShell>
+    </>
   );
 }

@@ -67,7 +67,6 @@ export function DebtCloseIn({ model }: { model: ProjectionModel }) {
               onBlur={() => setMonthsText(String(months))}
               keyboardType="number-pad"
               accessibilityLabel={messages.Debts.close_in}
-              className="h-12"
             />
           </View>
           <Text className="shrink-0 text-sm text-muted-foreground">

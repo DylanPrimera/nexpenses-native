@@ -23,7 +23,7 @@ export function DebtFigures({ credit }: { credit: Credit }) {
             as={isCard ? IconCreditCard : IconBuildingBank}
             size={22}
             strokeWidth={1.75}
-            className="text-primary"
+            className="text-primary-action"
           />
         </View>
         <View className="min-w-0 flex-1">
