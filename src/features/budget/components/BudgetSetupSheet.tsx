@@ -5,7 +5,7 @@ import { FormCurrencyField } from "@/shared/forms/FormCurrencyField";
 import { zodFormikValidate } from "@/shared/forms/zod-formik";
 import { messages } from "@/shared/i18n";
 import { AppSheet } from "@/shared/overlays/AppSheet";
-import { notifyError, notifySuccess } from "@/shared/toast/notify";
+import { notifyActionError, notifySuccess } from "@/shared/toast/notify";
 import { IconSparkles, IconWallet } from "@tabler/icons-react-native";
 import { FormikProvider, useFormik } from "formik";
 import { View } from "react-native";
@@ -26,8 +26,8 @@ export function BudgetSetupSheet({ isOpen }: { isOpen: boolean }) {
       try {
         await mutateAsync({ budget: amount, cycleStartedAt: cycleStartFromDayKey(cycleDay) });
         notifySuccess(messages.Budget.created_toast);
-      } catch {
-        notifyError();
+      } catch (error) {
+        notifyActionError(error);
       }
     },
   });
@@ -51,12 +51,16 @@ export function BudgetSetupSheet({ isOpen }: { isOpen: boolean }) {
             </View>
             <View className="mb-2 flex-row items-center gap-1.5 rounded-md bg-primary/10 px-3 py-1">
               <Icon as={IconSparkles} size={14} className="text-primary" />
-              <Text className="font-figtree-medium text-xs text-primary">{messages.Meta.app_name}</Text>
+              <Text className="font-figtree-medium text-xs text-primary">
+                {messages.Meta.app_name}
+              </Text>
             </View>
             <Text role="heading" className="text-center font-figtree-bold text-xl tracking-tight">
               {messages.Budget.setup_title}
             </Text>
-            <Text className="mt-1 text-center text-sm text-muted-foreground">{messages.Budget.setup_description}</Text>
+            <Text className="mt-1 text-center text-sm text-muted-foreground">
+              {messages.Budget.setup_description}
+            </Text>
           </View>
           <FormCurrencyField
             name="amount"

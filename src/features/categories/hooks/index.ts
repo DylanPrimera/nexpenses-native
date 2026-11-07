@@ -15,6 +15,8 @@ export function useCategories() {
 
 export function useGetOrCreateCategory() {
   return useMutation({
+    networkMode: "always",
+    retry: false,
     mutationFn: getOrCreateCategoryAction,
     onSuccess: (category) => {
       queryClient.setQueryData<Category[]>(queryKeys.categories.all, (current) =>
@@ -27,6 +29,8 @@ export function useGetOrCreateCategory() {
 
 export function useUpdateCategory() {
   return useMutation({
+    networkMode: "always",
+    retry: false,
     mutationFn: updateCategoryAction,
     onSuccess: (category) => {
       queryClient.setQueryData<Category[]>(queryKeys.categories.all, (current) =>

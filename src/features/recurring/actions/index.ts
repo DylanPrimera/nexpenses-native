@@ -1,3 +1,4 @@
+import { requireOnline } from "@/core/network/require-online";
 import { apiClient } from "@/core/api/api-client";
 import {
   RECURRING_PAGE_LIMIT,
@@ -21,5 +22,6 @@ export async function getRecurringAction(): Promise<RecurringExpense[]> {
 }
 
 export async function deleteRecurringAction(id: string): Promise<void> {
+  requireOnline();
   await apiClient.delete(RECURRING_PATHS.detail(id));
 }

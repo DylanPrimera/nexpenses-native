@@ -1,3 +1,4 @@
+import { requireOnline } from "@/core/network/require-online";
 import { apiClient } from "@/core/api/api-client";
 import type { Credit } from "@/core/types/domain";
 import {
@@ -38,16 +39,19 @@ export async function getCreditAction(id: string): Promise<Credit> {
 }
 
 export async function createCreditAction(body: CreateCreditBody): Promise<Credit> {
+  requireOnline();
   const { data } = await apiClient.post<ApiCredit>(CREDIT_PATHS.list, body);
   return mapApiCredit(data);
 }
 
 export async function updateCreditAction({ id, body }: UpdateCreditInput): Promise<Credit> {
+  requireOnline();
   await apiClient.patch<ApiCredit>(CREDIT_PATHS.detail(id), body);
   return getCreditAction(id);
 }
 
 export async function deleteCreditAction(id: string): Promise<void> {
+  requireOnline();
   await apiClient.delete(CREDIT_PATHS.detail(id));
 }
 
@@ -60,6 +64,7 @@ export async function createCreditFromStatementAction({
   signal,
   onUploadProgress,
 }: CreateCreditFromStatementInput): Promise<Credit> {
+  requireOnline();
   const form = new FormData();
   form.append("kind", kind);
   form.append("displayName", displayName);

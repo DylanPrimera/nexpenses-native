@@ -1,3 +1,4 @@
+import { requireOnline } from "@/core/network/require-online";
 import { apiClient } from "@/core/api/api-client";
 import {
   CATEGORY_LIST_LIMIT,
@@ -15,6 +16,7 @@ export async function getCategoriesAction(): Promise<Category[]> {
 }
 
 export async function getOrCreateCategoryAction(name: string): Promise<Category> {
+  requireOnline();
   const { data } = await apiClient.post<Category>(CATEGORY_PATHS.getOrCreate, {
     name: name.trim(),
   });
@@ -22,6 +24,9 @@ export async function getOrCreateCategoryAction(name: string): Promise<Category>
 }
 
 export async function updateCategoryAction({ id, name }: UpdateCategoryInput): Promise<Category> {
-  const { data } = await apiClient.patch<Category>(CATEGORY_PATHS.detail(id), { name: name.trim() });
+  requireOnline();
+  const { data } = await apiClient.patch<Category>(CATEGORY_PATHS.detail(id), {
+    name: name.trim(),
+  });
   return data;
 }

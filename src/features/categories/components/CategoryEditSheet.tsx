@@ -6,7 +6,7 @@ import { FormField } from "@/shared/forms/FormField";
 import { zodFormikValidate } from "@/shared/forms/zod-formik";
 import { messages } from "@/shared/i18n";
 import { AppSheet } from "@/shared/overlays/AppSheet";
-import { notifyError, notifySuccess } from "@/shared/toast/notify";
+import { notifyActionError, notifySuccess } from "@/shared/toast/notify";
 import { IconCheck, IconPencil, IconTag } from "@tabler/icons-react-native";
 import { FormikProvider, useFormik, useFormikContext } from "formik";
 import { useMemo } from "react";
@@ -26,7 +26,13 @@ type CategoryEditSheetProps = {
   onClose: () => void;
 };
 
-function CategoryEditActions({ schemaValid, onCancel }: { schemaValid: boolean; onCancel: () => void }) {
+function CategoryEditActions({
+  schemaValid,
+  onCancel,
+}: {
+  schemaValid: boolean;
+  onCancel: () => void;
+}) {
   const { isSubmitting, submitForm } = useFormikContext<CategoryNameValues>();
 
   return (
@@ -34,7 +40,12 @@ function CategoryEditActions({ schemaValid, onCancel }: { schemaValid: boolean; 
       <Button variant="secondary" size="lg" className="flex-1" onPress={onCancel}>
         <Text className="font-figtree-semibold">{messages.Common.cancel}</Text>
       </Button>
-      <Button size="lg" className="flex-1" disabled={isSubmitting || !schemaValid} onPress={() => void submitForm()}>
+      <Button
+        size="lg"
+        className="flex-1"
+        disabled={isSubmitting || !schemaValid}
+        onPress={() => void submitForm()}
+      >
         <Icon as={IconCheck} size={20} strokeWidth={2.5} className="text-primary-foreground" />
         <Text className="font-figtree-bold">{messages.Categories.save_button}</Text>
       </Button>
@@ -42,7 +53,12 @@ function CategoryEditActions({ schemaValid, onCancel }: { schemaValid: boolean; 
   );
 }
 
-export function CategoryEditSheet({ category, categories, isOpen, onClose }: CategoryEditSheetProps) {
+export function CategoryEditSheet({
+  category,
+  categories,
+  isOpen,
+  onClose,
+}: CategoryEditSheetProps) {
   const { mutateAsync } = useUpdateCategory();
   const schema = useMemo(
     () => categoryNameSchema(takenCategoryNames(categories, category?.id ?? "")),
@@ -68,7 +84,7 @@ export function CategoryEditSheet({ category, categories, isOpen, onClose }: Cat
           setFieldError("name", messages.Categories.validation_duplicate);
           return;
         }
-        notifyError();
+        notifyActionError(error);
       }
     },
   });
@@ -90,16 +106,24 @@ export function CategoryEditSheet({ category, categories, isOpen, onClose }: Cat
             <Icon as={IconPencil} size={22} strokeWidth={1.75} className="text-primary" />
           </View>
           <View className="min-w-0 flex-1">
-            <Text role="heading" className="font-figtree-semibold text-lg leading-tight tracking-tight">
+            <Text
+              role="heading"
+              className="font-figtree-semibold text-lg leading-tight tracking-tight"
+            >
               {messages.Categories.edit_title}
             </Text>
-            <Text className="mt-0.5 text-sm text-muted-foreground">{messages.Categories.edit_subtitle}</Text>
+            <Text className="mt-0.5 text-sm text-muted-foreground">
+              {messages.Categories.edit_subtitle}
+            </Text>
           </View>
         </View>
       }
       footer={
         <FormikProvider value={formik}>
-          <CategoryEditActions schemaValid={schema.safeParse(formik.values).success} onCancel={handleClose} />
+          <CategoryEditActions
+            schemaValid={schema.safeParse(formik.values).success}
+            onCancel={handleClose}
+          />
         </FormikProvider>
       }
     >

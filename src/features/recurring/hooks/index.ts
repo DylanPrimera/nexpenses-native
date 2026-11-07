@@ -15,6 +15,8 @@ export function useRecurring(enabled = true) {
 
 export function useDeleteRecurring() {
   return useMutation({
+    networkMode: "always",
+    retry: false,
     mutationFn: deleteRecurringAction,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.recurring.all }),
   });

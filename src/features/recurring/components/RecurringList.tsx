@@ -1,7 +1,7 @@
 import { formatCOPCurrency } from "@/core/utils/currency";
 import { messages } from "@/shared/i18n";
 import { ConfirmDialog } from "@/shared/overlays/ConfirmDialog";
-import { notifyError, notifySuccess } from "@/shared/toast/notify";
+import { notifyActionError, notifySuccess } from "@/shared/toast/notify";
 import { useState } from "react";
 import { View } from "react-native";
 import { useDeleteRecurring } from "../hooks";
@@ -21,8 +21,8 @@ export function RecurringList({ templates }: { templates: RecurringExpense[] }) 
     try {
       await deleteRecurring(selected.id);
       notifySuccess(messages.Recurring.delete_success);
-    } catch {
-      notifyError(messages.Recurring.delete_error);
+    } catch (error) {
+      notifyActionError(error, messages.Recurring.delete_error);
     }
   };
 
@@ -56,7 +56,10 @@ export function RecurringList({ templates }: { templates: RecurringExpense[] }) 
         isDestructive
         preview={
           selected
-            ? { title: selected.title, amount: `${formatCOPCurrency(selected.amount)} ${messages.Common.currency}` }
+            ? {
+                title: selected.title,
+                amount: `${formatCOPCurrency(selected.amount)} ${messages.Common.currency}`,
+              }
             : undefined
         }
         onConfirm={() => void confirmDelete()}

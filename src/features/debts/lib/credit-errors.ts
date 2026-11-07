@@ -1,7 +1,9 @@
+import { OfflineActionError } from "@/core/network/require-online";
 import { isApiError, isNetworkError } from "@/core/api";
 import { messages } from "@/shared/i18n";
 
 export function creditErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof OfflineActionError) return error.message;
   if (isNetworkError(error)) return messages.Debts.offline;
   if (isApiError(error) && error.message.trim()) return error.message;
   return fallback;

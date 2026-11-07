@@ -51,6 +51,8 @@ export function useCredit(id: string) {
 
 export function useCreateCredit() {
   return useMutation({
+    networkMode: "always",
+    retry: false,
     mutationFn: createCreditAction,
     onSuccess: (credit) => {
       queryClient.setQueryData(queryKeys.credits.detail(credit.id), credit);
@@ -61,6 +63,8 @@ export function useCreateCredit() {
 
 export function useCreateCreditFromStatement() {
   return useMutation({
+    networkMode: "always",
+    retry: false,
     mutationFn: createCreditFromStatementAction,
     onSuccess: (credit) => {
       queryClient.setQueryData(queryKeys.credits.detail(credit.id), credit);
@@ -71,6 +75,8 @@ export function useCreateCreditFromStatement() {
 
 export function useUpdateCredit() {
   return useMutation({
+    networkMode: "always",
+    retry: false,
     mutationFn: updateCreditAction,
     onSuccess: (credit) => {
       queryClient.setQueryData(queryKeys.credits.detail(credit.id), credit);
@@ -81,6 +87,8 @@ export function useUpdateCredit() {
 
 export function useDeleteCredit() {
   return useMutation({
+    networkMode: "always",
+    retry: false,
     mutationFn: deleteCreditAction,
     onSuccess: (_data, id) => {
       queryClient.removeQueries({ queryKey: queryKeys.credits.detail(id) });

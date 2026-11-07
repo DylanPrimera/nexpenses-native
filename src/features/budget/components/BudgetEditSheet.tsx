@@ -7,7 +7,7 @@ import { FormCurrencyField } from "@/shared/forms/FormCurrencyField";
 import { zodFormikValidate } from "@/shared/forms/zod-formik";
 import { messages, tx } from "@/shared/i18n";
 import { AppSheet } from "@/shared/overlays/AppSheet";
-import { notifyError, notifySuccess } from "@/shared/toast/notify";
+import { notifyActionError, notifySuccess } from "@/shared/toast/notify";
 import { IconPencil } from "@tabler/icons-react-native";
 import { FormikProvider, useFormik, useFormikContext } from "formik";
 import { Pressable, View } from "react-native";
@@ -53,7 +53,12 @@ function NewCycleToggle({ cycleStartedAt }: { cycleStartedAt: string }) {
   );
 }
 
-export function BudgetEditSheet({ isOpen, onClose, profile, startNewCycle = false }: BudgetEditSheetProps) {
+export function BudgetEditSheet({
+  isOpen,
+  onClose,
+  profile,
+  startNewCycle = false,
+}: BudgetEditSheetProps) {
   const { mutateAsync } = useUpdateBudget();
   const formik = useFormik<BudgetFormValues>({
     initialValues: { amount: profile.budget, cycleDay: localDayKey(), isNewCycle: startNewCycle },
@@ -67,8 +72,8 @@ export function BudgetEditSheet({ isOpen, onClose, profile, startNewCycle = fals
         });
         notifySuccess(isNewCycle ? messages.Budget.new_cycle_toast : messages.Budget.updated_toast);
         handleClose();
-      } catch {
-        notifyError();
+      } catch (error) {
+        notifyActionError(error);
       }
     },
   });
