@@ -54,7 +54,13 @@
         }
       ],
       "expo-asset",
-      "expo-sharing"
+      "expo-sharing",
+      [
+        "react-native-nitro-google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.444973054531-utm50puq6i1g63fi6ms4igjtnl1c2nh1"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
