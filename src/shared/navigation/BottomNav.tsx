@@ -1,11 +1,13 @@
-import { Icon } from "@/shared/components/ui/Icon";
 import { NAV_BOTTOM_GAP } from "@/shared/layout/layout-metrics";
 import { useAppTheme } from "@/shared/theme";
-import { navTourTarget } from "@/shared/tour/tour-targets";
-import { useTourTarget } from "@/shared/tour/use-tour-target";
 import type { BottomTabBarProps } from "expo-router/js-tabs";
-import { Pressable, useWindowDimensions, View } from "react-native";
+import { useState } from "react";
+import { useWindowDimensions, View, type LayoutChangeEvent } from "react-native";
 import { AddExpenseFAB } from "./AddExpenseFAB";
+import { BottomNavIndicator } from "./BottomNavIndicator";
+import { NavTabButton } from "./NavTabButton";
+import { resolveNavIndicatorGeometry, type NavMeasurements } from "./nav-indicator-geometry";
+import { useNavReducedMotion } from "./use-nav-reduced-motion";
 import { navItemHitSlop, navItemSizeClass, splitNavItems, type NavItem } from "./nav-items";
 import { useKeyboardVisible } from "./use-keyboard-visible";
 
@@ -18,52 +20,48 @@ type BottomNavProps = BottomTabBarProps & {
   onAddPress: () => void;
 };
 
-type NavTabButtonProps = NavItem & {
-  active: boolean;
-  sizeClass: string;
-  hitSlop: ReturnType<typeof navItemHitSlop>;
-  onPress: () => void;
-};
-
-function NavTabButton({
-  route,
-  label,
-  icon,
-  active,
-  sizeClass,
-  hitSlop,
-  onPress,
-}: NavTabButtonProps) {
-  const targetRef = useTourTarget(navTourTarget(route));
-
-  return (
-    <Pressable
-      ref={targetRef}
-      role="tab"
-      accessibilityLabel={label}
-      accessibilityState={{ selected: active }}
-      hitSlop={hitSlop}
-      onPress={onPress}
-      className={`items-center justify-center rounded-full ${sizeClass} ${active ? "bg-nav-active" : "active:bg-accent"}`}
-    >
-      <Icon
-        as={icon}
-        size={22}
-        strokeWidth={active ? 2.25 : 1.75}
-        className={active ? "text-primary-action" : "text-muted-foreground"}
-      />
-    </Pressable>
-  );
+function emptyMeasurements(): NavMeasurements {
+  return { pill: null, left: null, right: null, gap: null, tabs: {} };
 }
 
 export function BottomNav({ state, emitter, navigateToTab, insets, onAddPress }: BottomNavProps) {
   const { resolvedScheme } = useAppTheme();
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const keyboardVisible = useKeyboardVisible();
   const [left, right] = splitNavItems();
   const activeRoute = state.routes[state.index]?.name;
   const sizeClass = navItemSizeClass(width);
   const hitSlop = navItemHitSlop(width);
+
+  const reducedMotion = useNavReducedMotion();
+  const epochKey = `${sizeClass}:${keyboardVisible}`;
+  const [measured, setMeasured] = useState(() => ({ key: epochKey, epoch: 0, data: emptyMeasurements() }));
+  if (measured.key !== epochKey) {
+    setMeasured({ key: epochKey, epoch: measured.epoch + 1, data: emptyMeasurements() });
+  }
+  const epoch = measured.epoch;
+  const data = measured.key === epochKey ? measured.data : emptyMeasurements();
+  const leftRoutes = left
+    .filter(({ route }) => state.routes.some((item) => item.name === route))
+    .map(({ route }) => route);
+  const rightRoutes = right
+    .filter(({ route }) => state.routes.some((item) => item.name === route))
+    .map(({ route }) => route);
+  const geometry = resolveNavIndicatorGeometry(data, activeRoute, leftRoutes, rightRoutes);
+  const layoutKey = `${width}:${height}:${epoch}`;
+
+  const recordLayout = (part: Exclude<keyof NavMeasurements, "tabs"> | "tab", route?: string) =>
+    (event: LayoutChangeEvent) => {
+      const rect = { ...event.nativeEvent.layout };
+      setMeasured((current) => {
+        if (current.epoch !== epoch) return current;
+        const previous = current.data;
+        const next = part === "tab" && route
+          ? { ...previous, tabs: { ...previous.tabs, [route]: rect } }
+          : { ...previous, [part]: rect };
+        return { ...current, data: next };
+      });
+    };
 
   if (keyboardVisible) return null;
 
@@ -84,6 +82,10 @@ export function BottomNav({ state, emitter, navigateToTab, insets, onAddPress }:
         label={label}
         icon={icon}
         active={active}
+        indicatorReady={geometry !== null}
+        reducedMotion={reducedMotion}
+        layoutKey={layoutKey}
+        onLayout={recordLayout("tab", route)}
         sizeClass={sizeClass}
         hitSlop={hitSlop}
         onPress={handlePress}
@@ -98,15 +100,41 @@ export function BottomNav({ state, emitter, navigateToTab, insets, onAddPress }:
       className="absolute inset-x-0 items-center px-5"
     >
       <View
+        onLayout={recordLayout("pill")}
         style={{ boxShadow: PILL_SHADOW[resolvedScheme] }}
         role="tablist"
         className="flex-row items-center rounded-full bg-nav-pill p-1"
       >
-        <View className="flex-row items-center gap-1">{left.map(renderItem)}</View>
-        <View className="-my-3 rounded-full bg-nav-pill p-3">
+        {geometry && activeRoute && (
+          <BottomNavIndicator
+            geometry={geometry}
+            route={activeRoute}
+            layoutKey={layoutKey}
+            reducedMotion={reducedMotion}
+          />
+        )}
+        <View
+          testID="bottom-nav-left"
+          onLayout={recordLayout("left")}
+          className="flex-row items-center gap-1"
+        >
+          {left.map(renderItem)}
+        </View>
+        <View
+          testID="bottom-nav-fab-gap"
+          onLayout={recordLayout("gap")}
+          style={{ zIndex: 1, elevation: 0 }}
+          className="-my-3 rounded-full bg-nav-pill p-3"
+        >
           <AddExpenseFAB onPress={onAddPress} />
         </View>
-        <View className="flex-row items-center gap-1 pl-1">{right.map(renderItem)}</View>
+        <View
+          testID="bottom-nav-right"
+          onLayout={recordLayout("right")}
+          className="flex-row items-center gap-1 pl-1"
+        >
+          {right.map(renderItem)}
+        </View>
       </View>
     </View>
   );
