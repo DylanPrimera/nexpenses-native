@@ -1,6 +1,7 @@
 import { queryClient } from "@/core/query/query-client";
+import { clearCycleNoticeDismissal } from "@/features/budget/lib/cycle-notice-storage";
 import { create } from "zustand";
-import { loginAction, refreshSessionAction, registerAction } from "../actions";
+import { deleteAccountAction, loginAction, refreshSessionAction, registerAction } from "../actions";
 import type { AuthUser } from "../interfaces";
 import { authErrorStatus } from "../lib/auth-errors";
 import {
@@ -33,6 +34,7 @@ interface AuthState {
   bootstrap: () => Promise<void>;
   refreshSession: () => Promise<void>;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
 }
 
 const SIGNED_OUT = {
@@ -42,6 +44,19 @@ const SIGNED_OUT = {
   firstName: "",
   lastName: "",
 } as const;
+
+async function endSession(
+  set: (state: typeof SIGNED_OUT) => void,
+  cleanup: () => Promise<unknown>,
+) {
+  await queryClient.cancelQueries();
+  set(SIGNED_OUT);
+  try {
+    await cleanup();
+  } finally {
+    queryClient.clear();
+  }
+}
 
 export const useAuthStore = create<AuthState>()((set, get) => ({
   status: "checking",
@@ -101,9 +116,12 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     }
   },
 
-  logout: async () => {
-    await clearAllSession();
-    queryClient.clear();
-    set(SIGNED_OUT);
+  logout: () => endSession(set, clearAllSession),
+
+  deleteAccount: async () => {
+    await deleteAccountAction();
+    await endSession(set, () =>
+      Promise.allSettled([clearAllSession(), clearCycleNoticeDismissal()]),
+    );
   },
 }));

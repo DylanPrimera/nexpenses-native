@@ -20,4 +20,5 @@ export const AUTH_PATHS = {
   register: "/auth/register",
   google: "/auth/google",
   me: "/auth/me",
+  deleteAccount: "/users/me",
 } as const;

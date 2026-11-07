@@ -10,3 +10,7 @@ export async function isCycleNoticeDismissed(cycleStartedAt: string): Promise<bo
 export async function dismissCycleNotice(cycleStartedAt: string): Promise<void> {
   await AsyncStorage.setItem(DISMISSED_KEY, cycleStartedAt).catch(() => undefined);
 }
+
+export async function clearCycleNoticeDismissal(): Promise<void> {
+  await AsyncStorage.removeItem(DISMISSED_KEY);
+}
