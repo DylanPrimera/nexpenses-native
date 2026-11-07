@@ -91,6 +91,7 @@ export function PasteNoticeSection() {
       <SwitchRow
         label={messages.Expense.paste_toggle}
         checked={enabled}
+        disabled={values.source === "credit"}
         onCheckedChange={(checked) =>
           void setValues((current) => ({
             ...current,

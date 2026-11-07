@@ -74,7 +74,7 @@ export function ExpenseFormSheet({ isOpen, onClose, expense }: ExpenseFormSheetP
     onSubmit: async (values) => {
       const input = expenseInput(values, !editing);
       try {
-        if (expense) await updateExpense({ id: expense.id, input });
+        if (expense) await updateExpense({ id: expense.id, input, previousCreditId: expense.creditId });
         else await createExpense(input);
       } catch {
         notifyError();

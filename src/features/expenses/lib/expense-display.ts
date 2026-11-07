@@ -28,14 +28,17 @@ export function expenseAmountLabel(amount: number): string {
 }
 
 export function expenseFormValues(expense?: Expense | null): ExpenseFormValues {
+  const linked = !!expense?.creditId;
   return {
     amount: expense?.amount ?? 0,
     categoryId: expense?.categoryId ?? "",
     title: expense?.title ?? "",
     description: expense?.description ?? "",
-    paymentType: expense?.paymentType ?? "debit_card",
-    source: "manual",
+    paymentType: linked && expense?.paymentType === "credit_card" ? "debit_card" : (expense?.paymentType ?? "debit_card"),
+    source: linked ? "credit" : "manual",
     recurringId: "",
+    creditId: expense?.creditId ?? "",
+    creditKind: "TC",
     saveAsRecurring: false,
   };
 }
@@ -48,7 +51,13 @@ export function expenseInput(values: ExpenseFormValues, creating = false): Expen
     description: values.description.trim(),
     paymentType: values.paymentType,
   };
-  if (creating && values.saveAsRecurring) input.saveAsRecurring = true;
+  if (values.source === "credit") {
+    input.creditId = values.creditId;
+    input.advanceInstallment = true;
+  } else if (!creating) {
+    input.creditId = null;
+  }
+  if (creating && values.source !== "credit" && values.saveAsRecurring) input.saveAsRecurring = true;
   return input;
 }
 

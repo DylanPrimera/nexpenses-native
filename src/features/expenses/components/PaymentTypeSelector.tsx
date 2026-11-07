@@ -15,25 +15,28 @@ const OPTIONS: { id: PaymentType; label: string; icon: TablerIconType }[] = [
 type PaymentTypeSelectorProps = {
   value: PaymentType;
   onChange: (value: PaymentType) => void;
+  disabledTypes?: readonly PaymentType[];
 };
 
-export function PaymentTypeSelector({ value, onChange }: PaymentTypeSelectorProps) {
+export function PaymentTypeSelector({ value, onChange, disabledTypes = [] }: PaymentTypeSelectorProps) {
   return (
     <View role="radiogroup" accessibilityLabel={messages.Expense.payment_label} className="flex-row gap-2">
       {OPTIONS.map((option) => {
         const selected = value === option.id;
+        const disabled = disabledTypes.includes(option.id);
         const tone = selected ? "text-primary" : "text-muted-foreground";
         return (
           <Pressable
             key={option.id}
             role="radio"
-            accessibilityState={{ checked: selected }}
+            disabled={disabled}
+            accessibilityState={{ checked: selected, disabled }}
             onPress={() => {
               if (selected) return;
               playPressSound();
               onChange(option.id);
             }}
-            className={`flex-1 items-center justify-center gap-1.5 rounded-md p-2.5 ${selected ? "bg-primary/15" : "bg-muted active:bg-accent"}`}
+            className={`flex-1 items-center justify-center gap-1.5 rounded-md p-2.5 ${selected ? "bg-primary/15" : "bg-muted active:bg-accent"} ${disabled ? "opacity-40" : ""}`}
           >
             <Icon as={option.icon} size={24} strokeWidth={selected ? 2.2 : 1.75} className={tone} />
             <Text

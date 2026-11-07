@@ -33,6 +33,19 @@ export interface ExpenseInput {
   description: string;
   paymentType: PaymentType;
   saveAsRecurring?: boolean;
+  creditId?: string | null;
+  advanceInstallment?: true;
+}
+
+export interface UpdateExpenseInput {
+  id: string;
+  input: ExpenseInput;
+  previousCreditId?: string | null;
+}
+
+export interface DeleteExpenseInput {
+  id: string;
+  creditId?: string | null;
 }
 
 export const EXPENSE_PATHS = {

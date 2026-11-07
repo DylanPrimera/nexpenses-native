@@ -16,13 +16,23 @@ export const expenseSchema = z
     title: z.string().trim().min(1, messages.Expense.validation_title).max(EXPENSE_TITLE_MAX),
     description: z.string().trim().min(1, messages.Expense.validation_description).max(EXPENSE_DESCRIPTION_MAX),
     paymentType: z.enum(["cash", "debit_card", "credit_card"]),
-    source: z.enum(["manual", "recurring", "notice"]),
+    source: z.enum(["manual", "recurring", "notice", "credit"]),
     recurringId: z.string(),
+    creditId: z.string(),
+    creditKind: z.enum(["TC", "CONSUMO"]),
     saveAsRecurring: z.boolean(),
   })
   .refine((values) => values.source !== "recurring" || values.recurringId !== "", {
     message: messages.Expense.recurring_required,
     path: ["recurringId"],
+  })
+  .refine((values) => values.source !== "credit" || values.creditId !== "", {
+    message: messages.Expense.credit_required,
+    path: ["creditId"],
+  })
+  .refine((values) => values.source !== "credit" || values.paymentType !== "credit_card", {
+    message: messages.Expense.credit_card_blocked,
+    path: ["paymentType"],
   });
 
 export type ExpenseFormValues = z.infer<typeof expenseSchema>;

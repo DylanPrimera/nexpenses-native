@@ -30,7 +30,7 @@ export function ExpenseActions({ children }: { children: (openers: ExpenseOpener
   const confirmDelete = async () => {
     if (!selected) return;
     try {
-      await deleteExpense(selected.id);
+      await deleteExpense({ id: selected.id, creditId: selected.creditId });
       notifySuccess(messages.Expense.delete_success_message);
     } catch {
       notifyError();

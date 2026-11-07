@@ -6,6 +6,7 @@ import {
   type Expense,
   type ExpenseInput,
   type ExpenseListResponse,
+  type UpdateExpenseInput,
 } from "../interfaces";
 
 export async function getCycleExpensesAction(cycleStartedAt: string): Promise<Expense[]> {
@@ -20,7 +21,7 @@ export async function createExpenseAction(input: ExpenseInput): Promise<Expense>
   return data;
 }
 
-export async function updateExpenseAction({ id, input }: { id: string; input: ExpenseInput }): Promise<Expense> {
+export async function updateExpenseAction({ id, input }: UpdateExpenseInput): Promise<Expense> {
   const { data } = await apiClient.patch<Expense>(EXPENSE_PATHS.detail(id), input);
   return data;
 }

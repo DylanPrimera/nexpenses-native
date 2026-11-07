@@ -97,6 +97,7 @@ export function RecurringUseSection() {
       <SwitchRow
         label={messages.Expense.recurring_use_switch}
         checked={enabled}
+        disabled={values.source === "credit"}
         onCheckedChange={(checked) =>
           void setValues((current) => ({
             ...current,
