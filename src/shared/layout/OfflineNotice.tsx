@@ -1,3 +1,4 @@
+import { CONTENT_MAX_WIDTH } from "./layout-metrics";
 import { View } from "react-native";
 import { IconCloudOff } from "@tabler/icons-react-native";
 import { useConnectivity } from "@/core/network/connectivity";
@@ -12,8 +13,9 @@ export function OfflineNotice() {
   if (!isReady || (isOnline && !pending.length)) return null;
   return (
     <View
+      style={{ alignSelf: "center", width: "92%", maxWidth: CONTENT_MAX_WIDTH - 32 }}
       accessibilityLiveRegion="polite"
-      className="mx-4 flex-row items-center gap-2 rounded-md bg-muted px-3 py-2"
+      className="flex-row items-center gap-2 rounded-md bg-muted px-3 py-2"
     >
       <Icon as={IconCloudOff} size={18} className="text-muted-foreground" />
       <View className="flex-1">

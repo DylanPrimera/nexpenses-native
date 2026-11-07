@@ -264,7 +264,7 @@ export function AuthForm({
           <Pressable className="mt-2 self-center px-4 py-3" hitSlop={8}>
             <Text className="text-center text-sm text-muted-foreground">
               {isRegister ? authCopy.has_account_prompt : authCopy.no_account_prompt}{" "}
-              <Text className="font-figtree-semibold text-sm text-primary underline">
+              <Text className="font-figtree-semibold text-sm text-primary-action underline">
                 {isRegister ? authCopy.has_account_action : authCopy.no_account_action}
               </Text>
             </Text>

@@ -92,7 +92,7 @@ export function BudgetEditSheet({
       header={
         <View className="flex-row items-center gap-2">
           <View className="size-10 items-center justify-center rounded-[0.875rem] bg-muted">
-            <Icon as={EDIT_ICON} size={20} className="text-primary" />
+            <Icon as={EDIT_ICON} size={20} className="text-primary-action" />
           </View>
           <Text role="heading" className="font-figtree-bold text-lg">
             {messages.Budget.edit_title}

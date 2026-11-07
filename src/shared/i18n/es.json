@@ -172,7 +172,8 @@
 		"page_total": "Total en esta página",
 		"filter_category_placeholder": "Seleccionar o buscar...",
 		"filter_payment_placeholder": "Seleccionar o buscar...",
-		"filter_empty": "Sin resultados"
+		"filter_empty": "Sin resultados",
+		"has_expenses": "Con gastos"
 	},
 	"Recurring": {
 		"empty_title": "Sin pagos recurrentes",
@@ -515,7 +516,9 @@
 		"error_generic": "Algo salió mal. Intenta de nuevo.",
 		"load_error_title": "No pudimos cargar tus datos",
 		"load_error_description": "Revisa tu conexión y vuelve a intentarlo.",
-		"retry": "Reintentar"
+		"retry": "Reintentar",
+		"today": "Hoy",
+		"none_selected": "Sin selección"
 	},
 	"WhatsNew": {
 		"items": {
@@ -575,27 +578,28 @@
 		"google_waiting": "Conectando con Google…",
 		"generic_error": "No se pudo completar. Inténtalo de nuevo."
 	},
-    "Offline": {
-        "action_requires_connection": "Necesitas conexión para realizar esta acción.",
-        "pending": "Pendiente",
-        "offline_title": "Sin conexión",
-        "offline_description": "Puedes consultar datos guardados y crear gastos. Se sincronizarán al recuperar la conexión.",
-        "syncing": "Sincronizando gastos pendientes…",
-        "waiting": "Hay gastos pendientes de sincronización.",
-        "categories_cached": "Sin conexión solo puedes usar categorías guardadas.",
-        "categories_missing": "Conéctate para cargar tus categorías antes de crear un gasto.",
-        "advanced_online": "Los pagos de créditos y las plantillas requieren conexión.",
-        "pending_action": "Espera a que el gasto termine de sincronizarse para editarlo o eliminarlo.",
-        "queued": "Gasto guardado en este dispositivo. Se sincronizará al recuperar la conexión.",
-        "accepted": "Gasto registrado; sincronizando.",
-        "discarded": "No se pudo sincronizar un gasto y se descartó. Revisa los datos antes de volver a crearlo.",
-        "local_failure": "No se pudo guardar el gasto en este dispositivo.",
-        "recovery_failure": "No se pudieron recuperar algunos gastos pendientes.",
-        "no_data": "No hay datos guardados para consultar sin conexión.",
-        "partial": "Solo se muestran gastos creados en este dispositivo; faltan datos por cargar.",
-        "includes_pending": "Incluye gastos pendientes.",
-        "logout_title": "¿Cerrar sesión con gastos pendientes?",
-        "logout_description": "Los gastos que no se han sincronizado se eliminarán de este dispositivo.",
-        "recover_session": "Conéctate para recuperar tu sesión."
-    }
+	"Offline": {
+		"action_requires_connection": "Necesitas conexión para realizar esta acción.",
+		"pending": "Pendiente",
+		"offline_title": "Sin conexión",
+		"offline_description": "Puedes consultar datos guardados y crear gastos. Se sincronizarán al recuperar la conexión.",
+		"syncing": "Sincronizando gastos pendientes…",
+		"waiting": "Hay gastos pendientes de sincronización.",
+		"categories_cached": "Sin conexión solo puedes usar categorías guardadas.",
+		"categories_missing": "Conéctate para cargar tus categorías antes de crear un gasto.",
+		"advanced_online": "Los pagos de créditos y las plantillas requieren conexión.",
+		"pending_action": "Espera a que el gasto termine de sincronizarse para editarlo o eliminarlo.",
+		"queued": "Gasto guardado en este dispositivo. Se sincronizará al recuperar la conexión.",
+		"accepted": "Gasto registrado; sincronizando.",
+		"discarded": "No se pudo sincronizar un gasto y se descartó. Revisa los datos antes de volver a crearlo.",
+		"local_failure": "No se pudo guardar el gasto en este dispositivo.",
+		"recovery_failure": "No se pudieron recuperar algunos gastos pendientes.",
+		"no_data": "No hay datos guardados para consultar sin conexión.",
+		"partial": "Solo se muestran gastos creados en este dispositivo; faltan datos por cargar.",
+		"includes_pending": "Incluye gastos pendientes.",
+		"logout_title": "¿Cerrar sesión con gastos pendientes?",
+		"logout_description": "Los gastos que no se han sincronizado se eliminarán de este dispositivo.",
+		"recover_session": "Conéctate para recuperar tu sesión.",
+		"debts_unavailable": "Conéctate para consultar tus deudas. Esta sección no se guarda para uso sin conexión."
+	}
 }

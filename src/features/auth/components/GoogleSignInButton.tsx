@@ -54,12 +54,12 @@ export function GoogleSignInButton({
       accessibilityState={{ disabled: blocked, busy: loading }}
       disabled={blocked}
       onPress={onPress}
-      className={`h-12 w-full flex-row items-center justify-center gap-3 rounded-full border px-4 ${brand.container} ${stateClass}`}
+      className={`min-h-12 w-full flex-row items-center justify-center gap-3 rounded-full border px-4 py-3 ${brand.container} ${stateClass}`}
     >
       <View className="size-5 items-center justify-center">
         {loading ? <ActivityIndicator size="small" color={brand.text} /> : <GoogleLogo />}
       </View>
-      <Text style={{ color: brand.text, fontSize: 14, fontWeight: "500" }}>
+      <Text style={{ color: brand.text, fontSize: 14, fontWeight: "500", flexShrink: 1 }}>
         {messages.Auth.google}
       </Text>
     </Pressable>

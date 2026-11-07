@@ -17,7 +17,7 @@ import { Text } from "@/shared/components/ui/text";
 import { messages, tx } from "@/shared/i18n";
 import { IconCloudOff, IconPencil } from "@tabler/icons-react-native";
 import { useState } from "react";
-import { View } from "react-native";
+import { View, useWindowDimensions } from "react-native";
 
 type BudgetSettingsCardProps = {
   profile: UserProfile | undefined;
@@ -35,15 +35,15 @@ function StatRow({
   value: string;
   danger?: boolean;
 }) {
+  const { fontScale } = useWindowDimensions();
   const valueClass = danger ? "text-destructive" : "text-foreground";
 
   return (
-    <View className="flex-row items-center justify-between gap-3">
+    <View
+      className={`${fontScale >= 1.3 ? "flex-col items-start" : "flex-row items-center"} justify-between gap-3`}
+    >
       <Text className="text-sm text-muted-foreground">{label}</Text>
-      <Text
-        numberOfLines={1}
-        className={`shrink font-figtree-semibold text-sm tabular-nums ${valueClass}`}
-      >
+      <Text className={`shrink font-figtree-semibold text-sm tabular-nums ${valueClass}`}>
         {value}
       </Text>
     </View>
@@ -100,11 +100,7 @@ export function BudgetSettingsCard({
         <View className="flex-row items-start justify-between gap-3">
           <View className="min-w-0 flex-1">
             <Text className={FIELD_LABEL_CLASS}>{messages.Settings.current_budget}</Text>
-            <Text
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              className="font-figtree-bold text-2xl tabular-nums tracking-tight"
-            >
+            <Text className="font-figtree-bold text-2xl tabular-nums tracking-tight">
               {configured
                 ? formatCOPCurrency(profile.budget)
                 : messages.Settings.budget_not_configured}

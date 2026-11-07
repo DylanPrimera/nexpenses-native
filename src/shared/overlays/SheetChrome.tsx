@@ -22,9 +22,15 @@ export function SheetHandle() {
   );
 }
 
-export function SheetCloseButton({ onPress }: { onPress: () => void }) {
+export function SheetCloseButton({
+  onPress,
+  ref,
+  ...props
+}: React.ComponentProps<typeof Pressable>) {
   return (
     <Pressable
+      ref={ref}
+      {...props}
       role="button"
       accessibilityLabel={messages.Common.close}
       hitSlop={ROUND_ICON_BUTTON_HIT_SLOP}

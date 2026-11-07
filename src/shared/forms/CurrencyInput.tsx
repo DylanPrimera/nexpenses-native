@@ -1,3 +1,5 @@
+import { useWindowDimensions, Text, TextInput, View } from "react-native";
+import { controlMinHeight } from "@/shared/utils/control-size";
 import {
   fieldIconClass,
   fieldInputClass,
@@ -5,7 +7,6 @@ import {
 } from "@/shared/components/ui/field-classes";
 import { ScopedTextInput } from "@/shared/components/ui/scoped-text-input";
 import { useEffect, useRef, useState } from "react";
-import { Text, TextInput, View } from "react-native";
 import {
   blurredCurrencyText,
   focusedCurrencyText,
@@ -32,8 +33,10 @@ export function CurrencyInput({
   onFocus,
   onBlur,
   editable,
+  style,
   ...props
 }: CurrencyInputProps) {
+  const { fontScale } = useWindowDimensions();
   const [displayValue, setDisplayValue] = useState(() => blurredCurrencyText(value));
   const [focused, setFocused] = useState(false);
   const lastEmitted = useRef<number>(value);
@@ -76,7 +79,8 @@ export function CurrencyInput({
         }}
         editable={editable}
         aria-invalid={hasError}
-        className={`h-12 w-full rounded-lg border py-2 pl-8 pr-4 font-figtree-regular text-base ${fieldInputClass(hasError, focused)} ${fieldSurfaceClass(hasError, focused)} ${editable === false ? "opacity-50" : ""} ${className ?? ""}`}
+        className={`min-h-12 w-full rounded-lg border py-2 pl-8 pr-4 font-figtree-regular text-base ${fieldInputClass(hasError, focused)} ${fieldSurfaceClass(hasError, focused)} ${editable === false ? "opacity-50" : ""} ${className ?? ""}`}
+        style={[{ minHeight: controlMinHeight(fontScale) }, style]}
         {...props}
       />
     </View>

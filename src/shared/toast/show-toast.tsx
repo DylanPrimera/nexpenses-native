@@ -26,7 +26,7 @@ const toneBoxClass = {
 } as const;
 
 const toneIconClass = {
-  success: "text-primary",
+  success: "text-primary-action",
   warning: "text-destructive",
   error: "text-primary-foreground",
 } as const;

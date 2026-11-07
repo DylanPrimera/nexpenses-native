@@ -103,7 +103,7 @@ export function CategoryEditSheet({
       header={
         <View className="flex-row items-center gap-3">
           <View className="size-11 items-center justify-center rounded-[0.875rem] bg-primary/15">
-            <Icon as={IconPencil} size={22} strokeWidth={1.75} className="text-primary" />
+            <Icon as={IconPencil} size={22} strokeWidth={1.75} className="text-primary-action" />
           </View>
           <View className="min-w-0 flex-1">
             <Text

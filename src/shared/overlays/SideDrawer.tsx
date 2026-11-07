@@ -1,3 +1,5 @@
+import type { AccessibilityFocusRef } from "./accessibility-focus";
+import { useOverlayAccessibility } from "./use-overlay-accessibility";
 import { playModalClose, playModalOpen } from "@/shared/audio/ui-sound";
 import { Icon } from "@/shared/components/ui/Icon";
 import {
@@ -9,7 +11,7 @@ import {
 import { messages } from "@/shared/i18n";
 import { fadeTiming, panelTiming } from "@/shared/motion/motion-presets";
 import { IconX } from "@tabler/icons-react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Modal, Pressable, StyleSheet, useWindowDimensions, View } from "react-native";
 import Animated, {
   type SharedValue,
@@ -21,10 +23,13 @@ import Animated, {
 import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
 import { scheduleOnRN } from "react-native-worklets";
 import { OverlayScrim } from "./OverlayScrim";
-import { acquireOverlay } from "./overlay-registry";
+import { acquireOverlay, useOverlayStore } from "./overlay-registry";
 
 type SideDrawerProps = {
   isOpen: boolean;
+  initialFocusRef?: AccessibilityFocusRef;
+  returnFocusRef?: AccessibilityFocusRef;
+  accessibilityLabel?: string;
   onClose: () => void;
   children: React.ReactNode;
 };
@@ -32,12 +37,29 @@ type SideDrawerProps = {
 const DRAWER_WIDTH = 288;
 const DRAWER_GUTTER = 48;
 
-export function SideDrawer({ isOpen, onClose, children }: SideDrawerProps) {
+export function SideDrawer({
+  isOpen,
+  onClose,
+  children,
+  initialFocusRef,
+  returnFocusRef,
+  accessibilityLabel,
+}: SideDrawerProps) {
+  const id = useId();
+  const closeRef = useRef<React.ComponentRef<typeof View>>(null);
+  const { layerIds } = useOverlayStore();
+  const isTop = layerIds.at(-1) === id;
+  const { focusOnOpen, restoreFocus } = useOverlayAccessibility(
+    id,
+    initialFocusRef ?? closeRef,
+    returnFocusRef,
+  );
   const reduced = useReducedMotion();
   const { width: screenWidth } = useWindowDimensions();
   const width = Math.min(DRAWER_WIDTH, screenWidth - DRAWER_GUTTER);
   const [mounted, setMounted] = useState(isOpen);
   const progress = useSharedValue(0);
+  const wasMounted = useRef(false);
 
   if (isOpen && !mounted) setMounted(true);
 
@@ -54,8 +76,13 @@ export function SideDrawer({ isOpen, onClose, children }: SideDrawerProps) {
 
   useEffect(() => {
     if (!mounted) return;
-    return acquireOverlay();
-  }, [mounted]);
+    return acquireOverlay(id);
+  }, [mounted, id]);
+
+  useEffect(() => {
+    if (wasMounted.current && !mounted) restoreFocus();
+    wasMounted.current = mounted;
+  }, [mounted, restoreFocus]);
 
   const close = () => {
     playModalClose();
@@ -64,6 +91,7 @@ export function SideDrawer({ isOpen, onClose, children }: SideDrawerProps) {
 
   return (
     <Modal
+      onShow={focusOnOpen}
       visible={mounted}
       transparent
       animationType="none"
@@ -72,7 +100,14 @@ export function SideDrawer({ isOpen, onClose, children }: SideDrawerProps) {
       onRequestClose={() => {}}
     >
       <SafeAreaProvider style={StyleSheet.absoluteFill}>
-        <DrawerLayer progress={progress} width={width} onClose={close}>
+        <DrawerLayer
+          progress={progress}
+          width={width}
+          onClose={close}
+          closeRef={closeRef}
+          isTop={isTop}
+          accessibilityLabel={accessibilityLabel}
+        >
           {children}
         </DrawerLayer>
       </SafeAreaProvider>
@@ -81,13 +116,24 @@ export function SideDrawer({ isOpen, onClose, children }: SideDrawerProps) {
 }
 
 type DrawerLayerProps = {
+  accessibilityLabel?: string;
+  closeRef: React.RefObject<React.ComponentRef<typeof View> | null>;
+  isTop: boolean;
   progress: SharedValue<number>;
   width: number;
   onClose: () => void;
   children: React.ReactNode;
 };
 
-function DrawerLayer({ progress, width, onClose, children }: DrawerLayerProps) {
+function DrawerLayer({
+  progress,
+  width,
+  onClose,
+  children,
+  closeRef,
+  isTop,
+  accessibilityLabel,
+}: DrawerLayerProps) {
   const insets = useSafeAreaInsets();
   const scrimStyle = useAnimatedStyle(() => ({ opacity: progress.value }));
   const panelStyle = useAnimatedStyle(() => ({
@@ -98,14 +144,21 @@ function DrawerLayer({ progress, width, onClose, children }: DrawerLayerProps) {
     <>
       <Animated.View style={[StyleSheet.absoluteFill, scrimStyle]}>
         <Pressable
-          accessibilityLabel={messages.Common.close}
+          accessible={false}
+          importantForAccessibility="no-hide-descendants"
           onPress={onClose}
           style={StyleSheet.absoluteFill}
         >
           <OverlayScrim />
         </Pressable>
       </Animated.View>
-      <Animated.View style={[styles.panel, { width }, panelStyle]}>
+      <Animated.View
+        accessibilityLabel={accessibilityLabel}
+        accessibilityViewIsModal={isTop}
+        accessibilityElementsHidden={!isTop}
+        importantForAccessibility={isTop ? "auto" : "no-hide-descendants"}
+        style={[styles.panel, { width }, panelStyle]}
+      >
         <View
           style={{ paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }}
           className="flex-1 rounded-l-xl border-l border-border bg-popover px-5 shadow-2xl"
@@ -113,6 +166,7 @@ function DrawerLayer({ progress, width, onClose, children }: DrawerLayerProps) {
           {children}
         </View>
         <Pressable
+          ref={closeRef}
           role="button"
           accessibilityLabel={messages.Common.close}
           hitSlop={ROUND_ICON_BUTTON_HIT_SLOP}
@@ -120,7 +174,11 @@ function DrawerLayer({ progress, width, onClose, children }: DrawerLayerProps) {
           style={{ top: insets.top + 16 }}
           className={`absolute right-4 ${ROUND_ICON_BUTTON_CLASS}`}
         >
-          <Icon as={IconX} size={ROUND_ICON_BUTTON_ICON_SIZE} className={ROUND_ICON_BUTTON_ICON_CLASS} />
+          <Icon
+            as={IconX}
+            size={ROUND_ICON_BUTTON_ICON_SIZE}
+            className={ROUND_ICON_BUTTON_ICON_CLASS}
+          />
         </Pressable>
       </Animated.View>
     </>

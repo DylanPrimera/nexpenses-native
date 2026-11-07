@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { cycleStartFromDayKey, localDayKey } from "@/core/utils/budget-cycle";
 import { Icon } from "@/shared/components/ui/Icon";
 import { Text } from "@/shared/components/ui/text";
@@ -18,6 +19,7 @@ import { CycleStartField } from "./CycleStartField";
 const SETUP_ICON = IconWallet;
 
 export function BudgetSetupSheet({ isOpen }: { isOpen: boolean }) {
+  const titleRef = useRef<React.ComponentRef<typeof Text>>(null);
   const { mutateAsync } = useUpdateBudget();
   const formik = useFormik<BudgetFormValues>({
     initialValues: { amount: 0, cycleDay: localDayKey(), isNewCycle: true },
@@ -34,6 +36,7 @@ export function BudgetSetupSheet({ isOpen }: { isOpen: boolean }) {
 
   return (
     <AppSheet
+      initialFocusRef={titleRef}
       isOpen={isOpen}
       onChange={() => undefined}
       dismissible={false}
@@ -47,15 +50,19 @@ export function BudgetSetupSheet({ isOpen }: { isOpen: boolean }) {
         <View className="gap-4">
           <View className="items-center">
             <View className="mb-4 size-14 items-center justify-center rounded-[0.875rem] bg-primary/15">
-              <Icon as={SETUP_ICON} size={32} strokeWidth={2} className="text-primary" />
+              <Icon as={SETUP_ICON} size={32} strokeWidth={2} className="text-primary-action" />
             </View>
             <View className="mb-2 flex-row items-center gap-1.5 rounded-md bg-primary/10 px-3 py-1">
-              <Icon as={IconSparkles} size={14} className="text-primary" />
-              <Text className="font-figtree-medium text-xs text-primary">
+              <Icon as={IconSparkles} size={14} className="text-primary-action" />
+              <Text className="font-figtree-medium text-xs text-primary-action">
                 {messages.Meta.app_name}
               </Text>
             </View>
-            <Text role="heading" className="text-center font-figtree-bold text-xl tracking-tight">
+            <Text
+              ref={titleRef}
+              role="heading"
+              className="text-center font-figtree-bold text-xl tracking-tight"
+            >
               {messages.Budget.setup_title}
             </Text>
             <Text className="mt-1 text-center text-sm text-muted-foreground">

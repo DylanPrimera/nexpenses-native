@@ -1,6 +1,7 @@
+import { useOverlayStore } from "./overlay-registry";
 import { BlurTargetView } from "expo-blur";
 import { createContext, useContext, useRef, type ComponentRef, type RefObject } from "react";
-import { StyleSheet, type View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 type BlurTargetRef = RefObject<ComponentRef<typeof View> | null>;
 
@@ -13,9 +14,16 @@ export function OverlayBlurProvider({ children }: { children: React.ReactNode })
 
 export function OverlayBlurTarget({ children }: { children: React.ReactNode }) {
   const targetRef = useContext(BlurTargetContext);
+  const { openCount } = useOverlayStore();
   return (
     <BlurTargetView ref={targetRef ?? undefined} style={styles.fill}>
-      {children}
+      <View
+        style={styles.fill}
+        accessibilityElementsHidden={openCount > 0}
+        importantForAccessibility={openCount > 0 ? "no-hide-descendants" : "auto"}
+      >
+        {children}
+      </View>
     </BlurTargetView>
   );
 }

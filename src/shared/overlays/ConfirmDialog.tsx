@@ -1,3 +1,5 @@
+import { useRef } from "react";
+import type { AccessibilityFocusRef } from "./accessibility-focus";
 import { Icon } from "@/shared/components/ui/Icon";
 import { Text } from "@/shared/components/ui/text";
 import { messages } from "@/shared/i18n";
@@ -7,6 +9,7 @@ import { AppSheet } from "./AppSheet";
 
 type ConfirmDialogProps = {
   isOpen: boolean;
+  returnFocusRef?: AccessibilityFocusRef;
   title: string;
   description: string;
   confirmLabel?: string;
@@ -22,6 +25,7 @@ type ConfirmDialogProps = {
 
 export function ConfirmDialog({
   isOpen,
+  returnFocusRef,
   title,
   description,
   confirmLabel,
@@ -34,6 +38,7 @@ export function ConfirmDialog({
   onConfirm,
   onClose,
 }: ConfirmDialogProps) {
+  const titleRef = useRef<React.ComponentRef<typeof Text>>(null);
   const confirmBlocked = confirmDisabled || isPending;
   const confirmStateClass = confirmBlocked ? "opacity-50" : "active:opacity-90";
   const handleConfirm = () => {
@@ -42,12 +47,15 @@ export function ConfirmDialog({
     if (closeOnConfirm) onClose();
   };
 
-  const toneClass = isDestructive ? "bg-destructive" : "bg-primary";
+  const toneClass = isDestructive ? "bg-destructive" : "bg-primary-action";
   const confirmTextClass = isDestructive ? "text-background" : "text-primary-foreground";
 
   return (
     <AppSheet
       isOpen={isOpen}
+      accessibilityLabel={title}
+      initialFocusRef={titleRef}
+      returnFocusRef={returnFocusRef}
       showClose={false}
       dismissible={!isPending}
       onChange={(open) => {
@@ -59,7 +67,11 @@ export function ConfirmDialog({
           <Icon as={IconAlertTriangle} size={26} strokeWidth={2} className="text-destructive" />
         </View>
         <View className="min-w-0 flex-1 pt-0.5">
-          <Text role="heading" className="font-figtree-semibold text-xl tracking-tight">
+          <Text
+            ref={titleRef}
+            role="heading"
+            className="font-figtree-semibold text-xl tracking-tight"
+          >
             {title}
           </Text>
           {isDestructive ? (
@@ -101,7 +113,7 @@ export function ConfirmDialog({
           role="button"
           disabled={isPending}
           onPress={onClose}
-          className={`h-12 flex-1 items-center justify-center rounded-[0.5rem] bg-muted ${isPending ? "opacity-50" : "active:bg-accent"}`}
+          className={`min-h-12 flex-1 items-center justify-center rounded-[0.5rem] bg-muted py-3 ${isPending ? "opacity-50" : "active:bg-accent"}`}
         >
           <Text className="font-figtree-semibold">{messages.Common.cancel}</Text>
         </Pressable>
@@ -110,7 +122,7 @@ export function ConfirmDialog({
           disabled={confirmBlocked}
           accessibilityState={{ disabled: confirmBlocked, busy: isPending }}
           onPress={handleConfirm}
-          className={`h-12 flex-1 flex-row items-center justify-center gap-1 rounded-[0.5rem] ${confirmStateClass} ${toneClass}`}
+          className={`min-h-12 flex-1 flex-row items-center justify-center gap-1 rounded-[0.5rem] py-3 ${confirmStateClass} ${toneClass}`}
         >
           {isDestructive && !isPending ? (
             <Icon as={IconTrash} size={18} className={confirmTextClass} />

@@ -47,10 +47,12 @@ export function NewCycleNotice({ cycleStartedAt, daysElapsed, onRegister }: NewC
       </Pressable>
       <View className="flex-row items-start gap-3 pr-6">
         <View className="size-10 items-center justify-center rounded-md bg-primary/15">
-          <Icon as={IconCalendarDollar} size={20} className="text-primary" />
+          <Icon as={IconCalendarDollar} size={20} className="text-primary-action" />
         </View>
         <View className="min-w-0 flex-1">
-          <Text className="font-figtree-semibold text-sm">{messages.Budget.stale_notice_title}</Text>
+          <Text className="font-figtree-semibold text-sm">
+            {messages.Budget.stale_notice_title}
+          </Text>
           <Text className="mt-0.5 text-xs text-muted-foreground">
             {tx(messages.Budget.stale_notice_body, { days: daysElapsed })}
           </Text>

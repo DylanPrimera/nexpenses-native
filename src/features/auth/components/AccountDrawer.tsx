@@ -25,9 +25,9 @@ function ProfileAvatar({ initials, size }: { initials: string; size: keyof typeo
       className={`shrink-0 items-center justify-center rounded-full border border-primary/25 bg-primary/10 ${box}`}
     >
       {initials ? (
-        <Text className={`font-figtree-semibold text-primary ${text}`}>{initials}</Text>
+        <Text className={`font-figtree-semibold text-primary-action ${text}`}>{initials}</Text>
       ) : (
-        <Icon as={IconUserCircle} size={icon} strokeWidth={1.5} className="text-primary" />
+        <Icon as={IconUserCircle} size={icon} strokeWidth={1.5} className="text-primary-action" />
       )}
     </View>
   );
@@ -54,7 +54,12 @@ export function AccountDrawer() {
       >
         <ProfileAvatar initials={initials} size="sm" />
       </Pressable>
-      <SideDrawer isOpen={open} onClose={() => setOpen(false)}>
+      <SideDrawer
+        accessibilityLabel={messages.Nav.profile}
+        returnFocusRef={targetRef}
+        isOpen={open}
+        onClose={() => setOpen(false)}
+      >
         <Text role="heading" className="pr-12 font-figtree-semibold text-lg tracking-tight">
           {messages.Nav.profile}
         </Text>
@@ -79,6 +84,7 @@ export function AccountDrawer() {
         </Button>
       </SideDrawer>
       <ConfirmDialog
+        returnFocusRef={targetRef}
         isOpen={confirmLogout}
         title={messages.Offline.logout_title}
         description={messages.Offline.logout_description}

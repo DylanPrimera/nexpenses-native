@@ -10,8 +10,13 @@ import { Pressable } from "react-native";
 
 type ButtonProps = React.ComponentProps<typeof Pressable> & ButtonStyleProps;
 
-const COMPACT_SIZES = new Set<ButtonSize>(["xs", "sm", "icon-xs", "icon-sm"]);
-const COMPACT_HIT_SLOP = { top: 6, bottom: 6, left: 6, right: 6 };
+const COMPACT_HIT_SLOP: Partial<Record<ButtonSize, number>> = {
+  xs: 8,
+  sm: 6,
+  icon: 2,
+  "icon-xs": 8,
+  "icon-sm": 6,
+};
 
 function Button({ className, variant, size, ...props }: ButtonProps) {
   return (
@@ -19,7 +24,7 @@ function Button({ className, variant, size, ...props }: ButtonProps) {
       <Pressable
         className={`${buttonVariants({ variant, size })} ${props.disabled ? "opacity-50" : ""} ${className ?? ""}`}
         role="button"
-        hitSlop={size && COMPACT_SIZES.has(size) ? COMPACT_HIT_SLOP : undefined}
+        hitSlop={size ? COMPACT_HIT_SLOP[size] : undefined}
         {...props}
       />
     </TextClassContext.Provider>

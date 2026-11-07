@@ -1,3 +1,5 @@
+import { useWindowDimensions, Pressable, TextInput } from "react-native";
+import { controlMinHeight } from "@/shared/utils/control-size";
 import {
   fieldIconClass,
   fieldInputClass,
@@ -9,7 +11,6 @@ import { useFocusState } from "@/shared/components/ui/use-focus-state";
 import { messages } from "@/shared/i18n";
 import { IconEye, IconEyeOff, type Icon as TablerIconType } from "@tabler/icons-react-native";
 import { useRef, useState } from "react";
-import { Pressable, TextInput } from "react-native";
 
 type TextInputRef = React.ComponentRef<typeof TextInput>;
 
@@ -30,8 +31,10 @@ function IconInput({
   editable,
   secureToggle = false,
   secureTextEntry,
+  style,
   ...props
 }: IconInputProps) {
+  const { fontScale } = useWindowDimensions();
   const innerRef = useRef<TextInputRef | null>(null);
   const focus = useFocusState(onFocus, onBlur);
   const [hidden, setHidden] = useState(true);
@@ -48,7 +51,7 @@ function IconInput({
     <Pressable
       accessible={false}
       onPress={() => innerRef.current?.focus()}
-      className={`h-12 w-full flex-row items-center gap-3 rounded-lg border px-4 ${surfaceClass} ${editable === false ? "opacity-50" : ""} ${className ?? ""}`}
+      className={`min-h-12 w-full flex-row items-center gap-3 rounded-lg border px-4 ${surfaceClass} ${editable === false ? "opacity-50" : ""} ${className ?? ""}`}
     >
       <Icon as={icon} size={20} className={iconClass} />
       <ScopedTextInput
@@ -58,7 +61,8 @@ function IconInput({
         aria-invalid={invalid}
         onFocus={focus.onFocus}
         onBlur={focus.onBlur}
-        className={`h-full flex-1 py-0 font-figtree-regular text-base ${fieldInputClass(invalid, focus.focused)}`}
+        className={`min-h-12 flex-1 py-3 font-figtree-regular text-base ${fieldInputClass(invalid, focus.focused)}`}
+        style={[{ minHeight: controlMinHeight(fontScale) }, style]}
         {...props}
       />
       {secureToggle ? (
@@ -70,7 +74,7 @@ function IconInput({
           accessibilityState={{ checked: !hidden }}
           disabled={editable === false}
           onPress={() => setHidden((v) => !v)}
-          className="-mr-3 size-11 items-center justify-center rounded-md active:bg-foreground/10"
+          className="-mr-3 size-12 items-center justify-center rounded-md active:bg-foreground/10"
         >
           <Icon as={hidden ? IconEye : IconEyeOff} size={20} className={iconClass} />
         </Pressable>

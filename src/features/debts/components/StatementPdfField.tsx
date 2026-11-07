@@ -48,7 +48,7 @@ export function StatementPdfField({
         <View
           className={`min-h-12 flex-row items-center gap-3 rounded-lg border bg-muted px-4 py-2 ${borderClass}`}
         >
-          <Icon as={IconFileTypePdf} size={22} className="text-primary" />
+          <Icon as={IconFileTypePdf} size={22} className="text-primary-action" />
           <View className="min-w-0 flex-1">
             <Text numberOfLines={1} className="font-figtree-medium text-sm">
               {file.name}
@@ -82,7 +82,7 @@ export function StatementPdfField({
         onPress={onSwitchToManual}
         className="self-start py-1"
       >
-        <Text className="font-figtree-semibold text-xs text-primary underline">
+        <Text className="font-figtree-semibold text-xs text-primary-action underline">
           {messages.Debts.switch_to_manual}
         </Text>
       </Pressable>

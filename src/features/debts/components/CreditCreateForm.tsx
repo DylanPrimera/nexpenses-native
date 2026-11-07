@@ -194,7 +194,7 @@ export function CreditCreateForm() {
                 onPress={() => switchMode("statement")}
                 className="self-start py-1"
               >
-                <Text className="font-figtree-semibold text-xs text-primary underline">
+                <Text className="font-figtree-semibold text-xs text-primary-action underline">
                   {messages.Debts.switch_to_pdf}
                 </Text>
               </Pressable>
