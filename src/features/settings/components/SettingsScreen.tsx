@@ -85,6 +85,7 @@ export function SettingsScreen() {
       headerAction={<AccountDrawer />}
       renderScrollable={({ contentContainerStyle }) => (
         <FlatList
+          showsVerticalScrollIndicator={false}
           style={{ flex: 1 }}
           data={sections}
           keyExtractor={(section) => section.id}

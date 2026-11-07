@@ -62,6 +62,7 @@ export function WhatsNewSheet({ items, onClose }: WhatsNewSheetProps) {
       }
       renderScrollable={({ paddingBottom }) => (
         <BottomSheetFlatList
+          showsVerticalScrollIndicator={false}
           data={item ? [item] : []}
           keyExtractor={(news) => news.id}
           contentContainerStyle={{ paddingHorizontal: 20, paddingBottom }}

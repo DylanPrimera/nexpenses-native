@@ -41,6 +41,7 @@ export function RecurringList({
   return (
     <>
       <FlatList
+        showsVerticalScrollIndicator={false}
         style={{ flex: 1 }}
         data={listRows(templates, loading)}
         keyExtractor={(row) => row.id}

@@ -184,6 +184,7 @@ export function SearchListField<T>({
         header={searchHeader}
         renderScrollable={({ paddingBottom, header }) => (
           <BottomSheetFlatList<T>
+            showsVerticalScrollIndicator={false}
             data={filtered}
             keyExtractor={getItemId}
             extraData={value}

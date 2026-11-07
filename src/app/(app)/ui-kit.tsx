@@ -63,6 +63,7 @@ export default function UiKitScreen() {
     <>
       <Stack.Screen options={{ title: "UI kit" }} />
       <FlatList
+        showsVerticalScrollIndicator={false}
         className="flex-1 bg-background"
         contentContainerClassName="gap-6 px-4 pt-4"
         contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}

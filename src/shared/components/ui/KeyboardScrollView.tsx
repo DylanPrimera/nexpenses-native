@@ -18,6 +18,7 @@ export function KeyboardScrollView({
 }: KeyboardScrollViewProps) {
   return (
     <KeyboardAwareScrollView
+      showsVerticalScrollIndicator={false}
       bottomOffset={bottomOffset}
       keyboardShouldPersistTaps={keyboardShouldPersistTaps}
       {...props}

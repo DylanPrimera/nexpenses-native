@@ -265,6 +265,7 @@ export function Calendar(props: CalendarProps) {
   const model = useCalendarModel(props);
   return (
     <FlatList
+      showsVerticalScrollIndicator={false}
       data={model.weeks}
       keyExtractor={(week) => week[0].key}
       ListHeaderComponent={<CalendarHeader model={model} />}
@@ -277,6 +278,7 @@ export function CalendarSheet(props: CalendarProps) {
   const model = useCalendarModel(props);
   return (
     <BottomSheetFlatList
+      showsVerticalScrollIndicator={false}
       data={model.weeks}
       keyExtractor={(week) => week[0].key}
       contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: props.paddingBottom }}

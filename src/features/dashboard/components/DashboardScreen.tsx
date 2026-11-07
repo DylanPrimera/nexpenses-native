@@ -168,6 +168,7 @@ export function DashboardScreen() {
             ListEmptyComponent={
               !isLoading && !hasError && !isFirstLaunch ? <RecentExpensesEmpty /> : undefined
             }
+            showsVerticalScrollIndicator={false}
           />
         )}
       />

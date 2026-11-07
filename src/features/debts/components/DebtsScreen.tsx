@@ -93,6 +93,7 @@ export function DebtsScreen() {
       headerAction={<AccountDrawer />}
       renderScrollable={({ contentContainerStyle }) => (
         <SectionList
+          showsVerticalScrollIndicator={false}
           style={{ flex: 1 }}
           sections={sections}
           keyExtractor={(row) => row.id}

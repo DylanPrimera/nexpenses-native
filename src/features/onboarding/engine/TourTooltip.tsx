@@ -92,6 +92,7 @@ export function TourTooltip({
       </View>
 
       <ScrollView
+        showsVerticalScrollIndicator={false}
         style={{ maxHeight: bodyMaxHeight }}
         bounces={false}
       >

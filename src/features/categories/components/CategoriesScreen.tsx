@@ -72,6 +72,7 @@ export function CategoriesScreen() {
         headerAction={<AccountDrawer />}
         renderScrollable={({ contentContainerStyle }) => (
           <FlatList
+            showsVerticalScrollIndicator={false}
             style={{ flex: 1 }}
             data={listRows(sortCategoriesByUsage(categories.data ?? []), state === "loading")}
             keyExtractor={(row) => row.id}

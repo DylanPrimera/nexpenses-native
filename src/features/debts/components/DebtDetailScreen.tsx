@@ -122,6 +122,7 @@ export function DebtDetailScreen({ id }: { id: string }) {
         contentClassName="gap-4"
         renderScrollable={({ contentContainerStyle }) => (
           <FlatList
+            showsVerticalScrollIndicator={false}
             style={{ flex: 1 }}
             data={showAll ? rows : rows.slice(0, 8)}
             keyExtractor={(row) => `${id}:${row.number}`}

@@ -23,6 +23,7 @@ export function ExpenseList({ expenses, loading, ...props }: ExpenseListProps) {
     <ExpenseActions>
       {(openers) => (
         <FlatList
+          showsVerticalScrollIndicator={false}
           style={{ flex: 1 }}
           data={listRows(expenses, loading)}
           keyExtractor={(row) => row.id}

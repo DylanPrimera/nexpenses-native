@@ -53,6 +53,7 @@ export function HistoryDayGroups({ groups, loading, resetKey, ...props }: Props)
     <ExpenseActions>
       {(openers) => (
         <SectionList<DataRow<Expense>, Section>
+          showsVerticalScrollIndicator={false}
           ref={ref}
           style={{ flex: 1 }}
           sections={sections}
