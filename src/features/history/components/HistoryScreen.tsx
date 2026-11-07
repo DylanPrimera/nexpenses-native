@@ -22,12 +22,7 @@ import { HistoryCalendarView } from "./HistoryCalendarView";
 import { HistoryDayGroups } from "./HistoryDayGroups";
 import { HistoryFiltersCard } from "./HistoryFiltersCard";
 import { HistoryHeader } from "./HistoryHeader";
-import {
-  HistoryEmptyMonth,
-  HistoryError,
-  HistoryListSkeleton,
-  HistoryNoResults,
-} from "./HistoryStates";
+import { HistoryEmptyMonth, HistoryError, HistoryNoResults } from "./HistoryStates";
 import { HistoryTotal } from "./HistoryTotal";
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -92,67 +87,17 @@ export function HistoryScreen() {
       list.isFetchNextPageError
     )
       return;
-    void list.fetchNextPage();
+    void list.fetchNextPage({ cancelRefetch: false });
   };
 
-  const listBody = () => {
-    if (list.isError && !list.data && isOnline && items.length === 0)
+  const listEmpty = () => {
+    if (list.isError && !list.data && isOnline && !items.length)
       return <HistoryError onRetry={() => void list.refetch()} />;
-    if (!list.data && !isOnline && items.length === 0)
-      return <Text className="text-sm text-muted-foreground">{messages.Offline.no_data}</Text>;
-    if (list.isPending && items.length === 0 && canFetch) return <HistoryListSkeleton />;
-    if (items.length === 0) {
-      return filtersActive ? <HistoryNoResults onClear={resetFilters} /> : <HistoryEmptyMonth />;
-    }
-    return (
-      <View className="gap-4">
-        {!list.data ? (
-          <Text className="text-xs text-muted-foreground">{messages.Offline.partial}</Text>
-        ) : null}
-        <HistoryTotal count={filteredTotal} amount={filteredAmount} />
-        <HistoryDayGroups groups={groupExpensesByDay(items)} />
-        {list.isFetchingNextPage ? (
-          <ActivityIndicator color={colors.primary} className="py-4" />
-        ) : null}
-        {list.isFetchNextPageError && canFetch ? (
-          <Button variant="secondary" onPress={() => void list.fetchNextPage()}>
-            <Text>{messages.Common.retry}</Text>
-          </Button>
-        ) : null}
-      </View>
-    );
+    if (!list.data && !isOnline && !items.length) return <Text>{messages.Offline.no_data}</Text>;
+    return filtersActive ? <HistoryNoResults onClear={resetFilters} /> : <HistoryEmptyMonth />;
   };
-
-  const calendarBody = () => {
-    if (monthExpenses.isError && !monthExpenses.data && isOnline) {
-      return <HistoryError onRetry={() => void monthExpenses.refetch()} />;
-    }
-    if (!monthExpenses.data && !isOnline)
-      return <Text className="text-sm text-muted-foreground">{messages.Offline.no_data}</Text>;
-    return (
-      <View className="gap-2">
-        {!monthExpenses.hasServerData && monthExpenses.data ? (
-          <Text className="text-xs text-muted-foreground">{messages.Offline.partial}</Text>
-        ) : null}
-        <HistoryCalendarView
-          month={month}
-          onMonthChange={(key) => changeMonth(historyMonthFromKey(key))}
-          expenses={monthExpenses.data}
-        />
-      </View>
-    );
-  };
-
-  return (
-    <PageShell
-      screenLabel={messages.Nav.history}
-      headerAction={<AccountDrawer />}
-      contentClassName="gap-4"
-      refreshControl={
-        <AppRefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />
-      }
-      onEndReached={loadMore}
-    >
+  const header = (
+    <View className="gap-4 pb-3">
       <HistoryHeader
         month={month}
         canGoNext={canGoNext}
@@ -174,7 +119,73 @@ export function HistoryScreen() {
           onReset={resetFilters}
         />
       ) : null}
-      {isList ? listBody() : calendarBody()}
-    </PageShell>
+      {isList && items.length ? (
+        <>
+          {!list.data ? <Text>{messages.Offline.partial}</Text> : null}
+          <HistoryTotal count={filteredTotal} amount={filteredAmount} />
+        </>
+      ) : null}
+    </View>
+  );
+  const refreshControl = (
+    <AppRefreshControl refreshing={isOnline && refreshing} onRefresh={() => void onRefresh()} />
+  );
+  return (
+    <PageShell
+      screenLabel={messages.Nav.history}
+      headerAction={<AccountDrawer />}
+      renderScrollable={({ contentContainerStyle }) =>
+        isList ? (
+          <HistoryDayGroups
+            groups={groupExpensesByDay(items)}
+            loading={list.isPending && !items.length && canFetch}
+            resetKey={JSON.stringify([month, categoryId, paymentType, search])}
+            contentContainerStyle={contentContainerStyle}
+            refreshControl={refreshControl}
+            onEndReached={loadMore}
+            ListHeaderComponent={header}
+            ListEmptyComponent={listEmpty()}
+            ListFooterComponent={
+              list.isFetchingNextPage ? (
+                <ActivityIndicator color={colors.primary} className="py-4" />
+              ) : list.isFetchNextPageError && canFetch ? (
+                <Button
+                  variant="secondary"
+                  onPress={() => void list.fetchNextPage({ cancelRefetch: false })}
+                >
+                  <Text>{messages.Common.retry}</Text>
+                </Button>
+              ) : undefined
+            }
+          />
+        ) : (
+          <HistoryCalendarView
+            month={month}
+            onMonthChange={(key) => changeMonth(historyMonthFromKey(key))}
+            onRetry={
+              isOnline && monthExpenses.isError
+                ? () => {
+                    void monthExpenses.refetch();
+                  }
+                : undefined
+            }
+            expenses={monthExpenses.data}
+            loading={!monthExpenses.data && isOnline && !monthExpenses.isError}
+            statusMessage={
+              !monthExpenses.data && !isOnline
+                ? messages.Offline.no_data
+                : monthExpenses.isError && !monthExpenses.data
+                  ? messages.Common.load_error_description
+                  : !monthExpenses.hasServerData && monthExpenses.data
+                    ? messages.Offline.partial
+                    : undefined
+            }
+            ListHeaderComponent={header}
+            contentContainerStyle={contentContainerStyle}
+            refreshControl={refreshControl}
+          />
+        )
+      }
+    />
   );
 }

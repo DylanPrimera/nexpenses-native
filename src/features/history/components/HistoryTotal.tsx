@@ -14,7 +14,7 @@ export function HistoryTotal({ count, amount }: HistoryTotalProps) {
   return (
     <View className={`${SURFACE_CLASS} flex-row items-center justify-between gap-3 px-4 py-3`}>
       <View className="min-w-0 flex-1">
-        <Text className="font-figtree-semibold text-[11px] uppercase tracking-wider text-primary">
+        <Text className="font-figtree-semibold text-[11px] uppercase tracking-wider text-primary-action">
           {messages.History.filtered_total}
         </Text>
         <Text className="mt-0.5 text-xs text-muted-foreground">{resultsLabel(count)}</Text>

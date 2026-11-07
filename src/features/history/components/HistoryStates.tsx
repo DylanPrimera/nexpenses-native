@@ -8,9 +8,7 @@ import { View } from "react-native";
 
 export function HistoryListSkeleton() {
   return (
-    <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" className="gap-2.5">
-      <ExpenseCardSkeleton />
-      <ExpenseCardSkeleton />
+    <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       <ExpenseCardSkeleton />
     </View>
   );

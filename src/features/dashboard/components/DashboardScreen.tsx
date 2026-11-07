@@ -1,5 +1,4 @@
 import { useConnectivity } from "@/core/network/connectivity";
-import { usePendingExpenses } from "@/features/expenses/hooks/usePendingExpenses";
 import { AccountDrawer, useAuthStore } from "@/features/auth";
 import {
   BudgetEditSheet,
@@ -10,18 +9,22 @@ import {
   useProfile,
 } from "@/features/budget";
 import { useCycleExpenses } from "@/features/expenses";
+import { ExpenseList } from "@/features/expenses/components/ExpenseList";
+import { usePendingExpenses } from "@/features/expenses/hooks/usePendingExpenses";
+import type { Expense } from "@/features/expenses/interfaces";
 import { Button } from "@/shared/components/ui/button";
 import { EmptyState } from "@/shared/components/ui/EmptyState";
 import { Text } from "@/shared/components/ui/text";
 import { messages, tx } from "@/shared/i18n";
 import { AppRefreshControl, PageShell, usePullToRefresh } from "@/shared/layout";
+import type { DataRow } from "@/shared/layout/list-rows";
 import { TOUR_TARGETS, useTourScroller, useTourTarget } from "@/shared/tour";
 import { IconCloudOff } from "@tabler/icons-react-native";
 import { useIsFocused } from "expo-router";
-import { useState } from "react";
-import { View } from "react-native";
+import { useImperativeHandle, useRef, useState } from "react";
+import { FlatList, View } from "react-native";
 import { DashboardSkeleton } from "./DashboardSkeleton";
-import { RecentExpenses } from "./RecentExpenses";
+import { RecentExpensesEmpty, RecentExpensesHeader } from "./RecentExpenses";
 
 export function DashboardScreen() {
   const { firstName } = useAuthStore();
@@ -33,6 +36,14 @@ export function DashboardScreen() {
   const [isNewCycleOpen, setIsNewCycleOpen] = useState(false);
   const focused = useIsFocused();
   const { ref: scrollRef, onScroll } = useTourScroller(focused);
+  const listRef = useRef<FlatList<DataRow<Expense>>>(null);
+  useImperativeHandle(
+    scrollRef,
+    () => ({
+      scrollTo: ({ y, animated }) => listRef.current?.scrollToOffset({ offset: y, animated }),
+    }),
+    [],
+  );
   const budgetTargetRef = useTourTarget(TOUR_TARGETS.budget, focused);
   const recentTargetRef = useTourTarget(TOUR_TARGETS.recent, focused);
   const { refreshing, onRefresh } = usePullToRefresh(() =>
@@ -57,7 +68,7 @@ export function DashboardScreen() {
           <Text className="text-sm text-muted-foreground">
             {pending.length ? messages.Offline.partial : messages.Offline.no_data}
           </Text>
-          <RecentExpenses expenses={pending.map((entry) => entry.expense)} isLoading={false} />
+          <RecentExpensesHeader count={pending.length} />
         </View>
       );
     if (hasError) {
@@ -122,23 +133,45 @@ export function DashboardScreen() {
         </View>
 
         <View ref={recentTargetRef} collapsable={false}>
-          <RecentExpenses expenses={expenses.data} isLoading={expenses.isPending} />
+          <RecentExpensesHeader count={expenses.data?.length} />
         </View>
       </View>
     );
   };
 
   return (
-    <PageShell
-      screenLabel={messages.Nav.dashboard}
-      headerAction={<AccountDrawer />}
-      scrollRef={scrollRef}
-      onScroll={onScroll}
-      refreshControl={
-        <AppRefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />
-      }
-    >
-      {content()}
+    <>
+      <PageShell
+        screenLabel={messages.Nav.dashboard}
+        headerAction={<AccountDrawer />}
+        renderScrollable={({ contentContainerStyle }) => (
+          <ExpenseList
+            ref={listRef}
+            expenses={
+              isFirstLaunch
+                ? []
+                : !profile.data || !summary.data
+                  ? pending.map(({ expense }) => expense)
+                  : (expenses.data ?? [])
+            }
+            loading={isOnline && !pending.length && !hasError && (isLoading || expenses.isPending)}
+            contentContainerStyle={contentContainerStyle}
+            onScroll={onScroll}
+            scrollEventThrottle={16}
+            refreshControl={
+              <AppRefreshControl
+                refreshing={isOnline && refreshing}
+                onRefresh={() => void onRefresh()}
+              />
+            }
+            ListHeaderComponent={<View className="gap-4 pb-3">{content()}</View>}
+            ListEmptyComponent={
+              !isLoading && !hasError && !isFirstLaunch ? <RecentExpensesEmpty /> : undefined
+            }
+          />
+        )}
+      />
+
       <BudgetSetupSheet isOpen={isFirstLaunch} />
       {profile.data ? (
         <BudgetEditSheet
@@ -148,6 +181,6 @@ export function DashboardScreen() {
           startNewCycle
         />
       ) : null}
-    </PageShell>
+    </>
   );
 }

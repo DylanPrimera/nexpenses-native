@@ -1,3 +1,4 @@
+import type { AccessibilityFocusRef } from "@/shared/overlays/accessibility-focus";
 import { useConnectivity } from "@/core/network/connectivity";
 import { usePendingExpenses } from "../hooks/usePendingExpenses";
 import { messages } from "@/shared/i18n";
@@ -13,9 +14,9 @@ import { ExpenseFormSheet } from "./ExpenseFormSheet";
 type ExpenseAction = "detail" | "edit" | "delete";
 
 export type ExpenseOpeners = {
-  onOpen: (expense: Expense) => void;
-  onEdit: (expense: Expense) => void;
-  onDelete: (expense: Expense) => void;
+  onOpen: (expense: Expense, returnTarget?: AccessibilityFocusRef) => void;
+  onEdit: (expense: Expense, returnTarget?: AccessibilityFocusRef) => void;
+  onDelete: (expense: Expense, returnTarget?: AccessibilityFocusRef) => void;
 };
 
 export function ExpenseActions({
@@ -34,12 +35,16 @@ export function ExpenseActions({
     if (message) notifyWarning(message);
     return !!message;
   };
+  const [returnFocusRef, setReturnFocusRef] = useState<AccessibilityFocusRef | undefined>(
+    undefined,
+  );
   const [selected, setSelected] = useState<Expense | null>(null);
   const [action, setAction] = useState<ExpenseAction | null>(null);
   const { mutateAsync: deleteExpense } = useDeleteExpense();
 
-  const open = (next: ExpenseAction) => (expense: Expense) => {
+  const open = (next: ExpenseAction) => (expense: Expense, target?: AccessibilityFocusRef) => {
     if (next !== "detail" && blocked(expense)) return;
+    setReturnFocusRef(target);
     setSelected(expense);
     setAction(next);
   };
@@ -58,9 +63,20 @@ export function ExpenseActions({
   return (
     <>
       {children({ onOpen: open("detail"), onEdit: open("edit"), onDelete: open("delete") })}
-      <ExpenseDetailSheet expense={selected} isOpen={action === "detail"} onClose={close} />
-      <ExpenseFormSheet expense={selected} isOpen={action === "edit"} onClose={close} />
+      <ExpenseDetailSheet
+        returnFocusRef={returnFocusRef}
+        expense={selected}
+        isOpen={action === "detail"}
+        onClose={close}
+      />
+      <ExpenseFormSheet
+        returnFocusRef={returnFocusRef}
+        expense={selected}
+        isOpen={action === "edit"}
+        onClose={close}
+      />
       <ConfirmDialog
+        returnFocusRef={returnFocusRef}
         isOpen={action === "delete"}
         title={messages.Expense.delete_confirm_title}
         description={messages.Expense.delete_confirm_description}

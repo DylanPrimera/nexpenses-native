@@ -13,10 +13,14 @@ import { useField, useFormikContext } from "formik";
 import { View } from "react-native";
 import type { ExpenseFormValues } from "../schemas";
 
-const sortByTitle = (items: RecurringExpense[]) => items.sort((a, b) => a.title.localeCompare(b.title, "es"));
+const sortByTitle = (items: RecurringExpense[]) =>
+  items.sort((a, b) => a.title.localeCompare(b.title, "es"));
 
 function templateHaystack(template: RecurringExpense) {
-  return [template.title, template.description, template.category?.name].filter(Boolean).join(" ").toLowerCase();
+  return [template.title, template.description, template.category?.name]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
 }
 
 function TemplateSummary({ template }: { template: RecurringExpense }) {
@@ -24,11 +28,11 @@ function TemplateSummary({ template }: { template: RecurringExpense }) {
     <View className="min-w-0 flex-row items-center gap-2.5">
       <Icon as={IconRepeat} size={18} className="text-muted-foreground" />
       <View className="min-w-0 flex-1">
-        <Text numberOfLines={1} className="text-sm">
-          {template.title}
-        </Text>
-        <Text numberOfLines={1} className="text-xs text-muted-foreground">
-          {[formatCOPCurrency(template.amount), template.category?.name].filter(Boolean).join(" · ")}
+        <Text className="text-sm">{template.title}</Text>
+        <Text className="text-xs text-muted-foreground">
+          {[formatCOPCurrency(template.amount), template.category?.name]
+            .filter(Boolean)
+            .join(" · ")}
         </Text>
       </View>
     </View>
@@ -57,12 +61,19 @@ function TemplatePicker() {
     void setFieldTouched("recurringId", true, false);
   };
 
-  if (isPending) return <Text className="text-xs text-muted-foreground">{messages.Expense.recurring_loading}</Text>;
+  if (isPending)
+    return (
+      <Text className="text-xs text-muted-foreground">{messages.Expense.recurring_loading}</Text>
+    );
   if (isError && templates.length === 0) {
-    return <Text className="text-xs text-muted-foreground">{messages.Expense.recurring_load_error}</Text>;
+    return (
+      <Text className="text-xs text-muted-foreground">{messages.Expense.recurring_load_error}</Text>
+    );
   }
   if (templates.length === 0) {
-    return <Text className="text-xs text-muted-foreground">{messages.Expense.recurring_empty}</Text>;
+    return (
+      <Text className="text-xs text-muted-foreground">{messages.Expense.recurring_empty}</Text>
+    );
   }
 
   return (
@@ -73,6 +84,7 @@ function TemplatePicker() {
         onChange={select}
         items={templates}
         getItemId={(item) => item.id}
+        getItemLabel={(item) => item.title}
         filterItem={(item, query) => templateHaystack(item).includes(query)}
         sortItems={sortByTitle}
         renderSelected={(item) => <TemplateSummary template={item} />}

@@ -39,12 +39,14 @@ export function HistoryFiltersCard({
   return (
     <View className={`${SURFACE_CLASS} gap-4 p-4`}>
       <View className="min-h-6 flex-row items-center justify-between gap-2">
-        <Text className="font-figtree-semibold text-[11px] uppercase tracking-wider text-primary">
+        <Text className="font-figtree-semibold text-[11px] uppercase tracking-wider text-primary-action">
           {messages.History.filters_heading}
         </Text>
         {isActive ? (
-          <Pressable role="button" hitSlop={8} onPress={onReset} className="active:opacity-70">
-            <Text className="font-figtree-semibold text-xs text-primary">{messages.History.clear_filters}</Text>
+          <Pressable role="button" hitSlop={8} onPress={onReset} className="active:bg-accent">
+            <Text className="font-figtree-semibold text-xs text-primary-action">
+              {messages.History.clear_filters}
+            </Text>
           </Pressable>
         ) : null}
       </View>
@@ -67,6 +69,7 @@ export function HistoryFiltersCard({
           onChange={onCategoryChange}
           items={categories}
           getItemId={(item) => item.id}
+          getItemLabel={(item) => item.name}
           filterItem={(item, query) => item.name.toLowerCase().includes(query)}
           sortItems={sortByUsage}
           renderSelected={(item) => (

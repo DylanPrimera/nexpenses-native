@@ -1,4 +1,6 @@
-import { usePendingExpenses } from "../hooks/usePendingExpenses";
+import { useWindowDimensions, Pressable, StyleSheet, View } from "react-native";
+import { useRef } from "react";
+import type { AccessibilityFocusRef } from "@/shared/overlays/accessibility-focus";
 import { formatCOPCurrency } from "@/core/utils/currency";
 import { formatExpenseDate } from "@/core/utils/dates";
 import { CategoryBadge, withAlpha } from "@/features/categories";
@@ -8,30 +10,43 @@ import { SURFACE_CLASS } from "@/shared/components/ui/surface-classes";
 import { Text } from "@/shared/components/ui/text";
 import { messages } from "@/shared/i18n";
 import { IconPencil, IconReceipt2, IconTrash } from "@tabler/icons-react-native";
-import { Pressable, View } from "react-native";
 import type { Expense } from "../interfaces";
 import { expenseDisplay, PAYMENT_LABELS } from "../lib/expense-display";
 
 type ExpenseCardProps = {
   expense: Expense;
-  onOpen: (expense: Expense) => void;
-  onEdit: (expense: Expense) => void;
-  onDelete: (expense: Expense) => void;
+  pending: boolean;
+  onOpen: (expense: Expense, target?: AccessibilityFocusRef) => void;
+  onEdit: (expense: Expense, target?: AccessibilityFocusRef) => void;
+  onDelete: (expense: Expense, target?: AccessibilityFocusRef) => void;
 };
 
-export function ExpenseCard({ expense, onOpen, onEdit, onDelete }: ExpenseCardProps) {
+export function ExpenseCard({ expense, pending, onOpen, onEdit, onDelete }: ExpenseCardProps) {
+  const { fontScale } = useWindowDimensions();
+  const openRef = useRef<React.ComponentRef<typeof Pressable>>(null);
+  const editRef = useRef<React.ComponentRef<typeof Pressable>>(null);
+  const deleteRef = useRef<React.ComponentRef<typeof Pressable>>(null);
   const { title, detail, categoryName, categoryColor } = expenseDisplay(expense);
-  const pending = usePendingExpenses().some((item) => item.expense.id === expense.id);
 
   return (
     <View className={`${SURFACE_CLASS} px-4 pb-1 pt-4`}>
       <Pressable
         role="button"
         accessibilityLabel={`${title}, -${formatCOPCurrency(expense.amount)} ${messages.Common.currency}${pending ? `, ${messages.Offline.pending}` : ""}`}
-        onPress={() => onOpen(expense)}
-        className="gap-2 rounded-md active:opacity-80"
+        ref={openRef}
+        onPress={() => onOpen(expense, openRef)}
+        style={StyleSheet.absoluteFill}
+        className="rounded-[0.875rem] active:bg-accent"
+      />
+      <View
+        pointerEvents="none"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        className="gap-2"
       >
-        <View className="flex-row items-center justify-between gap-2">
+        <View
+          className={`${fontScale >= 1.3 ? "flex-col items-start" : "flex-row items-center"} justify-between gap-2`}
+        >
           <Text className="font-figtree-medium text-xs text-muted-foreground">
             {formatExpenseDate(expense.date)}
           </Text>
@@ -43,7 +58,7 @@ export function ExpenseCard({ expense, onOpen, onEdit, onDelete }: ExpenseCardPr
             ) : null}
             <CategoryBadge name={categoryName} color={categoryColor} size="sm" />
             <View className="rounded-md bg-primary/15 px-2 py-0.5">
-              <Text numberOfLines={1} className="font-figtree-medium text-xs text-primary">
+              <Text numberOfLines={1} className="font-figtree-medium text-xs text-foreground">
                 {PAYMENT_LABELS[expense.paymentType]}
               </Text>
             </View>
@@ -57,7 +72,9 @@ export function ExpenseCard({ expense, onOpen, onEdit, onDelete }: ExpenseCardPr
             <IconReceipt2 size={22} strokeWidth={1.75} color={categoryColor} />
           </View>
           <View className="min-w-0 flex-1 gap-1">
-            <View className="flex-row items-center justify-between gap-2">
+            <View
+              className={`${fontScale >= 1.3 ? "flex-col items-start" : "flex-row items-center"} justify-between gap-2`}
+            >
               <Text numberOfLines={1} className="shrink font-figtree-semibold text-base">
                 {title}
               </Text>
@@ -73,21 +90,23 @@ export function ExpenseCard({ expense, onOpen, onEdit, onDelete }: ExpenseCardPr
             ) : null}
           </View>
         </View>
-      </Pressable>
-      <View className="flex-row items-center justify-end">
+      </View>
+      <View pointerEvents="box-none" className="flex-row items-center justify-end">
         <Pressable
           role="button"
           accessibilityLabel={messages.Common.edit}
-          onPress={() => onEdit(expense)}
-          className="size-11 items-center justify-center rounded-[0.5rem] active:bg-primary/15"
+          ref={editRef}
+          onPress={() => onEdit(expense, editRef)}
+          className="size-12 items-center justify-center rounded-[0.5rem] active:bg-primary/15"
         >
           <Icon as={IconPencil} size={20} className="text-muted-foreground" />
         </Pressable>
         <Pressable
           role="button"
           accessibilityLabel={messages.Expense.delete_confirm_button}
-          onPress={() => onDelete(expense)}
-          className="size-11 items-center justify-center rounded-[0.5rem] active:bg-destructive/15"
+          ref={deleteRef}
+          onPress={() => onDelete(expense, deleteRef)}
+          className="size-12 items-center justify-center rounded-[0.5rem] active:bg-destructive/15"
         >
           <Icon as={IconTrash} size={20} className="text-muted-foreground" />
         </Pressable>

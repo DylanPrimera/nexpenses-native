@@ -29,7 +29,13 @@ const VIEW_OPTIONS: { id: HistoryView; label: string; icon: TablerIconType }[] =
   { id: "calendar", label: messages.History.view_calendar, icon: IconCalendar },
 ];
 
-function ViewToggle({ view, onChange }: { view: HistoryView; onChange: (view: HistoryView) => void }) {
+function ViewToggle({
+  view,
+  onChange,
+}: {
+  view: HistoryView;
+  onChange: (view: HistoryView) => void;
+}) {
   return (
     <View role="radiogroup" className="flex-row rounded-md bg-muted p-1">
       {VIEW_OPTIONS.map((option) => {
@@ -41,7 +47,7 @@ function ViewToggle({ view, onChange }: { view: HistoryView; onChange: (view: Hi
             accessibilityLabel={option.label}
             accessibilityState={{ checked: selected }}
             onPress={() => onChange(option.id)}
-            className={`size-10 items-center justify-center rounded-md ${selected ? "bg-primary" : "active:bg-accent"}`}
+            className={`size-12 items-center justify-center rounded-md ${selected ? "bg-primary" : "active:bg-accent"}`}
           >
             <Icon
               as={option.icon}
@@ -76,7 +82,11 @@ export function HistoryHeader({
           >
             <Icon as={IconChevronLeft} size={20} />
           </Button>
-          <Text role="heading" numberOfLines={1} className="shrink font-figtree-bold text-lg tracking-tight">
+          <Text
+            role="heading"
+            numberOfLines={1}
+            className="shrink font-figtree-bold text-lg tracking-tight"
+          >
             {historyMonthTitle(month)}
           </Text>
           <Button
@@ -96,7 +106,9 @@ export function HistoryHeader({
         {count === undefined ? (
           <Skeleton className="h-3 w-44 rounded-md" />
         ) : (
-          <Text className="text-xs text-muted-foreground">{expensesRegisteredLabel(count, month)}</Text>
+          <Text className="text-xs text-muted-foreground">
+            {expensesRegisteredLabel(count, month)}
+          </Text>
         )}
       </View>
     </View>

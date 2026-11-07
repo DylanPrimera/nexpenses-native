@@ -1,3 +1,5 @@
+import { useTourTargetStore, TOUR_TARGETS } from "@/shared/tour";
+import type { AccessibilityFocusRef } from "@/shared/overlays/accessibility-focus";
 import { useConnectivity } from "@/core/network/connectivity";
 import { OfflineActionError, requireOnline } from "@/core/network/require-online";
 import { useCategories } from "@/features/categories";
@@ -27,6 +29,7 @@ import { ExpenseFormFields } from "./ExpenseFormFields";
 
 type ExpenseFormSheetProps = {
   isOpen: boolean;
+  returnFocusRef?: AccessibilityFocusRef;
   onClose: () => void;
   expense?: Expense | null;
 };
@@ -64,7 +67,7 @@ function ExpenseFormHeader({ editing }: { editing: boolean }) {
           as={editing ? IconPencil : IconCashBanknote}
           size={22}
           strokeWidth={1.75}
-          className="text-primary"
+          className="text-primary-action"
         />
       </View>
       <View className="min-w-0 flex-1">
@@ -79,7 +82,12 @@ function ExpenseFormHeader({ editing }: { editing: boolean }) {
   );
 }
 
-export function ExpenseFormSheet({ isOpen, onClose, expense }: ExpenseFormSheetProps) {
+export function ExpenseFormSheet({
+  returnFocusRef,
+  isOpen,
+  onClose,
+  expense,
+}: ExpenseFormSheetProps) {
   const editing = !!expense;
   const submitting = useRef(false);
   const { data: summary } = useCycleSummary();
@@ -142,6 +150,7 @@ export function ExpenseFormSheet({ isOpen, onClose, expense }: ExpenseFormSheetP
   return (
     <AppSheet
       isOpen={isOpen}
+      returnFocusRef={returnFocusRef}
       onChange={(open) => {
         if (!open) handleClose();
       }}
@@ -161,10 +170,19 @@ export function ExpenseFormSheet({ isOpen, onClose, expense }: ExpenseFormSheetP
 
 export function AddExpenseSheet({
   isOpen,
+  returnFocusRef,
   onChange,
 }: {
   isOpen: boolean;
+  returnFocusRef?: AccessibilityFocusRef;
   onChange: (open: boolean) => void;
 }) {
-  return <ExpenseFormSheet isOpen={isOpen} onClose={() => onChange(false)} />;
+  const { targets } = useTourTargetStore();
+  return (
+    <ExpenseFormSheet
+      returnFocusRef={returnFocusRef ?? targets[TOUR_TARGETS.fab]}
+      isOpen={isOpen}
+      onClose={() => onChange(false)}
+    />
+  );
 }

@@ -1,3 +1,4 @@
+import type { AccessibilityFocusRef } from "@/shared/overlays/accessibility-focus";
 import { formatExpenseDate } from "@/core/utils/dates";
 import { CategoryBadge } from "@/features/categories";
 import { Icon } from "@/shared/components/ui/Icon";
@@ -13,6 +14,7 @@ import { expenseAmountLabel, expenseDisplay, PAYMENT_LABELS } from "../lib/expen
 type ExpenseDetailSheetProps = {
   expense: Expense | null;
   isOpen: boolean;
+  returnFocusRef?: AccessibilityFocusRef;
   onClose: () => void;
 };
 
@@ -25,12 +27,18 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
   );
 }
 
-export function ExpenseDetailSheet({ expense, isOpen, onClose }: ExpenseDetailSheetProps) {
+export function ExpenseDetailSheet({
+  returnFocusRef,
+  expense,
+  isOpen,
+  onClose,
+}: ExpenseDetailSheetProps) {
   const display = expense ? expenseDisplay(expense) : null;
   const description = expense?.description?.trim();
 
   return (
     <AppSheet
+      returnFocusRef={returnFocusRef}
       isOpen={isOpen && !!expense}
       onChange={(open) => {
         if (!open) onClose();
@@ -38,13 +46,18 @@ export function ExpenseDetailSheet({ expense, isOpen, onClose }: ExpenseDetailSh
       header={
         <View className="flex-row items-center gap-3">
           <View className="size-11 items-center justify-center rounded-[0.875rem] bg-primary/15">
-            <Icon as={IconReceipt2} size={22} strokeWidth={1.75} className="text-primary" />
+            <Icon as={IconReceipt2} size={22} strokeWidth={1.75} className="text-primary-action" />
           </View>
           <View className="min-w-0 flex-1">
-            <Text role="heading" className="font-figtree-semibold text-lg leading-tight tracking-tight">
+            <Text
+              role="heading"
+              className="font-figtree-semibold text-lg leading-tight tracking-tight"
+            >
               {messages.Expense.detail_title}
             </Text>
-            <Text className="mt-0.5 text-sm text-muted-foreground">{messages.Expense.detail_subtitle}</Text>
+            <Text className="mt-0.5 text-sm text-muted-foreground">
+              {messages.Expense.detail_subtitle}
+            </Text>
           </View>
         </View>
       }
@@ -52,7 +65,9 @@ export function ExpenseDetailSheet({ expense, isOpen, onClose }: ExpenseDetailSh
       {expense && display ? (
         <View className="gap-3">
           <DetailRow label={messages.Expense.amount_label}>
-            <Text className="font-figtree-medium text-sm tabular-nums">{expenseAmountLabel(expense.amount)}</Text>
+            <Text className="font-figtree-medium text-sm tabular-nums">
+              {expenseAmountLabel(expense.amount)}
+            </Text>
           </DetailRow>
           <View className="flex-row items-start justify-between gap-3">
             <Text className={FIELD_LABEL_CLASS}>{messages.Expense.title_label}</Text>
@@ -62,7 +77,9 @@ export function ExpenseDetailSheet({ expense, isOpen, onClose }: ExpenseDetailSh
             <CategoryBadge name={display.categoryName} color={display.categoryColor} />
           </DetailRow>
           <DetailRow label={messages.Expense.payment_label}>
-            <Text className="font-figtree-medium text-sm">{PAYMENT_LABELS[expense.paymentType]}</Text>
+            <Text className="font-figtree-medium text-sm">
+              {PAYMENT_LABELS[expense.paymentType]}
+            </Text>
           </DetailRow>
           {expense.creditId ? (
             <DetailRow label={messages.Expense.credit_linked}>
