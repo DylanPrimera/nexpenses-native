@@ -1,0 +1,28 @@
+{
+  "cli": {
+    "version": ">= 27.5.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "autoIncrement": true
+    }
+  },
+  "submit": {
+    "production": {}
+  },
+  "preview": {
+    "distribution": "internal",
+    "android": {
+      "buildType": "apk"
+    },
+    "pnpm": "10.33.2"
+  }
+}
