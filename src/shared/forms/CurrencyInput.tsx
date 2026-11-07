@@ -79,7 +79,7 @@ export function CurrencyInput({
         }}
         editable={editable}
         aria-invalid={hasError}
-        className={`min-h-12 w-full rounded-lg border py-2 pl-8 pr-4 font-figtree-regular text-base ${fieldInputClass(hasError, focused)} ${fieldSurfaceClass(hasError, focused)} ${editable === false ? "opacity-50" : ""} ${className ?? ""}`}
+        className={`${fontScale > 1 ? "h-auto" : "h-12"} w-full rounded-lg border py-2 pl-8 pr-4 font-figtree-regular text-base ${fieldInputClass(hasError, focused)} ${fieldSurfaceClass(hasError, focused)} ${editable === false ? "opacity-50" : ""} ${className ?? ""}`}
         style={[{ minHeight: controlMinHeight(fontScale) }, style]}
         {...props}
       />

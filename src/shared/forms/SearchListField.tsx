@@ -13,7 +13,8 @@ import {
   IconSearch,
   IconX,
 } from "@tabler/icons-react-native";
-import { Pressable, View } from "react-native";
+import { Pressable, View, useWindowDimensions } from "react-native";
+import { controlMinHeight } from "@/shared/utils/control-size";
 
 type SearchListFieldProps<T> = {
   value: string;
@@ -62,6 +63,7 @@ export function SearchListField<T>({
   listHeader,
   createOption,
 }: SearchListFieldProps<T>) {
+  const { fontScale } = useWindowDimensions();
   const triggerRef = useRef<React.ComponentRef<typeof Pressable>>(null);
   const [open, setOpen] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -103,7 +105,10 @@ export function SearchListField<T>({
   };
 
   const searchHeader = (
-    <View className="min-h-12 flex-row items-center gap-3 rounded-lg border border-control-border bg-muted/70 px-4">
+    <View
+      style={{ minHeight: controlMinHeight(fontScale) }}
+      className={`${fontScale > 1 ? "h-auto" : "h-12"} flex-row items-center gap-3 rounded-lg border border-border/70 bg-muted/70 px-4`}
+    >
       <Icon as={IconSearch} size={18} className="text-muted-foreground" />
       <SheetTextInput
         value={query}
@@ -111,14 +116,15 @@ export function SearchListField<T>({
         placeholder={searchPlaceholder}
         autoCorrect={false}
         returnKeyType="search"
-        className="min-h-12 flex-1 py-3 font-figtree-regular text-base text-foreground placeholder:text-muted-foreground"
+        className={`${fontScale > 1 ? "self-stretch" : "h-full"} flex-1 py-0 font-figtree-regular text-base text-foreground placeholder:text-muted-foreground`}
       />
       {query ? (
         <Pressable
           role="button"
           accessibilityLabel={clearLabel}
           onPress={() => setQuery("")}
-          className="-mr-3 size-12 items-center justify-center"
+          hitSlop={2}
+          className="-mr-3 size-11 items-center justify-center"
         >
           <Icon as={IconX} size={16} className="text-muted-foreground" />
         </Pressable>
@@ -141,7 +147,10 @@ export function SearchListField<T>({
     ) : null;
   return (
     <>
-      <View className={`min-h-12 w-full flex-row items-center rounded-lg border ${surfaceClass}`}>
+      <View
+        style={{ minHeight: controlMinHeight(fontScale) }}
+        className={`${fontScale > 1 ? "h-auto" : "h-12"} w-full flex-row items-center rounded-lg border ${surfaceClass}`}
+      >
         <Pressable
           ref={triggerRef}
           role="button"
@@ -152,28 +161,38 @@ export function SearchListField<T>({
           accessibilityState={{ expanded: open }}
           aria-invalid={hasError}
           onPress={() => setOpen(true)}
-          className="min-h-12 min-w-0 flex-1 flex-row items-center gap-3 pl-4 pr-3"
+          className={`${fontScale > 1 ? "self-stretch" : "h-full"} min-w-0 flex-1 flex-row items-center gap-3 pl-4`}
         >
           {selected ? (
             <View className="min-w-0 flex-1">{renderSelected(selected)}</View>
           ) : (
             <>
               <Icon as={IconSearch} size={18} className={mutedClass} />
-              <Text className={`flex-1 ${mutedClass}`}>{placeholder}</Text>
+              <Text numberOfLines={fontScale > 1 ? undefined : 1} className={`flex-1 ${mutedClass}`}>
+                {placeholder}
+              </Text>
             </>
           )}
-          <Icon as={IconChevronDown} size={18} className={mutedClass} />
         </Pressable>
         {selected ? (
           <Pressable
             role="button"
             accessibilityLabel={clearLabel}
             onPress={() => onChange("")}
-            className="size-12 items-center justify-center"
+            hitSlop={2}
+            className="size-11 items-center justify-center"
           >
             <Icon as={IconX} size={16} className={mutedClass} />
           </Pressable>
         ) : null}
+        <Pressable
+          accessible={false}
+          importantForAccessibility="no-hide-descendants"
+          onPress={() => setOpen(true)}
+          className={`${fontScale > 1 ? "self-stretch" : "h-full"} items-center justify-center pr-3 ${selected ? "" : "pl-2"}`}
+        >
+          <Icon as={IconChevronDown} size={18} className={mutedClass} />
+        </Pressable>
       </View>
 
       <AppSheet

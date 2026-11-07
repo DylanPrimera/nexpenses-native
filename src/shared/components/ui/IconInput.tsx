@@ -51,7 +51,8 @@ function IconInput({
     <Pressable
       accessible={false}
       onPress={() => innerRef.current?.focus()}
-      className={`min-h-12 w-full flex-row items-center gap-3 rounded-lg border px-4 ${surfaceClass} ${editable === false ? "opacity-50" : ""} ${className ?? ""}`}
+      style={{ minHeight: controlMinHeight(fontScale) }}
+      className={`${fontScale > 1 ? "h-auto" : "h-12"} w-full flex-row items-center gap-3 rounded-lg border px-4 ${surfaceClass} ${editable === false ? "opacity-50" : ""} ${className ?? ""}`}
     >
       <Icon as={icon} size={20} className={iconClass} />
       <ScopedTextInput
@@ -61,8 +62,8 @@ function IconInput({
         aria-invalid={invalid}
         onFocus={focus.onFocus}
         onBlur={focus.onBlur}
-        className={`min-h-12 flex-1 py-3 font-figtree-regular text-base ${fieldInputClass(invalid, focus.focused)}`}
-        style={[{ minHeight: controlMinHeight(fontScale) }, style]}
+        className={`${fontScale > 1 ? "self-stretch" : "h-full"} flex-1 py-0 font-figtree-regular text-base ${fieldInputClass(invalid, focus.focused)}`}
+        style={style}
         {...props}
       />
       {secureToggle ? (
@@ -74,7 +75,8 @@ function IconInput({
           accessibilityState={{ checked: !hidden }}
           disabled={editable === false}
           onPress={() => setHidden((v) => !v)}
-          className="-mr-3 size-12 items-center justify-center rounded-md active:bg-foreground/10"
+          hitSlop={2}
+          className="-mr-3 size-11 items-center justify-center rounded-md active:bg-foreground/10"
         >
           <Icon as={hidden ? IconEye : IconEyeOff} size={20} className={iconClass} />
         </Pressable>

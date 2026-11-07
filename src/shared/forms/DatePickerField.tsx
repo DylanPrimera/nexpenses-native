@@ -12,7 +12,8 @@ import { Text } from "@/shared/components/ui/text";
 import { messages } from "@/shared/i18n";
 import { AppSheet } from "@/shared/overlays/AppSheet";
 import { IconCalendar } from "@tabler/icons-react-native";
-import { Pressable } from "react-native";
+import { Pressable, useWindowDimensions } from "react-native";
+import { controlMinHeight } from "@/shared/utils/control-size";
 
 type DatePickerFieldProps = {
   value: string;
@@ -33,6 +34,7 @@ export function DatePickerField({
   minDate,
   maxDate,
 }: DatePickerFieldProps) {
+  const { fontScale } = useWindowDimensions();
   const triggerRef = useRef<React.ComponentRef<typeof Pressable>>(null);
   const [open, setOpen] = useState(false);
   const hasValue = value.trim().length > 0;
@@ -48,10 +50,11 @@ export function DatePickerField({
         aria-invalid={hasError}
         disabled={disabled}
         onPress={() => setOpen(true)}
-        className={`min-h-12 w-full flex-row items-center gap-3 rounded-lg border px-4 py-3 ${surfaceClass} ${disabled ? "opacity-50" : ""}`}
+        style={{ minHeight: controlMinHeight(fontScale) }}
+        className={`${fontScale > 1 ? "h-auto" : "h-12"} w-full flex-row items-center gap-3 rounded-lg border px-4 ${surfaceClass} ${disabled ? "opacity-50" : ""}`}
       >
         <Icon as={IconCalendar} size={20} className={fieldIconClass(hasError, open)} />
-        <Text className={`flex-1 ${valueClass}`}>
+        <Text numberOfLines={fontScale > 1 ? undefined : 1} className={`flex-1 ${valueClass}`}>
           {hasValue ? formatPickedDate(value) : placeholder}
         </Text>
       </Pressable>
