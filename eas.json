@@ -9,7 +9,11 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "pnpm": "10.33.2"
     },
     "production": {
       "autoIncrement": true
@@ -17,12 +21,5 @@
   },
   "submit": {
     "production": {}
-  },
-  "preview": {
-    "distribution": "internal",
-    "android": {
-      "buildType": "apk"
-    },
-    "pnpm": "10.33.2"
   }
 }
