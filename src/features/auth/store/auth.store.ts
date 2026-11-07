@@ -3,9 +3,16 @@ import { clearCycleNoticeDismissal } from "@/features/budget/lib/cycle-notice-st
 import { clearOnboarding } from "@/features/onboarding/lib/onboarding-storage";
 import { useOnboardingStore } from "@/features/onboarding/store/onboarding.store";
 import { create } from "zustand";
-import { deleteAccountAction, loginAction, refreshSessionAction, registerAction } from "../actions";
+import {
+  deleteAccountAction,
+  googleSignInAction,
+  loginAction,
+  refreshSessionAction,
+  registerAction,
+} from "../actions";
 import type { AuthUser } from "../interfaces";
 import { authErrorStatus } from "../lib/auth-errors";
+import { requestGoogleIdToken, signOutGoogle } from "../lib/google-sdk";
 import {
   clearAllSession,
   readSessionMeta,
@@ -13,6 +20,8 @@ import {
   saveSessionMeta,
   saveToken,
 } from "../lib/session-storage";
+
+export type GoogleLoginResult = "signed-in" | "cancelled";
 
 export type AuthStatus = "checking" | "authenticated" | "unauthenticated";
 
@@ -33,6 +42,7 @@ interface AuthState {
     email: string;
     password: string;
   }) => Promise<void>;
+  loginWithGoogle: () => Promise<GoogleLoginResult>;
   bootstrap: () => Promise<void>;
   refreshSession: () => Promise<void>;
   logout: () => Promise<void>;
@@ -46,6 +56,8 @@ const SIGNED_OUT = {
   firstName: "",
   lastName: "",
 } as const;
+
+let googleInFlight: Promise<GoogleLoginResult> | null = null;
 
 async function endSession(
   set: (state: typeof SIGNED_OUT) => void,
@@ -88,6 +100,21 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     await get().applySession(token, user);
   },
 
+  loginWithGoogle: () => {
+    if (googleInFlight) return googleInFlight;
+    googleInFlight = (async (): Promise<GoogleLoginResult> => {
+      const idToken = await requestGoogleIdToken();
+      if (!idToken) return "cancelled";
+      const { token, user } = await googleSignInAction(idToken);
+      queryClient.removeQueries();
+      await get().applySession(token, user);
+      return "signed-in";
+    })().finally(() => {
+      googleInFlight = null;
+    });
+    return googleInFlight;
+  },
+
   bootstrap: async () => {
     const token = await readToken().catch(() => null);
     if (!token) {
@@ -119,7 +146,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     }
   },
 
-  logout: () => endSession(set, clearAllSession),
+  logout: () => endSession(set, () => Promise.all([clearAllSession(), signOutGoogle()])),
 
   deleteAccount: async () => {
     const { userId } = get();
@@ -127,6 +154,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     await endSession(set, () =>
       Promise.allSettled([
         clearAllSession(),
+        signOutGoogle(),
         clearCycleNoticeDismissal(),
         userId ? clearOnboarding(userId) : Promise.resolve(),
       ]),
