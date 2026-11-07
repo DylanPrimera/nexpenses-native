@@ -42,6 +42,13 @@ export function localDayKey(value: DateInput = Date.now()): string {
   return `${year}-${mm}-${dd}`;
 }
 
+export function localTimeKey(value: DateInput): string {
+  const shifted = new Date(toMs(value) + APP_UTC_OFFSET_MS);
+  const hh = String(shifted.getUTCHours()).padStart(2, "0");
+  const mm = String(shifted.getUTCMinutes()).padStart(2, "0");
+  return `${hh}:${mm}`;
+}
+
 export function localMonthOf(value: DateInput = Date.now()) {
   const { year, monthIndex } = localParts(toMs(value));
   return { year, month: monthIndex + 1 };

@@ -13,6 +13,7 @@ export const queryKeys = {
   expenses: {
     all: ["expenses"] as const,
     cycle: (cycleStartedAt: string) => ["expenses", "cycle", cycleStartedAt] as const,
+    export: (scopeKey: string) => ["expenses", "export", scopeKey] as const,
   },
   categories: {
     all: ["categories"] as const,
