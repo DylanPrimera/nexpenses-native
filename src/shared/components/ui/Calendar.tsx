@@ -4,7 +4,7 @@ import { Text } from "@/shared/components/ui/text";
 import { messages } from "@/shared/i18n";
 import { DURATION_UI_MS, EASE_OUT, fadeTiming } from "@/shared/motion/motion-presets";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react-native";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { FlatList, Pressable, StyleSheet, View } from "react-native";
@@ -207,6 +207,7 @@ export function CalendarHeader({ model }: { model: CalendarModel }) {
 export function CalendarWeekRow({ week, model }: { week: CalendarDay[]; model: CalendarModel }) {
   const [width, setWidth] = useState(0);
   const { dragX, goToMonth, reduced } = model;
+  const resetTiming = useMemo(() => fadeTiming(reduced), [reduced]);
   const swipe = Gesture.Pan()
     .activeOffsetX([-16, 16])
     .failOffsetY([-12, 12])
@@ -219,10 +220,10 @@ export function CalendarWeekRow({ week, model }: { week: CalendarDay[]; model: C
         Math.abs(event.velocityX) > SWIPE_VELOCITY
       )
         scheduleOnRN(goToMonth, event.translationX < 0 ? 1 : -1);
-      dragX.set(withTiming(0, fadeTiming(reduced)));
+      dragX.set(withTiming(0, resetTiming));
     })
     .onFinalize(() => {
-      if (dragX.get() !== 0) dragX.set(withTiming(0, fadeTiming(reduced)));
+      if (dragX.get() !== 0) dragX.set(withTiming(0, resetTiming));
     });
   return (
     <View onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
