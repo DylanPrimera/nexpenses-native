@@ -283,55 +283,65 @@
 		"debts_description": "Tarjetas y créditos de consumo, cuotas y saldo."
 	},
 	"Tour": {
-		"progress": "{{current}} de {{total}}",
+		"offer_title": "¿Quieres un recorrido rápido?",
+		"offer_description": "Te mostramos lo esencial de Nexpenses en menos de un minuto. Puedes repetirlo cuando quieras desde Ajustes.",
+		"offer_accept": "Ver tutorial",
+		"offer_decline": "Ahora no",
+		"progress": "{current} de {total}",
 		"next": "Siguiente",
 		"previous": "Anterior",
+		"skip": "Omitir",
 		"done": "Finalizar",
-		"welcome_title": "Bienvenido a Nexpenses",
-		"welcome_description": "Te mostraremos lo esencial para controlar tu presupuesto mensual en pocos pasos.",
-		"account_title": "Tu cuenta",
-		"account_description": "El icono de usuario arriba a la derecha abre un panel con tu nombre completo y cerrar sesión. Para usar la app inicias sesión con correo y contraseña o con Google. Si ya tenías datos en este dispositivo, te lleva a crear la cuenta para conservarlos.",
-		"budget_title": "Tu presupuesto del ciclo",
-		"budget_description": "Aquí ves cuánto te queda disponible, el ritmo de gasto y el progreso del ciclo, que va de un pago al siguiente.",
-		"add_expense_title": "Registrar un gasto",
-		"add_expense_description": "El botón está en el centro de la navegación. Desde ahí registras un gasto en cualquier pantalla.",
-		"nav_history_title": "Historial",
-		"nav_history_description": "Desde aquí abres todos los gastos del mes. Pulsa Siguiente para ir allí.",
-		"history_title": "Movimientos del mes",
-		"history_description": "Consulta la lista o el calendario y el resumen de cuántos gastos llevas registrados.",
-		"filters_title": "Filtrar gastos",
-		"filters_description": "Busca por texto, categoría o método de pago para encontrar movimientos concretos.",
-		"edit_expense_title": "Editar un gasto",
-		"edit_expense_description": "Con el lápiz puedes cambiar monto, categoría, título y método de pago. También puedes abrir el detalle tocando la tarjeta.",
-		"delete_title": "Eliminar un gasto",
-		"delete_description": "Usa la papelera para quitar un movimiento. Se actualizarán los totales del mes al instante.",
-		"nav_recurring_title": "Gastos recurrentes",
-		"nav_recurring_description": "Pagos que se repiten y no son una cuota. Siguiente abre la lista.",
-		"recurring_title": "Plantillas de pago",
-		"recurring_description": "En un gasto que no sea cuota, márcalo como recurrente o reutiliza uno para rellenar el formulario. Aquí ves el detalle y puedes eliminarlo. No se crea solo el mes siguiente.",
-		"nav_categories_title": "Categorías",
-		"nav_categories_description": "Abre la lista de categorías de tus gastos. Siguiente te lleva allí.",
-		"edit_category_title": "Editar una categoría",
-		"edit_category_description": "Con el lápiz cambias el nombre. Los gastos que la usan muestran el nombre nuevo al guardar.",
-		"nav_debts_title": "Deudas",
-		"nav_debts_description": "Aquí gestionas tarjetas y créditos de consumo. Siguiente te lleva a la pantalla.",
-		"debts_title": "Tus créditos",
-		"debts_description": "Aquí ves el total adeudado (si ya tienes créditos) y puedes configurar uno nuevo con el extracto PDF.",
-		"nav_settings_title": "Ajustes",
-		"nav_settings_description": "Ajustes está al final de la barra de abajo. Desde ahí personalizas la app. Siguiente te lleva allí.",
-		"theme_title": "Apariencia",
-		"theme_description": "Elige tema claro, oscuro o el del sistema para que la app se vea como prefieras.",
-		"edit_budget_title": "Modificar presupuesto",
-		"edit_budget_description": "Puedes cambiar el tope cuando quieras o iniciar un nuevo ciclo el día que te paguen; el progreso se recalcula al guardar.",
-		"export_title": "Exportar reporte",
-		"export_description": "Descarga un archivo con tus gastos, resumen y totales por categoría para Excel o hojas de cálculo.",
-		"finish_title": "¡Listo!",
-		"finish_description": "Ya conoces lo básico. Tus datos se guardan solo en este dispositivo.",
-		"sample_category": "Ejemplo",
-		"sample_title": "Gasto de ejemplo",
-		"sample_description": "Solo para el tutorial — puedes eliminarlo cuando quieras.",
-		"debts_configure_title": "Configurar crédito",
-		"debts_configure_description": "Sube el PDF desbloqueado o ingresa saldo, cuota y fecha a mano; elige si es tarjeta o consumo."
+		"replay_title": "Tutorial",
+		"replay_description": "Repasa la app paso a paso: presupuesto, gastos, barra de navegación y ajustes.",
+		"replay_button": "Ver tutorial",
+		"steps": {
+			"welcome": {
+				"title": "Bienvenido a Nexpenses",
+				"description": "Aquí controlas tus gastos y tu presupuesto del ciclo. Tus datos se guardan en tu cuenta."
+			},
+			"budget": {
+				"title": "Tu presupuesto del ciclo",
+				"description": "Aquí ves cuánto te queda disponible, el progreso del ciclo y el límite sugerido por día."
+			},
+			"add_expense": {
+				"title": "Agregar un gasto",
+				"description": "Con el botón + registras un gasto desde cualquier pantalla. También puedes pegar el aviso del banco para rellenarlo."
+			},
+			"recent": {
+				"title": "Movimientos recientes",
+				"description": "Toca un gasto para ver el detalle, editarlo o borrarlo.",
+				"empty_description": "Aquí aparecerán tus últimos gastos. Cuando registres uno, tócalo para ver el detalle, editarlo o borrarlo."
+			},
+			"history": {
+				"title": "Historial",
+				"description": "El reloj abre todos tus gastos. Cambia de mes, alterna entre lista y calendario y usa los filtros."
+			},
+			"recurring": {
+				"title": "Recurrentes",
+				"description": "Las flechas guardan plantillas de gastos que se repiten. Las reutilizas al agregar un gasto; no son cobros automáticos."
+			},
+			"categories": {
+				"title": "Categorías",
+				"description": "La etiqueta muestra tus categorías. Puedes ver y editar su nombre."
+			},
+			"debts": {
+				"title": "Deudas",
+				"description": "La tarjeta es para tus créditos: agrégalos desde el PDF del extracto o a mano. Las cuotas se registran como gastos."
+			},
+			"settings": {
+				"title": "Ajustes",
+				"description": "El engranaje reúne el tema, tu presupuesto, la exportación de gastos y la eliminación de la cuenta."
+			},
+			"account": {
+				"title": "Tu cuenta",
+				"description": "Tu avatar abre el panel de cuenta, donde puedes cerrar sesión."
+			},
+			"finish": {
+				"title": "¡Listo!",
+				"description": "Ya conoces lo básico. Puedes repetir este tutorial cuando quieras desde Ajustes."
+			}
+		}
 	},
 	"Debts": {
 		"configure": "Agregar",
@@ -509,31 +519,24 @@
 	},
 	"WhatsNew": {
 		"items": {
-			"email-inbound-expenses": {
-				"badge": "Novedad",
-				"title": "Gastos por correo",
-				"body": "Ya puedes crear un gasto reenviando el aviso del banco.",
-				"where": "Lo encuentras en Ajustes, en la sección Gastos por correo.",
-				"dismiss": "Eso va, la buena"
-			},
 			"credits-debts": {
 				"badge": "Novedad",
 				"title": "Créditos y deudas",
 				"body": "Sube el extracto PDF de tu tarjeta o crédito de consumo, o ingresa saldo, cuota y fecha a mano. Ves el total adeudado.",
-				"where": "En la pestaña Deudas: configura el crédito con el PDF o a mano y registra la cuota como gasto cuando toque.",
-				"dismiss": "Eso va, la buena"
+				"where": "En la pestaña Deudas: configura el crédito con el PDF o a mano y registra la cuota como gasto cuando toque."
 			},
 			"recurring-payments": {
 				"badge": "Novedad",
 				"title": "Pagos recurrentes",
 				"body": "Marca un gasto que no sea cuota de un crédito y queda una plantilla. En otro gasto puedes reutilizarla y ajustarla antes de guardar.",
-				"where": "En Gastos recurrentes, en la barra de abajo, abres el detalle o lo eliminas. No se crea el gasto del mes siguiente solo.",
-				"dismiss": "Eso va, la buena"
+				"where": "En Recurrentes, en la barra de abajo, abres el detalle o la eliminas. No se crea el gasto del mes siguiente sola."
 			}
 		},
 		"previous": "Anterior",
 		"next": "Siguiente",
-		"progress": "{current} de {total}"
+		"done": "Listo",
+		"progress": "{current} de {total}",
+		"dialog_label": "Novedades"
 	},
 	"Auth": {
 		"login_title": "Iniciar sesión",
