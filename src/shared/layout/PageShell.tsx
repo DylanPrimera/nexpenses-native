@@ -11,7 +11,7 @@ import {
   type RefreshControlProps,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CONTENT_MAX_WIDTH, END_REACHED_THRESHOLD, NAV_CONTENT_CLEARANCE } from "./layout-metrics";
+import { CONTENT_MAX_WIDTH, END_REACHED_THRESHOLD, NAV_CONTENT_CLEARANCE, STANDALONE_CLEARANCE } from "./layout-metrics";
 
 type PageShellProps = {
   screenLabel: string;
@@ -20,6 +20,7 @@ type PageShellProps = {
   contentClassName?: string;
   refreshControl?: React.ReactElement<RefreshControlProps>;
   onEndReached?: () => void;
+  navClearance?: boolean;
 };
 
 export function PageShell({
@@ -29,6 +30,7 @@ export function PageShell({
   contentClassName,
   refreshControl,
   onEndReached,
+  navClearance = true,
 }: PageShellProps) {
   const insets = useSafeAreaInsets();
 
@@ -67,7 +69,7 @@ export function PageShell({
         className="flex-1"
         refreshControl={refreshControl}
         onScroll={onEndReached ? handleScroll : undefined}
-        contentContainerStyle={{ paddingBottom: insets.bottom + NAV_CONTENT_CLEARANCE }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + (navClearance ? NAV_CONTENT_CLEARANCE : STANDALONE_CLEARANCE) }}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.centered} className={`px-4 pt-4 ${contentClassName ?? ""}`}>
