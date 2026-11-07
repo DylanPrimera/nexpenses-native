@@ -32,12 +32,12 @@ export function ThemeToggle() {
         items={THEME_OPTIONS}
         getKey={(item) => item.value}
         extraData={preference}
-        minHeight={64}
+        minHeight={48}
         renderOption={({ value, label, icon }) => {
           const selected = preference === value;
           const optionClass = selected
             ? "border-border bg-card shadow-sm shadow-black/5"
-            : "border-transparent active:bg-accent";
+            : "border-transparent active:opacity-70";
 
           return (
             <Pressable
@@ -52,10 +52,10 @@ export function ThemeToggle() {
                 as={icon}
                 size={18}
                 strokeWidth={selected ? 2.2 : 1.75}
-                className={selected ? "text-foreground" : "text-muted-foreground"}
+                className={selected ? "text-primary" : "text-muted-foreground"}
               />
               <Text
-                className={`font-figtree-semibold text-sm ${selected ? "text-foreground" : "text-muted-foreground"}`}
+                className={`font-figtree-semibold text-sm ${selected ? "text-primary" : "text-muted-foreground"}`}
               >
                 {label}
               </Text>

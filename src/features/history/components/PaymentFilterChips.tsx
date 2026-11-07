@@ -36,10 +36,10 @@ export function PaymentFilterChips({ value, onChange }: PaymentFilterChipsProps)
         items={OPTIONS}
         getKey={(item) => item.id}
         extraData={value}
-        minHeight={60}
+        minHeight={48}
         renderOption={(option) => {
           const selected = value === option.id;
-          const tone = selected ? "text-foreground" : "text-muted-foreground";
+          const tone = selected ? "text-primary" : "text-muted-foreground";
           return (
             <Pressable
               key={option.id}

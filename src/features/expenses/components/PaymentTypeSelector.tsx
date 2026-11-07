@@ -39,11 +39,11 @@ export function PaymentTypeSelector({
         items={OPTIONS}
         getKey={(item) => item.id}
         extraData={[value, disabledTypes]}
-        minHeight={88}
+        minHeight={48}
         renderOption={(option) => {
           const selected = value === option.id;
           const disabled = disabledTypes.includes(option.id);
-          const tone = selected ? "text-foreground" : "text-muted-foreground";
+          const tone = selected ? "text-primary" : "text-muted-foreground";
           return (
             <Pressable
               key={option.id}
