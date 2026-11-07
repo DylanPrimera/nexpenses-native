@@ -18,7 +18,7 @@ export function TourReplayCard() {
   return (
     <View className={`${SURFACE_CLASS} gap-3 p-4`}>
       <Text className="text-sm text-muted-foreground">{messages.Tour.replay_description}</Text>
-      <Button variant="outline" onPress={handlePress}>
+      <Button variant="secondary" onPress={handlePress}>
         <Text>{messages.Tour.replay_button}</Text>
       </Button>
     </View>

@@ -72,6 +72,7 @@ export function BudgetSettingsCard({
   hasError,
   onRetry,
 }: BudgetSettingsCardProps) {
+  const { fontScale } = useWindowDimensions();
   const [editOpen, setEditOpen] = useState(false);
 
   if (!profile || !summary) {
@@ -106,9 +107,17 @@ export function BudgetSettingsCard({
                 : messages.Settings.budget_not_configured}
             </Text>
           </View>
-          <Button variant="secondary" size="sm" onPress={() => setEditOpen(true)}>
-            <Icon as={IconPencil} size={16} />
-            <Text className="font-figtree-semibold">{messages.Settings.edit_budget_button}</Text>
+          <Button
+            variant="secondary"
+            size="sm"
+            className={fontScale > 1 ? undefined : "h-9"}
+            style={fontScale > 1 ? undefined : { paddingVertical: 0 }}
+            onPress={() => setEditOpen(true)}
+          >
+            <Icon as={IconPencil} size={16} className="text-primary" />
+            <Text className="font-figtree-semibold text-primary">
+              {messages.Settings.edit_budget_button}
+            </Text>
           </Button>
         </View>
         {configured ? (
