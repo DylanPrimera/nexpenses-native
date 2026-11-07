@@ -2,6 +2,8 @@
 export const AppColors = {
   light: {
     primary: "#0d9668",
+    primaryAction: "#08754f",
+    controlBorder: "#64786e",
     secondary: "#e8f0ec",
     tertiary: "#38bdf8",
     success: "#10b981",
@@ -23,6 +25,8 @@ export const AppColors = {
   },
   dark: {
     primary: "#4eedb8",
+    primaryAction: "#4eedb8",
+    controlBorder: "#81978b",
     secondary: "#262b2d",
     tertiary: "#38bdf8",
     success: "#10b981",

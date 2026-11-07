@@ -1,7 +1,4 @@
-import {
-  AppColors,
-  type ThemePalette,
-} from "@/shared/theme/colors";
+import { AppColors, type ThemePalette } from "@/shared/theme/colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DarkTheme, DefaultTheme, ThemeProvider as NavThemeProvider } from "expo-router";
 import { useColorScheme } from "nativewind";
@@ -11,6 +8,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useEffectEvent,
   useMemo,
   useState,
 } from "react";
@@ -21,6 +19,7 @@ export type ThemePreference = "light" | "dark" | "system";
 
 interface ThemeContextValue {
   preference: ThemePreference;
+  isReady: boolean;
   resolvedScheme: "light" | "dark";
   colors: ThemePalette;
   setThemePreference: (value: ThemePreference) => void;
@@ -38,6 +37,7 @@ export const useAppTheme = () => {
 
 export const AppThemeProvider = ({ children }: PropsWithChildren) => {
   const { colorScheme, setColorScheme } = useColorScheme();
+  const [isReady, setReady] = useState(false);
   const [preference, setPreference] = useState<ThemePreference>("system");
 
   const resolvedScheme: "light" | "dark" =
@@ -48,19 +48,30 @@ export const AppThemeProvider = ({ children }: PropsWithChildren) => {
   const persist = useCallback(async (value: ThemePreference) => {
     try {
       await AsyncStorage.setItem(THEME_STORAGE_KEY, value);
-    } catch {
-      // ignore persistence errors
-    }
+    } catch {}
   }, []);
 
+  const applyStoredPreference = useEffectEvent((value: ThemePreference) => {
+    setPreference(value);
+    setColorScheme(value);
+  });
+
   useEffect(() => {
-    AsyncStorage.getItem(THEME_STORAGE_KEY).then((stored) => {
-      if (!stored) return;
-      const value = stored as ThemePreference;
-      setPreference(value);
-      setColorScheme(value);
-    });
-  }, [setColorScheme]);
+    let active = true;
+    void AsyncStorage.getItem(THEME_STORAGE_KEY)
+      .then((stored) => {
+        if (!active) return;
+        const value = stored === "light" || stored === "dark" ? stored : "system";
+        applyStoredPreference(value);
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        if (active) setReady(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const setThemePreference = useCallback(
     (next: ThemePreference) => {
@@ -74,11 +85,12 @@ export const AppThemeProvider = ({ children }: PropsWithChildren) => {
   const value = useMemo(
     () => ({
       preference,
+      isReady,
       resolvedScheme,
       colors,
       setThemePreference,
     }),
-    [preference, resolvedScheme, colors, setThemePreference],
+    [preference, isReady, resolvedScheme, colors, setThemePreference],
   );
 
   return (

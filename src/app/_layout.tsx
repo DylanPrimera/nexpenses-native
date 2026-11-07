@@ -1,6 +1,6 @@
 import { setUnauthorizedHandler } from "@/core";
 import { useAuthStore } from "@/features/auth";
-import { AppColors, AppThemeProvider } from "@/shared";
+import { useAppTheme, AppThemeProvider } from "@/shared/theme";
 import { messages } from "@/shared/i18n";
 import { OverlayBlurProvider, OverlayBlurTarget } from "@/shared/overlays";
 import { AppToaster, showToast } from "@/shared/toast";
@@ -21,7 +21,6 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import * as SystemUI from "expo-system-ui";
 import { useEffect } from "react";
-import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context";
@@ -31,10 +30,7 @@ import "../global.css";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const { status, bootstrap } = useAuthStore();
-  const background =
-    colorScheme === "dark" ? AppColors.dark.background : AppColors.light.background;
 
   const [loaded, error] = useFonts({
     Figtree_300Light,
@@ -45,18 +41,8 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    void SystemUI.setBackgroundColorAsync(background);
-  }, [background]);
-
-  useEffect(() => {
     void bootstrap();
   }, [bootstrap]);
-
-  useEffect(() => {
-    if ((loaded || error) && status !== "checking") {
-      void SplashScreen.hideAsync();
-    }
-  }, [loaded, error, status]);
 
   useEffect(() => {
     setUnauthorizedHandler(() => {
@@ -73,27 +59,41 @@ export default function RootLayout() {
   }
 
   return (
+    <AppThemeProvider>
+      <ThemedRoot sessionReady={status !== "checking"} />
+    </AppThemeProvider>
+  );
+}
+
+function ThemedRoot({ sessionReady }: { sessionReady: boolean }) {
+  const { colors, resolvedScheme, isReady } = useAppTheme();
+  const background = colors.background;
+  useEffect(() => {
+    if (isReady) void SystemUI.setBackgroundColorAsync(background).catch(() => undefined);
+  }, [background, isReady]);
+  useEffect(() => {
+    if (isReady && sessionReady) void SplashScreen.hideAsync();
+  }, [isReady, sessionReady]);
+  return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <KeyboardProvider>
           <AppQueryProvider>
-            <AppThemeProvider>
-              <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-              <OverlayBlurProvider>
-                <BottomSheetModalProvider>
-                  <OverlayBlurTarget>
-                    <Stack
-                      screenOptions={{
-                        headerShown: false,
-                        contentStyle: { backgroundColor: background },
-                      }}
-                    />
-                  </OverlayBlurTarget>
-                </BottomSheetModalProvider>
-              </OverlayBlurProvider>
-              <AppToaster />
-              <PortalHost />
-            </AppThemeProvider>
+            <StatusBar style={resolvedScheme === "dark" ? "light" : "dark"} />
+            <OverlayBlurProvider>
+              <BottomSheetModalProvider>
+                <OverlayBlurTarget>
+                  <Stack
+                    screenOptions={{
+                      headerShown: false,
+                      contentStyle: { backgroundColor: background },
+                    }}
+                  />
+                </OverlayBlurTarget>
+              </BottomSheetModalProvider>
+            </OverlayBlurProvider>
+            <AppToaster />
+            <PortalHost />
           </AppQueryProvider>
         </KeyboardProvider>
       </SafeAreaProvider>

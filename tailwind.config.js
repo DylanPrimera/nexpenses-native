@@ -8,6 +8,7 @@ module.exports = {
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
+        "control-border": "hsl(var(--control-border))",
         nav: {
           pill: "hsl(var(--nav-pill-bg))",
           active: "hsl(var(--nav-active-bg))",
@@ -16,6 +17,7 @@ module.exports = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
+          action: "hsl(var(--primary-action))",
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
         },
