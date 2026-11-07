@@ -13,7 +13,9 @@ import { EmptyState } from "@/shared/components/ui/EmptyState";
 import { Text } from "@/shared/components/ui/text";
 import { messages, tx } from "@/shared/i18n";
 import { AppRefreshControl, PageShell, usePullToRefresh } from "@/shared/layout";
+import { TOUR_TARGETS, useTourScroller, useTourTarget } from "@/shared/tour";
 import { IconCloudOff } from "@tabler/icons-react-native";
+import { useIsFocused } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
 import { DashboardSkeleton } from "./DashboardSkeleton";
@@ -25,6 +27,10 @@ export function DashboardScreen() {
   const summary = useCycleSummary();
   const expenses = useCycleExpenses(summary.data?.cycleStartedAt);
   const [isNewCycleOpen, setIsNewCycleOpen] = useState(false);
+  const focused = useIsFocused();
+  const scrollRef = useTourScroller(focused);
+  const budgetTargetRef = useTourTarget(TOUR_TARGETS.budget, focused);
+  const recentTargetRef = useTourTarget(TOUR_TARGETS.recent, focused);
   const { refreshing, onRefresh } = usePullToRefresh(() =>
     Promise.all([profile.refetch(), summary.refetch(), summary.data ? expenses.refetch() : undefined]),
   );
@@ -85,9 +91,13 @@ export function DashboardScreen() {
           />
         ) : null}
 
-        <BudgetProgressCard summary={cycle} />
+        <View ref={budgetTargetRef} collapsable={false}>
+          <BudgetProgressCard summary={cycle} />
+        </View>
 
-        <RecentExpenses expenses={expenses.data} isLoading={expenses.isPending} />
+        <View ref={recentTargetRef} collapsable={false}>
+          <RecentExpenses expenses={expenses.data} isLoading={expenses.isPending} />
+        </View>
       </View>
     );
   };
@@ -96,6 +106,7 @@ export function DashboardScreen() {
     <PageShell
       screenLabel={messages.Nav.dashboard}
       headerAction={<AccountDrawer />}
+      scrollRef={scrollRef}
       refreshControl={<AppRefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />}
     >
       {content()}

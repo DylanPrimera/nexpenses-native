@@ -1,10 +1,12 @@
 import { AccountDrawer } from "@/features/auth";
 import { useCycleSummary, useProfile } from "@/features/budget";
+import { TourReplayCard } from "@/features/onboarding";
 import { messages } from "@/shared/i18n";
 import { AppRefreshControl, PageShell, usePullToRefresh } from "@/shared/layout";
 import {
   IconAlertTriangle,
   IconFileExport,
+  IconSparkles,
   IconSunMoon,
   IconWallet,
 } from "@tabler/icons-react-native";
@@ -45,6 +47,9 @@ export function SettingsScreen() {
       </SettingsSection>
       <SettingsSection icon={IconFileExport} title={messages.Settings.data_section}>
         <ExportSection profile={profile.data} />
+      </SettingsSection>
+      <SettingsSection icon={IconSparkles} title={messages.Tour.replay_title}>
+        <TourReplayCard />
       </SettingsSection>
       <SettingsSection
         icon={IconAlertTriangle}

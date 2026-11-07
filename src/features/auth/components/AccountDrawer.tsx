@@ -1,6 +1,8 @@
 import { Button, Icon, SideDrawer, Text } from "@/shared";
 import { messages } from "@/shared/i18n";
+import { TOUR_TARGETS, useTourTarget } from "@/shared/tour";
 import { IconLogout, IconUserCircle } from "@tabler/icons-react-native";
+import { useIsFocused } from "expo-router";
 import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { useAuthStore } from "../store";
@@ -34,10 +36,13 @@ export function AccountDrawer() {
   const [open, setOpen] = useState(false);
   const fullName = [firstName, lastName].filter(Boolean).join(" ");
   const initials = userInitials(firstName, lastName);
+  const focused = useIsFocused();
+  const targetRef = useTourTarget(TOUR_TARGETS.avatar, focused);
 
   return (
     <>
       <Pressable
+        ref={targetRef}
         role="button"
         accessibilityLabel={messages.Nav.account}
         onPress={() => setOpen(true)}

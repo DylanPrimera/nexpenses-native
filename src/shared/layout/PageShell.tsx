@@ -1,5 +1,5 @@
 import { Icon } from "@/shared/components/ui/Icon";
-import { KeyboardScrollView } from "@/shared/components/ui/KeyboardScrollView";
+import { KeyboardScrollView, type KeyboardScrollViewProps } from "@/shared/components/ui/KeyboardScrollView";
 import { Text } from "@/shared/components/ui/text";
 import { messages } from "@/shared/i18n";
 import { IconPigMoney } from "@tabler/icons-react-native";
@@ -21,6 +21,7 @@ type PageShellProps = {
   refreshControl?: React.ReactElement<RefreshControlProps>;
   onEndReached?: () => void;
   navClearance?: boolean;
+  scrollRef?: KeyboardScrollViewProps["ref"];
 };
 
 export function PageShell({
@@ -31,6 +32,7 @@ export function PageShell({
   refreshControl,
   onEndReached,
   navClearance = true,
+  scrollRef,
 }: PageShellProps) {
   const insets = useSafeAreaInsets();
 
@@ -66,6 +68,7 @@ export function PageShell({
         </View>
       </View>
       <KeyboardScrollView
+        ref={scrollRef}
         className="flex-1"
         refreshControl={refreshControl}
         onScroll={onEndReached ? handleScroll : undefined}

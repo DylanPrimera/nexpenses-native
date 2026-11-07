@@ -1,5 +1,7 @@
 import { queryClient } from "@/core/query/query-client";
 import { clearCycleNoticeDismissal } from "@/features/budget/lib/cycle-notice-storage";
+import { clearOnboarding } from "@/features/onboarding/lib/onboarding-storage";
+import { useOnboardingStore } from "@/features/onboarding/store/onboarding.store";
 import { create } from "zustand";
 import { deleteAccountAction, loginAction, refreshSessionAction, registerAction } from "../actions";
 import type { AuthUser } from "../interfaces";
@@ -51,6 +53,7 @@ async function endSession(
 ) {
   await queryClient.cancelQueries();
   set(SIGNED_OUT);
+  useOnboardingStore.getState().resetSession();
   try {
     await cleanup();
   } finally {
@@ -119,9 +122,14 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   logout: () => endSession(set, clearAllSession),
 
   deleteAccount: async () => {
+    const { userId } = get();
     await deleteAccountAction();
     await endSession(set, () =>
-      Promise.allSettled([clearAllSession(), clearCycleNoticeDismissal()]),
+      Promise.allSettled([
+        clearAllSession(),
+        clearCycleNoticeDismissal(),
+        userId ? clearOnboarding(userId) : Promise.resolve(),
+      ]),
     );
   },
 }));

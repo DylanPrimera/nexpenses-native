@@ -1,4 +1,5 @@
 import { AddExpenseSheet } from "@/features/expenses";
+import { OnboardingHost, TourEngineProvider } from "@/features/onboarding";
 import { DURATION_FAST_MS, EASE_OUT_BEZIER } from "@/shared/motion";
 import { BottomNav } from "@/shared/navigation";
 import { useAppTheme } from "@/shared/theme";
@@ -18,7 +19,7 @@ export default function TabsLayout() {
   const [addOpen, setAddOpen] = useState(false);
 
   return (
-    <>
+    <TourEngineProvider>
       <Tabs
         backBehavior="firstRoute"
         tabBar={(props) => <BottomNav {...props} onAddPress={() => setAddOpen(true)} />}
@@ -37,6 +38,7 @@ export default function TabsLayout() {
         <Tabs.Screen name="settings" />
       </Tabs>
       <AddExpenseSheet isOpen={addOpen} onChange={setAddOpen} />
-    </>
+      <OnboardingHost />
+    </TourEngineProvider>
   );
 }

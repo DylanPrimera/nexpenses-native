@@ -1,6 +1,8 @@
 import { Icon } from "@/shared/components/ui/Icon";
 import { NAV_BOTTOM_GAP } from "@/shared/layout/layout-metrics";
 import { useAppTheme } from "@/shared/theme";
+import { navTourTarget } from "@/shared/tour/tour-targets";
+import { useTourTarget } from "@/shared/tour/use-tour-target";
 import type { BottomTabBarProps } from "expo-router/js-tabs";
 import { Pressable, useWindowDimensions, View } from "react-native";
 import { AddExpenseFAB } from "./AddExpenseFAB";
@@ -15,6 +17,36 @@ const PILL_SHADOW = {
 type BottomNavProps = BottomTabBarProps & {
   onAddPress: () => void;
 };
+
+type NavTabButtonProps = NavItem & {
+  active: boolean;
+  sizeClass: string;
+  hitSlop: ReturnType<typeof navItemHitSlop>;
+  onPress: () => void;
+};
+
+function NavTabButton({ route, label, icon, active, sizeClass, hitSlop, onPress }: NavTabButtonProps) {
+  const targetRef = useTourTarget(navTourTarget(route));
+
+  return (
+    <Pressable
+      ref={targetRef}
+      role="tab"
+      accessibilityLabel={label}
+      accessibilityState={{ selected: active }}
+      hitSlop={hitSlop}
+      onPress={onPress}
+      className={`items-center justify-center rounded-full ${sizeClass} ${active ? "bg-nav-active" : "active:opacity-70"}`}
+    >
+      <Icon
+        as={icon}
+        size={22}
+        strokeWidth={active ? 2.25 : 1.75}
+        className={active ? "text-primary" : "text-muted-foreground"}
+      />
+    </Pressable>
+  );
+}
 
 export function BottomNav({ state, emitter, navigateToTab, insets, onAddPress }: BottomNavProps) {
   const { resolvedScheme } = useAppTheme();
@@ -38,22 +70,16 @@ export function BottomNav({ state, emitter, navigateToTab, insets, onAddPress }:
     };
 
     return (
-      <Pressable
+      <NavTabButton
         key={route}
-        role="tab"
-        accessibilityLabel={label}
-        accessibilityState={{ selected: active }}
+        route={route}
+        label={label}
+        icon={icon}
+        active={active}
+        sizeClass={sizeClass}
         hitSlop={hitSlop}
         onPress={handlePress}
-        className={`items-center justify-center rounded-full ${sizeClass} ${active ? "bg-nav-active" : "active:opacity-70"}`}
-      >
-        <Icon
-          as={icon}
-          size={22}
-          strokeWidth={active ? 2.25 : 1.75}
-          className={active ? "text-primary" : "text-muted-foreground"}
-        />
-      </Pressable>
+      />
     );
   };
 
