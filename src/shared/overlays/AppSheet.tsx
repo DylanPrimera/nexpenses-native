@@ -80,7 +80,7 @@ export function AppSheet({
       <BottomSheetFooter {...props}>
         <View
           onLayout={(event) => setFooterHeight(event.nativeEvent.layout.height)}
-          className="border-t border-border bg-popover px-5 pt-4"
+          className="bg-popover px-5 pt-4"
           style={{ paddingBottom: insets.bottom + 16 }}
         >
           <SheetScope>{footer}</SheetScope>
