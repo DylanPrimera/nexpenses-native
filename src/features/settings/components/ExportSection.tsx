@@ -1,3 +1,4 @@
+import { OptionList } from "@/shared/components/ui/OptionList";
 import { isNetworkError } from "@/core/api";
 import type { UserProfile } from "@/features/budget";
 import {
@@ -92,26 +93,32 @@ export function ExportSection({ profile }: ExportSectionProps) {
         {messages.Settings.export_description}
       </Text>
       <View role="radiogroup" className="flex-row gap-1 rounded-[0.625rem] bg-background p-1">
-        {SCOPE_OPTIONS.map(({ value, label }) => {
-          const selected = scopeKind === value;
-          return (
-            <Pressable
-              key={value}
-              role="radio"
-              disabled={busy}
-              accessibilityLabel={label}
-              accessibilityState={{ selected, disabled: busy }}
-              onPress={() => setScopeKind(value)}
-              className={`flex-1 items-center rounded-md py-2 ${selected ? "bg-card" : "active:opacity-70"}`}
-            >
-              <Text
-                className={`font-figtree-semibold text-sm ${selected ? "text-primary" : "text-muted-foreground"}`}
+        <OptionList
+          items={SCOPE_OPTIONS}
+          getKey={(item) => item.value}
+          extraData={[scopeKind, busy]}
+          minHeight={48}
+          renderOption={({ value, label }) => {
+            const selected = scopeKind === value;
+            return (
+              <Pressable
+                key={value}
+                role="radio"
+                disabled={busy}
+                accessibilityLabel={label}
+                accessibilityState={{ selected, disabled: busy }}
+                onPress={() => setScopeKind(value)}
+                className={`min-h-12 w-full shrink-0 items-center justify-center rounded-md py-2 ${selected ? "bg-card" : "active:bg-accent"}`}
               >
-                {label}
-              </Text>
-            </Pressable>
-          );
-        })}
+                <Text
+                  className={`font-figtree-semibold text-sm ${selected ? "text-foreground" : "text-muted-foreground"}`}
+                >
+                  {label}
+                </Text>
+              </Pressable>
+            );
+          }}
+        />
       </View>
       {scopeKind === "month" ? (
         <View className="flex-row items-center justify-between">
@@ -124,9 +131,7 @@ export function ExportSection({ profile }: ExportSectionProps) {
           >
             <Icon as={IconChevronLeft} size={20} />
           </Button>
-          <Text numberOfLines={1} className="shrink font-figtree-semibold text-sm">
-            {historyMonthTitle(month)}
-          </Text>
+          <Text className="shrink font-figtree-semibold text-sm">{historyMonthTitle(month)}</Text>
           <Button
             variant="ghost"
             size="icon-sm"
