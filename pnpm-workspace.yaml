@@ -1,3 +1,4 @@
 strictDepBuilds: false
 allowBuilds:
   '@parcel/watcher': false
+nodeLinker: hoisted
