@@ -27,7 +27,7 @@ const sizeClass: Record<ButtonSize, string> = {
 const textVariantClass: Record<ButtonVariant, string> = {
   default: "text-primary-foreground",
   outline: "text-foreground",
-  secondary: "text-foreground",
+  secondary: "text-primary",
   ghost: "text-foreground",
   destructive: "text-destructive",
   link: "text-primary-action underline",
