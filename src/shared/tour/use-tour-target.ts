@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import type { NativeScrollEvent, NativeSyntheticEvent } from "react-native";
 import type { KeyboardAwareScrollViewRef } from "react-native-keyboard-controller";
-import { useTourTargetStore, type TourViewInstance } from "./target-registry";
+import { tourScrollOffset, useTourTargetStore, type TourViewInstance } from "./target-registry";
 
 export function useTourTarget(id: string, enabled = true) {
   const ref = useRef<TourViewInstance>(null);
@@ -27,5 +28,9 @@ export function useTourScroller(enabled = true) {
     };
   }, [enabled, setScroller]);
 
-  return ref;
+  const onScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    tourScrollOffset.current = event.nativeEvent.contentOffset.y;
+  }, []);
+
+  return { ref, onScroll };
 }

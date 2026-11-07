@@ -1,6 +1,6 @@
 import { messages } from "@/shared/i18n";
 import { tx } from "@/shared/i18n/format";
-import { TOUR_TARGETS, useTourTargetStore } from "@/shared/tour";
+import { TOUR_TARGETS, tourScrollOffset, useTourTargetStore } from "@/shared/tour";
 import {
   TourGuideOverlay,
   TourGuideProvider,
@@ -32,11 +32,22 @@ function toTourStep(definition: TourStepDefinition, index: number, total: number
     spotlightPadding: SPOTLIGHT_PADDING,
     spotlightBorderRadius: definition.borderRadius,
     scrollToTarget: scrollable
-      ? { scrollRef: scroller, offset: SCROLL_OFFSET, animated: true }
+      ? {
+          scrollRef: scroller,
+          offset: SCROLL_OFFSET,
+          animated: true,
+          getCurrentScrollOffset: () => tourScrollOffset.current,
+        }
       : undefined,
     accessibilityLabel: `${tx(messages.Tour.progress, { current: index + 1, total })}. ${definition.title}. ${definition.description}`,
     renderTooltip: (props) => <TourTooltip {...props} icon={definition.icon} />,
   };
+}
+
+function scrollDashboardToTop() {
+  const scroller = useTourTargetStore.getState().scroller?.current as
+    { scrollTo?: (options: { y: number; animated: boolean }) => void } | null | undefined;
+  scroller?.scrollTo?.({ y: 0, animated: true });
 }
 
 export function TourEngineProvider({ children }: { children: ReactNode }) {
@@ -62,12 +73,20 @@ export function useTourEngine() {
         animationDuration: reduced ? 0 : 220,
         spotlightStyles: { overlayOpacity: 0.72, overlayColor: "#000000" },
         enableAccessibility: true,
-        onTourEnd: onEnd,
+        onTourEnd: (completed) => {
+          scrollDashboardToTop();
+          onEnd(completed);
+        },
       };
       startTour(steps, config);
     },
     [startTour, reduced],
   );
 
-  return { run, stop: endTour, pause: pauseTour, resume: resumeTour };
+  const stop = useCallback(() => {
+    scrollDashboardToTop();
+    endTour();
+  }, [endTour]);
+
+  return { run, stop, pause: pauseTour, resume: resumeTour };
 }

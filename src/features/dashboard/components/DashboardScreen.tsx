@@ -28,7 +28,7 @@ export function DashboardScreen() {
   const expenses = useCycleExpenses(summary.data?.cycleStartedAt);
   const [isNewCycleOpen, setIsNewCycleOpen] = useState(false);
   const focused = useIsFocused();
-  const scrollRef = useTourScroller(focused);
+  const { ref: scrollRef, onScroll } = useTourScroller(focused);
   const budgetTargetRef = useTourTarget(TOUR_TARGETS.budget, focused);
   const recentTargetRef = useTourTarget(TOUR_TARGETS.recent, focused);
   const { refreshing, onRefresh } = usePullToRefresh(() =>
@@ -107,6 +107,7 @@ export function DashboardScreen() {
       screenLabel={messages.Nav.dashboard}
       headerAction={<AccountDrawer />}
       scrollRef={scrollRef}
+      onScroll={onScroll}
       refreshControl={<AppRefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />}
     >
       {content()}

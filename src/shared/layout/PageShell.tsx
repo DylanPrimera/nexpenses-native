@@ -22,6 +22,7 @@ type PageShellProps = {
   onEndReached?: () => void;
   navClearance?: boolean;
   scrollRef?: KeyboardScrollViewProps["ref"];
+  onScroll?: KeyboardScrollViewProps["onScroll"];
 };
 
 export function PageShell({
@@ -33,11 +34,14 @@ export function PageShell({
   onEndReached,
   navClearance = true,
   scrollRef,
+  onScroll,
 }: PageShellProps) {
   const insets = useSafeAreaInsets();
 
-  const handleScroll = ({ nativeEvent }: NativeSyntheticEvent<NativeScrollEvent>) => {
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    onScroll?.(event);
     if (!onEndReached) return;
+    const { nativeEvent } = event;
     const { contentOffset, contentSize, layoutMeasurement } = nativeEvent;
     if (contentOffset.y + layoutMeasurement.height >= contentSize.height - END_REACHED_THRESHOLD) {
       onEndReached();
@@ -71,7 +75,8 @@ export function PageShell({
         ref={scrollRef}
         className="flex-1"
         refreshControl={refreshControl}
-        onScroll={onEndReached ? handleScroll : undefined}
+        onScroll={onEndReached || onScroll ? handleScroll : undefined}
+        scrollEventThrottle={onScroll ? 16 : undefined}
         contentContainerStyle={{ paddingBottom: insets.bottom + (navClearance ? NAV_CONTENT_CLEARANCE : STANDALONE_CLEARANCE) }}
         showsVerticalScrollIndicator={false}
       >

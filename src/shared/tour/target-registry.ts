@@ -6,6 +6,8 @@ export type TourViewInstance = ComponentRef<typeof View>;
 export type TourTargetRef = RefObject<TourViewInstance | null>;
 export type TourScrollerRef = RefObject<unknown>;
 
+export const tourScrollOffset = { current: 0 };
+
 type TourTargetState = {
   targets: Readonly<Record<string, TourTargetRef>>;
   scroller: TourScrollerRef | null;
@@ -24,5 +26,8 @@ export const useTourTargetStore = create<TourTargetState>()((set) => ({
       const { [id]: _removed, ...rest } = state.targets;
       return { targets: rest };
     }),
-  setScroller: (ref) => set({ scroller: ref }),
+  setScroller: (ref) => {
+    tourScrollOffset.current = 0;
+    set({ scroller: ref });
+  },
 }));
