@@ -21,6 +21,7 @@ import Animated, {
 import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
 import { scheduleOnRN } from "react-native-worklets";
 import { OverlayScrim } from "./OverlayScrim";
+import { acquireOverlay } from "./overlay-registry";
 
 type SideDrawerProps = {
   isOpen: boolean;
@@ -50,6 +51,11 @@ export function SideDrawer({ isOpen, onClose, children }: SideDrawerProps) {
       if (finished) scheduleOnRN(setMounted, false);
     });
   }, [isOpen, progress, reduced]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    return acquireOverlay();
+  }, [mounted]);
 
   const close = () => {
     playModalClose();

@@ -14,6 +14,7 @@ import { useReducedMotion } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SheetBackdrop, StaticSheetBackdrop } from "./SheetBackdrop";
 import { SheetBackground, SheetCloseButton, SheetHandle } from "./SheetChrome";
+import { acquireOverlay } from "./overlay-registry";
 import { useBlockAndroidBack } from "./use-block-android-back";
 
 type AppSheetProps = {
@@ -45,6 +46,7 @@ export function AppSheet({
 }: AppSheetProps) {
   const sheetRef = useRef<BottomSheetModal>(null);
   const presented = useRef(false);
+  const releaseOverlay = useRef<(() => void) | null>(null);
   const reduced = useReducedMotion();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
@@ -61,6 +63,7 @@ export function AppSheet({
   useEffect(() => {
     if (isOpen && !presented.current) {
       presented.current = true;
+      releaseOverlay.current ??= acquireOverlay();
       sheetRef.current?.present();
       playModalOpen();
     }
@@ -69,8 +72,18 @@ export function AppSheet({
     }
   }, [isOpen]);
 
+  useEffect(
+    () => () => {
+      releaseOverlay.current?.();
+      releaseOverlay.current = null;
+    },
+    [],
+  );
+
   const handleDismiss = () => {
     presented.current = false;
+    releaseOverlay.current?.();
+    releaseOverlay.current = null;
     playModalClose();
     onChange(false);
   };
