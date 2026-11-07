@@ -1,3 +1,4 @@
+import { OptionList } from "@/shared/components/ui/OptionList";
 import type { CreditKind } from "@/core/types/domain";
 import { playPressSound } from "@/shared/audio/ui-sound";
 import { Icon } from "@/shared/components/ui/Icon";
@@ -26,32 +27,42 @@ export function CreditKindPicker({
 }: CreditKindPickerProps) {
   return (
     <View role="radiogroup" accessibilityLabel={accessibilityLabel} className="flex-row gap-2">
-      {OPTIONS.map((option) => {
-        const selected = value === option.id;
-        const tone = selected ? "text-primary" : "text-muted-foreground";
-        return (
-          <Pressable
-            key={option.id}
-            role="radio"
-            disabled={disabled}
-            accessibilityState={{ checked: selected, disabled }}
-            onPress={() => {
-              if (selected) return;
-              playPressSound();
-              onChange(option.id);
-            }}
-            className={`flex-1 items-center justify-center gap-1.5 rounded-md p-3 ${selected ? "bg-primary/15" : "bg-muted active:bg-accent"} ${disabled ? "opacity-50" : ""}`}
-          >
-            <Icon as={option.icon} size={24} strokeWidth={selected ? 2.2 : 1.75} className={tone} />
-            <Text
-              numberOfLines={1}
-              className={`text-center text-xs leading-tight ${selected ? "font-figtree-semibold" : "font-figtree-medium"} ${tone}`}
+      <OptionList
+        items={OPTIONS}
+        getKey={(item) => item.id}
+        extraData={[value, disabled]}
+        minHeight={88}
+        renderOption={(option) => {
+          const selected = value === option.id;
+          const tone = selected ? "text-foreground" : "text-muted-foreground";
+          return (
+            <Pressable
+              key={option.id}
+              role="radio"
+              disabled={disabled}
+              accessibilityState={{ checked: selected, disabled }}
+              onPress={() => {
+                if (selected) return;
+                playPressSound();
+                onChange(option.id);
+              }}
+              className={`w-full shrink-0 items-center justify-center gap-1.5 rounded-md p-3 ${selected ? "bg-primary/15" : "bg-muted active:bg-accent"} ${disabled ? "opacity-50" : ""}`}
             >
-              {option.label}
-            </Text>
-          </Pressable>
-        );
-      })}
+              <Icon
+                as={option.icon}
+                size={24}
+                strokeWidth={selected ? 2.2 : 1.75}
+                className={tone}
+              />
+              <Text
+                className={`text-center text-xs leading-tight ${selected ? "font-figtree-semibold" : "font-figtree-medium"} ${tone}`}
+              >
+                {option.label}
+              </Text>
+            </Pressable>
+          );
+        }}
+      />
     </View>
   );
 }

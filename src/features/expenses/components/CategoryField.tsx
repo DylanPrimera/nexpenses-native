@@ -40,19 +40,18 @@ export function CategoryField({ name }: { name: string }) {
         onChange={select}
         items={categories}
         getItemId={(item) => item.id}
+        getItemLabel={(item) => item.name}
         filterItem={(item, query) => item.name.toLowerCase().includes(query)}
         sortItems={sortByUsage}
         renderSelected={(item) => (
           <View className="flex-row">
-            <CategoryBadge name={item.name} color={item.color} />
+            <CategoryBadge name={item.name} color={item.color} truncate={false} />
           </View>
         )}
         renderOption={(item) => (
           <View className="flex-row items-center gap-2">
             <View style={{ backgroundColor: item.color }} className="size-2 rounded-full" />
-            <Text numberOfLines={1} className="flex-1 text-sm capitalize">
-              {item.name}
-            </Text>
+            <Text className="flex-1 text-sm capitalize">{item.name}</Text>
           </View>
         )}
         placeholder={messages.Expense.category_placeholder}

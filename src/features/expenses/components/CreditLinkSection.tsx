@@ -36,14 +36,8 @@ function CreditSummary({ credit, showAmount }: { credit: Credit; showAmount: boo
         className="text-muted-foreground"
       />
       <View className="min-w-0 flex-1">
-        <Text numberOfLines={1} className="text-sm capitalize">
-          {credit.displayName}
-        </Text>
-        {detail ? (
-          <Text numberOfLines={1} className="text-xs text-muted-foreground">
-            {detail}
-          </Text>
-        ) : null}
+        <Text className="text-sm capitalize">{credit.displayName}</Text>
+        {detail ? <Text className="text-xs text-muted-foreground">{detail}</Text> : null}
       </View>
     </View>
   );
@@ -106,6 +100,7 @@ function CreditPicker() {
         onChange={select}
         items={visible}
         getItemId={(item) => item.id}
+        getItemLabel={(item) => item.displayName}
         filterItem={(item, query) => creditHaystack(item).includes(query)}
         sortItems={sortByName}
         renderSelected={(item) => <CreditSummary credit={item} showAmount={false} />}
