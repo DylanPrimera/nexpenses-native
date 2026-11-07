@@ -5,7 +5,8 @@ import { messages } from "@/shared/i18n";
 import { tx } from "@/shared/i18n/format";
 import type { Icon as TablerIconType } from "@tabler/icons-react-native";
 import type { TooltipProps } from "@wrack/react-native-tour-guide";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { focusAccessibilityTarget } from "@/shared/overlays/accessibility-focus";
 import { ScrollView, View } from "react-native";
 
 const MAX_WIDTH = 360;
@@ -39,6 +40,10 @@ export function TourTooltip({
   onSkip,
 }: TourTooltipProps) {
   const [height, setHeight] = useState(0);
+  const headingRef = useRef<React.ComponentRef<typeof Text>>(null);
+  useEffect(() => {
+    if (height > 0) focusAccessibilityTarget(headingRef);
+  }, [height, currentStep]);
   const hasTarget = targetWidth > 0 && targetHeight > 0;
   const isLast = isLastStep ?? currentStep === totalSteps - 1;
 
@@ -75,14 +80,21 @@ export function TourTooltip({
     >
       <View className="flex-row items-center gap-3">
         <View className="size-9 items-center justify-center rounded-[0.75rem] bg-primary/15">
-          <Icon as={icon} size={20} strokeWidth={2} className="text-primary" />
+          <Icon as={icon} size={20} strokeWidth={2} className="text-primary-action" />
         </View>
-        <Text role="heading" className="flex-1 font-figtree-bold text-base tracking-tight">
+        <Text
+          ref={headingRef}
+          role="heading"
+          className="flex-1 font-figtree-bold text-base tracking-tight"
+        >
           {title}
         </Text>
       </View>
 
-      <ScrollView style={{ maxHeight: bodyMaxHeight }} bounces={false}>
+      <ScrollView
+        style={{ maxHeight: bodyMaxHeight }}
+        bounces={false}
+      >
         <Text className="text-sm leading-5 text-muted-foreground">{description}</Text>
       </ScrollView>
 

@@ -45,7 +45,7 @@ export function TourOfferSheet({ onAccept, onDecline }: TourOfferSheetProps) {
     >
       <View className="items-center gap-2">
         <View className="mb-2 size-14 items-center justify-center rounded-[0.875rem] bg-primary/15">
-          <Icon as={IconSparkles} size={32} strokeWidth={2} className="text-primary" />
+          <Icon as={IconSparkles} size={32} strokeWidth={2} className="text-primary-action" />
         </View>
         <Text role="heading" className="text-center font-figtree-bold text-xl tracking-tight">
           {messages.Tour.offer_title}
