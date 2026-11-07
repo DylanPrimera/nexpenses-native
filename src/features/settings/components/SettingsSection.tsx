@@ -11,7 +11,7 @@ type SettingsSectionProps = {
 };
 
 export function SettingsSection({ icon, title, tone = "default", children }: SettingsSectionProps) {
-  const toneClass = tone === "danger" ? "text-destructive" : "text-primary";
+  const toneClass = tone === "danger" ? "text-destructive" : "text-primary-action";
 
   return (
     <View className="gap-3">

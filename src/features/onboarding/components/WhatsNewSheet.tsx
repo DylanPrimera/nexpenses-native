@@ -1,3 +1,4 @@
+import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { Button } from "@/shared/components/ui/button";
 import { Icon } from "@/shared/components/ui/Icon";
 import { Text } from "@/shared/components/ui/text";
@@ -18,6 +19,7 @@ export function WhatsNewSheet({ items, onClose }: WhatsNewSheetProps) {
   const [open, setOpen] = useState(true);
   const [index, setIndex] = useState(0);
   const furthest = useRef(0);
+  const closed = useRef(false);
   const item = items[index];
   const isFirst = index === 0;
   const isLast = index === items.length - 1;
@@ -29,7 +31,10 @@ export function WhatsNewSheet({ items, onClose }: WhatsNewSheetProps) {
 
   const handleChange = (next: boolean) => {
     setOpen(next);
-    if (!next) onClose(items.slice(0, furthest.current + 1).map((news) => news.id));
+    if (!next && !closed.current) {
+      closed.current = true;
+      onClose(items.slice(0, furthest.current + 1).map((news) => news.id));
+    }
   };
 
   if (!item) return null;
@@ -55,25 +60,35 @@ export function WhatsNewSheet({ items, onClose }: WhatsNewSheetProps) {
           </View>
         </View>
       }
-    >
-      <View accessibilityLabel={messages.WhatsNew.dialog_label} className="gap-3">
-        <View className="flex-row items-center gap-3">
-          <View className="size-12 items-center justify-center rounded-[0.875rem] bg-primary/15">
-            <Icon as={item.icon} size={26} strokeWidth={2} className="text-primary" />
-          </View>
-          <View className="self-center rounded-md bg-primary/10 px-3 py-1">
-            <Text className="font-figtree-medium text-xs text-primary">{item.badge}</Text>
-          </View>
-        </View>
-        <Text role="heading" className="font-figtree-bold text-xl tracking-tight">
-          {item.title}
-        </Text>
-        <Text className="text-sm text-muted-foreground">{item.body}</Text>
-        <View className="flex-row gap-2 rounded-[0.875rem] bg-card p-3">
-          <Icon as={IconMapPin} size={16} className="mt-0.5 text-primary" />
-          <Text className="flex-1 text-sm">{item.where}</Text>
-        </View>
-      </View>
-    </AppSheet>
+      renderScrollable={({ paddingBottom }) => (
+        <BottomSheetFlatList
+          data={item ? [item] : []}
+          keyExtractor={(news) => news.id}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom }}
+          renderItem={() => (
+            <View accessibilityLabel={messages.WhatsNew.dialog_label} className="gap-3">
+              <View className="flex-row items-center gap-3">
+                <View className="size-12 items-center justify-center rounded-[0.875rem] bg-primary/15">
+                  <Icon as={item.icon} size={26} strokeWidth={2} className="text-primary-action" />
+                </View>
+                <View className="self-center rounded-md bg-primary/10 px-3 py-1">
+                  <Text className="font-figtree-medium text-xs text-primary-action">
+                    {item.badge}
+                  </Text>
+                </View>
+              </View>
+              <Text role="heading" className="font-figtree-bold text-xl tracking-tight">
+                {item.title}
+              </Text>
+              <Text className="text-sm text-muted-foreground">{item.body}</Text>
+              <View className="flex-row gap-2 rounded-[0.875rem] bg-card p-3">
+                <Icon as={IconMapPin} size={16} className="mt-0.5 text-primary-action" />
+                <Text className="flex-1 text-sm">{item.where}</Text>
+              </View>
+            </View>
+          )}
+        />
+      )}
+    />
   );
 }
