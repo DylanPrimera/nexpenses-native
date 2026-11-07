@@ -1,4 +1,4 @@
-import { queryClient, setUnauthorizedHandler } from "@/core";
+import { setUnauthorizedHandler } from "@/core";
 import { useAuthStore } from "@/features/auth";
 import { AppColors, AppThemeProvider } from "@/shared";
 import { messages } from "@/shared/i18n";
@@ -14,7 +14,8 @@ import {
 } from "@expo-google-fonts/figtree";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PortalHost } from "@rn-primitives/portal";
-import { QueryClientProvider } from "@tanstack/react-query";
+import "@/core/network/connectivity";
+import { AppQueryProvider } from "@/core/query/AppQueryProvider";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
@@ -23,10 +24,7 @@ import { useEffect } from "react";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
-import {
-  initialWindowMetrics,
-  SafeAreaProvider,
-} from "react-native-safe-area-context";
+import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context";
 import "@/core/validations/zod-locale";
 import "../global.css";
 
@@ -78,20 +76,25 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: background }}>
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <KeyboardProvider>
-          <QueryClientProvider client={queryClient}>
+          <AppQueryProvider>
             <AppThemeProvider>
               <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
               <OverlayBlurProvider>
                 <BottomSheetModalProvider>
                   <OverlayBlurTarget>
-                    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: background } }} />
+                    <Stack
+                      screenOptions={{
+                        headerShown: false,
+                        contentStyle: { backgroundColor: background },
+                      }}
+                    />
                   </OverlayBlurTarget>
                 </BottomSheetModalProvider>
               </OverlayBlurProvider>
               <AppToaster />
               <PortalHost />
             </AppThemeProvider>
-          </QueryClientProvider>
+          </AppQueryProvider>
         </KeyboardProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

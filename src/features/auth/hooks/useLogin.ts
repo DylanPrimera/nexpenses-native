@@ -7,6 +7,8 @@ import { useAuthStore } from "../store";
 export const useLogin = () => {
   const { login } = useAuthStore();
   const { mutateAsync, isPending, error } = useMutation({
+    networkMode: "always",
+    retry: false,
     mutationKey: queryKeys.auth.login,
     mutationFn: ({ email, password }: LoginFormValues) => login(email, password),
   });

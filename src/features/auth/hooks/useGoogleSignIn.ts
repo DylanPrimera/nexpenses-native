@@ -1,3 +1,4 @@
+import { OfflineActionError } from "@/core/network/require-online";
 import { queryKeys } from "@/core/query/query-keys";
 import { notifyError, notifyWarning } from "@/shared/toast/notify";
 import { useMutation } from "@tanstack/react-query";
@@ -7,6 +8,8 @@ import { useAuthStore } from "../store";
 export const useGoogleSignIn = () => {
   const { loginWithGoogle } = useAuthStore();
   const { mutateAsync, isPending } = useMutation({
+    networkMode: "always",
+    retry: false,
     mutationKey: queryKeys.auth.google,
     mutationFn: loginWithGoogle,
   });
@@ -15,6 +18,10 @@ export const useGoogleSignIn = () => {
     try {
       return (await mutateAsync()) === "signed-in";
     } catch (error) {
+      if (error instanceof OfflineActionError) {
+        notifyWarning(error.message);
+        return false;
+      }
       const feedback = googleFeedback(error);
       if (feedback?.level === "warning") notifyWarning(feedback.message);
       else if (feedback) notifyError(feedback.message);

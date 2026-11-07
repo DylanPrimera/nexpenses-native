@@ -1,3 +1,4 @@
+import { onlineManager } from "@tanstack/react-query";
 import { useAppTheme } from "@/shared/theme";
 import { useState } from "react";
 import { RefreshControl, type RefreshControlProps } from "react-native";
@@ -5,6 +6,7 @@ import { RefreshControl, type RefreshControlProps } from "react-native";
 export function usePullToRefresh(refresh: () => Promise<unknown>) {
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = async () => {
+    if (!onlineManager.isOnline()) return;
     setRefreshing(true);
     await refresh().catch(() => undefined);
     setRefreshing(false);
@@ -12,7 +14,10 @@ export function usePullToRefresh(refresh: () => Promise<unknown>) {
   return { refreshing, onRefresh };
 }
 
-type AppRefreshControlProps = Omit<RefreshControlProps, "tintColor" | "colors" | "progressBackgroundColor">;
+type AppRefreshControlProps = Omit<
+  RefreshControlProps,
+  "tintColor" | "colors" | "progressBackgroundColor"
+>;
 
 export function AppRefreshControl({ refreshing, onRefresh, ...props }: AppRefreshControlProps) {
   const { colors } = useAppTheme();

@@ -1,3 +1,5 @@
+import { usePendingExpenses } from "@/features/expenses/hooks/usePendingExpenses";
+import { ConfirmDialog } from "@/shared/overlays/ConfirmDialog";
 import { Button, Icon, SideDrawer, Text } from "@/shared";
 import { messages } from "@/shared/i18n";
 import { TOUR_TARGETS, useTourTarget } from "@/shared/tour";
@@ -34,6 +36,8 @@ function ProfileAvatar({ initials, size }: { initials: string; size: keyof typeo
 export function AccountDrawer() {
   const { firstName, lastName, logout } = useAuthStore();
   const [open, setOpen] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
+  const pending = usePendingExpenses();
   const fullName = [firstName, lastName].filter(Boolean).join(" ");
   const initials = userInitials(firstName, lastName);
   const focused = useIsFocused();
@@ -66,13 +70,24 @@ export function AccountDrawer() {
           className="mt-auto w-full"
           onPress={() => {
             setOpen(false);
-            void logout();
+            if (pending.length) setConfirmLogout(true);
+            else void logout();
           }}
         >
           <Icon as={IconLogout} size={20} strokeWidth={1.75} />
           <Text className="font-figtree-semibold">{messages.Nav.logout}</Text>
         </Button>
       </SideDrawer>
+      <ConfirmDialog
+        isOpen={confirmLogout}
+        title={messages.Offline.logout_title}
+        description={messages.Offline.logout_description}
+        confirmLabel={messages.Nav.logout}
+        onConfirm={() => {
+          void logout();
+        }}
+        onClose={() => setConfirmLogout(false)}
+      />
     </>
   );
 }

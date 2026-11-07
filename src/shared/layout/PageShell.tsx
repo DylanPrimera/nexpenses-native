@@ -1,5 +1,9 @@
+import { OfflineNotice } from "./OfflineNotice";
 import { Icon } from "@/shared/components/ui/Icon";
-import { KeyboardScrollView, type KeyboardScrollViewProps } from "@/shared/components/ui/KeyboardScrollView";
+import {
+  KeyboardScrollView,
+  type KeyboardScrollViewProps,
+} from "@/shared/components/ui/KeyboardScrollView";
 import { Text } from "@/shared/components/ui/text";
 import { messages } from "@/shared/i18n";
 import { IconPigMoney } from "@tabler/icons-react-native";
@@ -11,7 +15,12 @@ import {
   type RefreshControlProps,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CONTENT_MAX_WIDTH, END_REACHED_THRESHOLD, NAV_CONTENT_CLEARANCE, STANDALONE_CLEARANCE } from "./layout-metrics";
+import {
+  CONTENT_MAX_WIDTH,
+  END_REACHED_THRESHOLD,
+  NAV_CONTENT_CLEARANCE,
+  STANDALONE_CLEARANCE,
+} from "./layout-metrics";
 
 type PageShellProps = {
   screenLabel: string;
@@ -71,13 +80,17 @@ export function PageShell({
           {headerAction}
         </View>
       </View>
+      <OfflineNotice />
       <KeyboardScrollView
         ref={scrollRef}
         className="flex-1"
         refreshControl={refreshControl}
         onScroll={onEndReached || onScroll ? handleScroll : undefined}
         scrollEventThrottle={onScroll ? 16 : undefined}
-        contentContainerStyle={{ paddingBottom: insets.bottom + (navClearance ? NAV_CONTENT_CLEARANCE : STANDALONE_CLEARANCE) }}
+        contentContainerStyle={{
+          paddingBottom:
+            insets.bottom + (navClearance ? NAV_CONTENT_CLEARANCE : STANDALONE_CLEARANCE),
+        }}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.centered} className={`px-4 pt-4 ${contentClassName ?? ""}`}>

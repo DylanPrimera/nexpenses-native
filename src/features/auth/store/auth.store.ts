@@ -1,3 +1,6 @@
+import { closeQuerySession, openQuerySession } from "@/core/query/session-runtime";
+import { purgeQueryPersistence } from "@/core/query/query-persistence";
+import { requireOnline } from "@/core/network/require-online";
 import { queryClient } from "@/core/query/query-client";
 import { clearCycleNoticeDismissal } from "@/features/budget/lib/cycle-notice-storage";
 import { clearOnboarding } from "@/features/onboarding/lib/onboarding-storage";
@@ -62,12 +65,18 @@ let googleInFlight: Promise<GoogleLoginResult> | null = null;
 async function endSession(
   set: (state: typeof SIGNED_OUT) => void,
   cleanup: () => Promise<unknown>,
+  userId?: string,
 ) {
+  closeQuerySession();
   await queryClient.cancelQueries();
   set(SIGNED_OUT);
   useOnboardingStore.getState().resetSession();
   try {
-    await cleanup();
+    try {
+      await purgeQueryPersistence(userId);
+    } finally {
+      await cleanup();
+    }
   } finally {
     queryClient.clear();
   }
@@ -85,28 +94,44 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     const lastName = user.lastName?.trim() ?? "";
     await saveToken(token);
     await saveSessionMeta({ userId: user.id, firstName, lastName });
+    openQuerySession(user.id);
     set({ status: "authenticated", token, userId: user.id, firstName, lastName });
   },
 
   login: async (email, password) => {
+    requireOnline();
     const { token, user } = await loginAction(email, password);
+    closeQuerySession();
+    await purgeQueryPersistence(get().userId);
+    if (get().userId !== user.id) await purgeQueryPersistence(user.id);
     queryClient.removeQueries();
+    queryClient.clear();
     await get().applySession(token, user);
   },
 
   register: async (input) => {
+    requireOnline();
     const { token, user } = await registerAction(input);
+    closeQuerySession();
+    await purgeQueryPersistence(get().userId);
+    if (get().userId !== user.id) await purgeQueryPersistence(user.id);
     queryClient.removeQueries();
+    queryClient.clear();
     await get().applySession(token, user);
   },
 
   loginWithGoogle: () => {
+    requireOnline();
     if (googleInFlight) return googleInFlight;
     googleInFlight = (async (): Promise<GoogleLoginResult> => {
       const idToken = await requestGoogleIdToken();
       if (!idToken) return "cancelled";
       const { token, user } = await googleSignInAction(idToken);
+      closeQuerySession();
+      await purgeQueryPersistence(get().userId);
+      if (get().userId !== user.id) await purgeQueryPersistence(user.id);
       queryClient.removeQueries();
+      queryClient.clear();
       await get().applySession(token, user);
       return "signed-in";
     })().finally(() => {
@@ -122,6 +147,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       return;
     }
     const meta = await readSessionMeta().catch(() => null);
+    openQuerySession(meta?.userId);
     set({
       status: "authenticated",
       token,
@@ -146,18 +172,22 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     }
   },
 
-  logout: () => endSession(set, () => Promise.all([clearAllSession(), signOutGoogle()])),
+  logout: () =>
+    endSession(set, () => Promise.all([clearAllSession(), signOutGoogle()]), get().userId),
 
   deleteAccount: async () => {
     const { userId } = get();
     await deleteAccountAction();
-    await endSession(set, () =>
-      Promise.allSettled([
-        clearAllSession(),
-        signOutGoogle(),
-        clearCycleNoticeDismissal(),
-        userId ? clearOnboarding(userId) : Promise.resolve(),
-      ]),
+    await endSession(
+      set,
+      () =>
+        Promise.allSettled([
+          clearAllSession(),
+          signOutGoogle(),
+          clearCycleNoticeDismissal(),
+          userId ? clearOnboarding(userId) : Promise.resolve(),
+        ]),
+      userId,
     );
   },
 }));

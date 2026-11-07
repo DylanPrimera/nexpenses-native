@@ -1,3 +1,4 @@
+import { OfflineActionError } from "@/core/network/require-online";
 import { isApiError } from "@/core/api/envelope";
 import { authCopy, spanishAuthError } from "./auth-messages";
 
@@ -30,5 +31,6 @@ export function authErrorStatus(error: unknown) {
 }
 
 export function authErrorMessage(error: unknown) {
+  if (error instanceof OfflineActionError) return error.message;
   return error instanceof AuthActionError ? error.message : authCopy.generic_error;
 }

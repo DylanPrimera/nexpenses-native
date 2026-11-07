@@ -12,6 +12,8 @@ export const queryKeys = {
     cycle: ["summary", "cycle"] as const,
   },
   expenses: {
+    create: ["expenses", "create"] as const,
+    pending: (userId: string) => ["expenses", "pending", userId] as const,
     all: ["expenses"] as const,
     cycle: (cycleStartedAt: string) => ["expenses", "cycle", cycleStartedAt] as const,
     export: (scopeKey: string) => ["expenses", "export", scopeKey] as const,
@@ -29,12 +31,19 @@ export const queryKeys = {
     all: ["recurring"] as const,
   },
   history: {
+    receipts: (userId: string) => ["history", "receipts", userId] as const,
     all: ["history"] as const,
     list: (
       { year, month }: { year: number; month: number },
-      { categoryId, paymentType, search }: { categoryId: string; paymentType: string; search: string },
+      {
+        categoryId,
+        paymentType,
+        search,
+      }: { categoryId: string; paymentType: string; search: string },
     ) => ["history", "list", year, month, categoryId, paymentType, search.trim()] as const,
-    month: ({ year, month }: { year: number; month: number }) => ["history", "month", year, month] as const,
-    count: ({ year, month }: { year: number; month: number }) => ["history", "count", year, month] as const,
+    month: ({ year, month }: { year: number; month: number }) =>
+      ["history", "month", year, month] as const,
+    count: ({ year, month }: { year: number; month: number }) =>
+      ["history", "count", year, month] as const,
   },
 };

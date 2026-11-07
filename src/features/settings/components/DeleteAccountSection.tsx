@@ -1,3 +1,4 @@
+import { OfflineActionError } from "@/core/network/require-online";
 import { isNetworkError } from "@/core/api";
 import { useAuthStore } from "@/features/auth";
 import { Button } from "@/shared/components/ui/button";
@@ -45,7 +46,8 @@ export function DeleteAccountSection() {
       await deleteAccount();
       notifySuccess(messages.Settings.reset_success_toast);
     } catch (error) {
-      if (isNetworkError(error)) notifyWarning(messages.Settings.reset_offline_toast);
+      if (error instanceof OfflineActionError) notifyWarning(error.message);
+      else if (isNetworkError(error)) notifyWarning(messages.Settings.reset_offline_toast);
       else notifyError(messages.Settings.reset_error_toast);
     } finally {
       pendingRef.current = false;
