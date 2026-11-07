@@ -5,8 +5,9 @@ import { messages } from "@/shared/i18n";
 import { DURATION_UI_MS, EASE_OUT, fadeTiming } from "@/shared/motion/motion-presets";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react-native";
 import { useState } from "react";
+import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { Pressable, StyleSheet, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, View } from "react-native";
 import Animated, {
   FadeInLeft,
   FadeInRight,
@@ -39,6 +40,7 @@ type CalendarProps = {
   markedDays?: ReadonlySet<string>;
   showHeader?: boolean;
   showOutsideDays?: boolean;
+  paddingBottom?: number;
 };
 
 const WEEKDAYS = weekdayLabels();
@@ -52,7 +54,7 @@ function monthEntering(direction: number) {
 }
 
 function dayCircleClass(selected: boolean, today: boolean) {
-  if (selected) return "bg-primary";
+  if (selected) return "bg-primary-action";
   if (today) return "border-2 border-primary/40 group-active:bg-muted";
   return "group-active:bg-muted";
 }
@@ -88,7 +90,7 @@ function CalendarCell({
   return (
     <Pressable
       role="button"
-      accessibilityLabel={day.key}
+      accessibilityLabel={`${new Date(`${day.key}T12:00:00`).toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })}${today ? `, ${messages.Common.today}` : ""}${marked ? `, ${messages.History.has_expenses}` : ""}`}
       accessibilityState={{ selected, disabled }}
       disabled={disabled}
       onPress={onPress}
@@ -98,13 +100,15 @@ function CalendarCell({
         className={`flex-1 items-center justify-center rounded-full ${dayCircleClass(selected, today)}`}
       >
         <Text className={`text-sm ${dayTextClass(selected, day.outside)}`}>{day.day}</Text>
-        {showDots ? <View className={`mt-0.5 size-1 rounded-full ${dayDotClass(selected, marked)}`} /> : null}
+        {showDots ? (
+          <View className={`mt-0.5 size-1 rounded-full ${dayDotClass(selected, marked)}`} />
+        ) : null}
       </View>
     </Pressable>
   );
 }
 
-export function Calendar({
+export function useCalendarModel({
   value,
   onChange,
   minDate,
@@ -139,48 +143,56 @@ export function Calendar({
     onMonthChange?.(next);
   };
 
-  const swipe = Gesture.Pan()
-    .activeOffsetX([-16, 16])
-    .failOffsetY([-12, 12])
-    .onUpdate((event) => {
-      dragX.value = event.translationX * DRAG_DAMPING;
-    })
-    .onEnd((event) => {
-      const passed =
-        Math.abs(event.translationX) > SWIPE_DISTANCE || Math.abs(event.velocityX) > SWIPE_VELOCITY;
-      if (passed) scheduleOnRN(goToMonth, event.translationX < 0 ? 1 : -1);
-      dragX.value = withTiming(0, fadeTiming(reduced));
-    })
-    .onFinalize(() => {
-      if (dragX.value !== 0) dragX.value = withTiming(0, fadeTiming(reduced));
-    });
-
   const dragStyle = useAnimatedStyle(() => ({ transform: [{ translateX: dragX.value }] }));
 
+  return {
+    month,
+    weeks,
+    today,
+    selectedKey,
+    goToMonth,
+    dragX,
+    dragStyle,
+    direction,
+    reduced,
+    onChange,
+    minDate,
+    maxDate,
+    markedDays,
+    showOutsideDays,
+    showHeader,
+    className,
+  };
+}
+
+export type CalendarModel = ReturnType<typeof useCalendarModel>;
+
+export function CalendarHeader({ model }: { model: CalendarModel }) {
   return (
-    <View className={`w-full gap-3 ${className ?? ""}`}>
-      {showHeader ? (
-        <View className="h-9 flex-row items-center justify-between">
+    <View className="gap-3 pb-2">
+      {model.showHeader ? (
+        <View className="min-h-12 flex-row items-center justify-between">
           <Button
             variant="ghost"
             size="icon-sm"
             accessibilityLabel={messages.Common.previous_month}
-            onPress={() => goToMonth(-1)}
+            onPress={() => model.goToMonth(-1)}
           >
             <Icon as={IconChevronLeft} size={18} />
           </Button>
-          <Text className="font-figtree-medium text-sm capitalize">{monthCaption(month)}</Text>
+          <Text className="font-figtree-medium text-sm capitalize">
+            {monthCaption(model.month)}
+          </Text>
           <Button
             variant="ghost"
             size="icon-sm"
             accessibilityLabel={messages.Common.next_month}
-            onPress={() => goToMonth(1)}
+            onPress={() => model.goToMonth(1)}
           >
             <Icon as={IconChevronRight} size={18} />
           </Button>
         </View>
       ) : null}
-
       <View className="flex-row">
         {WEEKDAYS.map((label) => (
           <Text key={label} className="flex-1 text-center text-xs text-muted-foreground">
@@ -188,30 +200,60 @@ export function Calendar({
           </Text>
         ))}
       </View>
+    </View>
+  );
+}
 
+export function CalendarWeekRow({ week, model }: { week: CalendarDay[]; model: CalendarModel }) {
+  const [width, setWidth] = useState(0);
+  const { dragX, goToMonth, reduced } = model;
+  const swipe = Gesture.Pan()
+    .activeOffsetX([-16, 16])
+    .failOffsetY([-12, 12])
+    .onUpdate((event) => {
+      dragX.set(event.translationX * DRAG_DAMPING);
+    })
+    .onEnd((event) => {
+      if (
+        Math.abs(event.translationX) > SWIPE_DISTANCE ||
+        Math.abs(event.velocityX) > SWIPE_VELOCITY
+      )
+        scheduleOnRN(goToMonth, event.translationX < 0 ? 1 : -1);
+      dragX.set(withTiming(0, fadeTiming(reduced)));
+    })
+    .onFinalize(() => {
+      if (dragX.get() !== 0) dragX.set(withTiming(0, fadeTiming(reduced)));
+    });
+  return (
+    <View onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
       <GestureDetector gesture={swipe}>
-        <Animated.View style={[styles.clip, dragStyle]}>
-          <Animated.View key={month} entering={monthEntering(direction)}>
-            {weeks.map((week) => (
-              <View key={week[0].key} className="flex-row">
-                {week.map((day) =>
-                  day.outside && !showOutsideDays ? (
-                    <View key={day.key} className="aspect-square flex-1" />
+        <Animated.View style={[styles.clip, model.dragStyle]}>
+          <Animated.View key={model.month} entering={monthEntering(model.direction)}>
+            <FlatList
+              horizontal
+              scrollEnabled={false}
+              data={week}
+              keyExtractor={(day) => day.key}
+              style={{ height: Math.max(44, width / 7), flexGrow: 0 }}
+              extraData={[model.selectedKey, model.markedDays, width]}
+              renderItem={({ item: day }) => (
+                <View style={{ width: width / 7 }}>
+                  {day.outside && !model.showOutsideDays ? (
+                    <View />
                   ) : (
                     <CalendarCell
-                      key={day.key}
                       day={day}
-                      selected={day.key === selectedKey}
-                      today={day.key === today}
-                      disabled={isDayDisabled(day.key, minDate, maxDate)}
-                      marked={markedDays?.has(day.key) ?? false}
-                      showDots={markedDays !== undefined}
-                      onPress={() => onChange(day.key)}
+                      selected={day.key === model.selectedKey}
+                      today={day.key === model.today}
+                      disabled={isDayDisabled(day.key, model.minDate, model.maxDate)}
+                      marked={model.markedDays?.has(day.key) ?? false}
+                      showDots={model.markedDays !== undefined}
+                      onPress={() => model.onChange(day.key)}
                     />
-                  ),
-                )}
-              </View>
-            ))}
+                  )}
+                </View>
+              )}
+            />
           </Animated.View>
         </Animated.View>
       </GestureDetector>
@@ -219,8 +261,30 @@ export function Calendar({
   );
 }
 
-const styles = StyleSheet.create({
-  clip: { overflow: "hidden" },
-});
+export function Calendar(props: CalendarProps) {
+  const model = useCalendarModel(props);
+  return (
+    <FlatList
+      data={model.weeks}
+      keyExtractor={(week) => week[0].key}
+      ListHeaderComponent={<CalendarHeader model={model} />}
+      renderItem={({ item }) => <CalendarWeekRow week={item} model={model} />}
+    />
+  );
+}
 
+export function CalendarSheet(props: CalendarProps) {
+  const model = useCalendarModel(props);
+  return (
+    <BottomSheetFlatList
+      data={model.weeks}
+      keyExtractor={(week) => week[0].key}
+      contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: props.paddingBottom }}
+      ListHeaderComponent={<CalendarHeader model={model} />}
+      renderItem={({ item }) => <CalendarWeekRow week={item} model={model} />}
+    />
+  );
+}
+
+const styles = StyleSheet.create({ clip: { overflow: "hidden" } });
 export type { CalendarProps };
