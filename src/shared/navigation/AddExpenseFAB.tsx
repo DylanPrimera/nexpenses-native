@@ -1,3 +1,4 @@
+import { useAppTheme } from "@/shared/theme";
 import { playPressSound } from "@/shared/audio";
 import { Icon } from "@/shared/components/ui/Icon";
 import { messages } from "@/shared/i18n";
@@ -12,6 +13,7 @@ const ENTERING = ZoomIn.duration(DURATION_UI_MS).easing(EASE_OUT).reduceMotion(R
 
 export function AddExpenseFAB({ onPress }: { onPress: () => void }) {
   const targetRef = useTourTarget(TOUR_TARGETS.fab);
+  const { resolvedScheme } = useAppTheme();
 
   return (
     <Animated.View entering={ENTERING}>
@@ -23,7 +25,13 @@ export function AddExpenseFAB({ onPress }: { onPress: () => void }) {
           playPressSound();
           onPress();
         }}
-        style={{ boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)" }}
+        style={
+          resolvedScheme === "dark"
+            ? undefined
+            : {
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)",
+              }
+        }
         className="size-12 items-center justify-center rounded-full bg-primary active:opacity-90"
       >
         <Icon as={IconPlus} size={24} strokeWidth={2.5} className="text-primary-foreground" />

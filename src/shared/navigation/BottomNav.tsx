@@ -25,7 +25,15 @@ type NavTabButtonProps = NavItem & {
   onPress: () => void;
 };
 
-function NavTabButton({ route, label, icon, active, sizeClass, hitSlop, onPress }: NavTabButtonProps) {
+function NavTabButton({
+  route,
+  label,
+  icon,
+  active,
+  sizeClass,
+  hitSlop,
+  onPress,
+}: NavTabButtonProps) {
   const targetRef = useTourTarget(navTourTarget(route));
 
   return (
@@ -36,13 +44,13 @@ function NavTabButton({ route, label, icon, active, sizeClass, hitSlop, onPress 
       accessibilityState={{ selected: active }}
       hitSlop={hitSlop}
       onPress={onPress}
-      className={`items-center justify-center rounded-full ${sizeClass} ${active ? "bg-nav-active" : "active:opacity-70"}`}
+      className={`items-center justify-center rounded-full ${sizeClass} ${active ? "bg-nav-active" : "active:bg-accent"}`}
     >
       <Icon
         as={icon}
         size={22}
         strokeWidth={active ? 2.25 : 1.75}
-        className={active ? "text-primary" : "text-muted-foreground"}
+        className={active ? "text-primary-action" : "text-muted-foreground"}
       />
     </Pressable>
   );
@@ -92,7 +100,7 @@ export function BottomNav({ state, emitter, navigateToTab, insets, onAddPress }:
       <View
         style={{ boxShadow: PILL_SHADOW[resolvedScheme] }}
         role="tablist"
-        className="flex-row items-center rounded-full bg-nav-pill p-1 dark:bg-nav-pill/95"
+        className="flex-row items-center rounded-full bg-nav-pill p-1"
       >
         <View className="flex-row items-center gap-1">{left.map(renderItem)}</View>
         <View className="-my-3 rounded-full bg-nav-pill p-3">
