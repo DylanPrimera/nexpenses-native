@@ -4,7 +4,7 @@ import { messages } from "@/shared/i18n";
 import { View } from "react-native";
 
 const STATUS_STYLE: Record<CreditStatus, { label: string; surface: string; text: string }> = {
-  al_dia: { label: messages.Debts.status_ok, surface: "bg-primary/15", text: "text-foreground" },
+  al_dia: { label: messages.Debts.status_ok, surface: "bg-primary/15", text: "text-primary" },
   proximo: {
     label: messages.Debts.status_soon,
     surface: "bg-amber-500/15",

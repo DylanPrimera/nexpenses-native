@@ -53,8 +53,8 @@ export function BudgetSetupSheet({ isOpen }: { isOpen: boolean }) {
               <Icon as={SETUP_ICON} size={32} strokeWidth={2} className="text-primary-action" />
             </View>
             <View className="mb-2 flex-row items-center gap-1.5 rounded-md bg-primary/10 px-3 py-1">
-              <Icon as={IconSparkles} size={14} className="text-primary-action" />
-              <Text className="font-figtree-medium text-xs text-primary-action">
+              <Icon as={IconSparkles} size={14} className="text-primary" />
+              <Text className="font-figtree-medium text-xs text-primary">
                 {messages.Meta.app_name}
               </Text>
             </View>

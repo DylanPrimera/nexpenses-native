@@ -73,9 +73,7 @@ export function WhatsNewSheet({ items, onClose }: WhatsNewSheetProps) {
                   <Icon as={item.icon} size={26} strokeWidth={2} className="text-primary-action" />
                 </View>
                 <View className="self-center rounded-md bg-primary/10 px-3 py-1">
-                  <Text className="font-figtree-medium text-xs text-primary-action">
-                    {item.badge}
-                  </Text>
+                  <Text className="font-figtree-medium text-xs text-primary">{item.badge}</Text>
                 </View>
               </View>
               <Text role="heading" className="font-figtree-bold text-xl tracking-tight">

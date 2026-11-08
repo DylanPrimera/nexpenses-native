@@ -1,4 +1,3 @@
-/** Exact hex tokens from Next `app/globals.css` (JS usage: StatusBar, Splash, inline). */
 export const AppColors = {
   light: {
     primary: "#0d9668",
@@ -16,6 +15,7 @@ export const AppColors = {
     border: "#dce4e0",
     input: "#dce4e0",
     muted: "#5c6b63",
+    mutedSurface: "#e8eeec",
     mutedForeground: "#5c6b63",
     accent: "#ecf3ef",
     ring: "#0d9668",
@@ -39,6 +39,7 @@ export const AppColors = {
     border: "#303638",
     input: "#303638",
     muted: "#bbcac1",
+    mutedSurface: "#262b2d",
     mutedForeground: "#bbcac1",
     accent: "#303638",
     ring: "#4eedb8",

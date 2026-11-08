@@ -12,7 +12,6 @@ import {
   IconSunMoon,
   IconWallet,
 } from "@tabler/icons-react-native";
-import { Link, type Href } from "expo-router";
 import { BudgetSettingsCard } from "./BudgetSettingsCard";
 import { DeleteAccountSection } from "./DeleteAccountSection";
 import { ExportSection } from "./ExportSection";
@@ -99,7 +98,6 @@ export function SettingsScreen() {
               }}
             />
           }
-          ListFooterComponent={__DEV__ ? <Link href={"/ui-kit" as Href}>UI kit</Link> : undefined}
         />
       )}
     />

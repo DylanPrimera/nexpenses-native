@@ -58,7 +58,7 @@ export function ExpenseCard({ expense, pending, onOpen, onEdit, onDelete }: Expe
             ) : null}
             <CategoryBadge name={categoryName} color={categoryColor} size="sm" />
             <View className="rounded-md bg-primary/15 px-2 py-0.5">
-              <Text numberOfLines={1} className="font-figtree-medium text-xs text-foreground">
+              <Text numberOfLines={1} className="font-figtree-medium text-xs text-primary">
                 {PAYMENT_LABELS[expense.paymentType]}
               </Text>
             </View>

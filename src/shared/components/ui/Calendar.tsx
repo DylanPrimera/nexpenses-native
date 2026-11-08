@@ -2,22 +2,23 @@ import { Button } from "@/shared/components/ui/button";
 import { Icon } from "@/shared/components/ui/Icon";
 import { Text } from "@/shared/components/ui/text";
 import { messages } from "@/shared/i18n";
-import { DURATION_UI_MS, EASE_OUT, fadeTiming } from "@/shared/motion/motion-presets";
+import { useThemeColors } from "@/shared/hooks";
+import type { ThemePalette } from "@/shared/theme/colors";
+import { useCalendarPager } from "./use-calendar-pager";
+import { CalendarSkeleton } from "./CalendarSkeleton";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react-native";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { FlatList, Pressable, StyleSheet, View } from "react-native";
-import Animated, {
-  FadeInLeft,
-  FadeInRight,
-  ReduceMotion,
-  useAnimatedStyle,
-  useReducedMotion,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
-import { scheduleOnRN } from "react-native-worklets";
+import { GestureDetector } from "react-native-gesture-handler";
+import {
+  FlatList,
+  Pressable,
+  View,
+  Text as NativeText,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
+import Animated, { useAnimatedStyle, type SharedValue } from "react-native-reanimated";
 import {
   buildMonthGrid,
   isDayDisabled,
@@ -44,30 +45,13 @@ type CalendarProps = {
 };
 
 const WEEKDAYS = weekdayLabels();
-const SWIPE_DISTANCE = 48;
-const SWIPE_VELOCITY = 500;
-const DRAG_DAMPING = 0.35;
+const EMPTY_ROWS: never[] = [];
 
-function monthEntering(direction: number) {
-  const base = direction < 0 ? FadeInLeft : FadeInRight;
-  return base.duration(DURATION_UI_MS).easing(EASE_OUT).reduceMotion(ReduceMotion.System);
-}
-
-function dayCircleClass(selected: boolean, today: boolean) {
-  if (selected) return "bg-primary-action";
-  if (today) return "border-2 border-primary/40 group-active:bg-muted";
-  return "group-active:bg-muted";
-}
-
-function dayTextClass(selected: boolean, outside: boolean) {
-  if (selected) return "text-primary-foreground";
-  if (outside) return "text-muted-foreground";
-  return "text-foreground";
-}
-
-function dayDotClass(selected: boolean, marked: boolean) {
-  if (!marked) return "bg-transparent";
-  return selected ? "bg-primary-foreground" : "bg-primary";
+function monthWeeks(month: string, showOutsideDays: boolean) {
+  const days = buildMonthGrid(month);
+  return Array.from({ length: 6 }, (_, week) => days.slice(week * 7, week * 7 + 7)).filter(
+    (week) => showOutsideDays || week.some((day) => !day.outside),
+  );
 }
 
 function CalendarCell({
@@ -78,6 +62,8 @@ function CalendarCell({
   marked,
   showDots,
   onPress,
+  cellWidth,
+  colors,
 }: {
   day: CalendarDay;
   selected: boolean;
@@ -86,7 +72,18 @@ function CalendarCell({
   marked: boolean;
   showDots: boolean;
   onPress: () => void;
+  cellWidth: number;
+  colors: ThemePalette;
 }) {
+  const [pressed, setPressed] = useState(false);
+  const backgroundColor = selected
+    ? colors.primaryAction
+    : pressed
+      ? colors.mutedSurface
+      : "transparent";
+  const height = Math.max(44, cellWidth);
+  const size = Math.max(0, Math.min(cellWidth, height) - 4);
+  const radius = size / 2;
   return (
     <Pressable
       role="button"
@@ -94,14 +91,57 @@ function CalendarCell({
       accessibilityState={{ selected, disabled }}
       disabled={disabled}
       onPress={onPress}
-      className={`group aspect-square flex-1 p-0.5 ${disabled ? "opacity-50" : ""}`}
+      onPressIn={() => setPressed(true)}
+      onPressOut={() => setPressed(false)}
+      style={{ width: cellWidth, height, justifyContent: "center" }}
     >
       <View
-        className={`flex-1 items-center justify-center rounded-full ${dayCircleClass(selected, today)}`}
+        testID={`calendar-indicator-${day.key}`}
+        collapsable={false}
+        style={[
+          styles.indicator,
+          {
+            width: size,
+            height: size,
+            borderRadius: radius,
+            borderTopLeftRadius: radius,
+            borderTopRightRadius: radius,
+            borderBottomLeftRadius: radius,
+            borderBottomRightRadius: radius,
+            backgroundColor,
+            borderWidth: today && !selected ? 2 : 1,
+            borderColor: today && !selected ? `${colors.primary}66` : backgroundColor,
+            opacity: disabled ? 0.5 : 1,
+          },
+        ]}
       >
-        <Text className={`text-sm ${dayTextClass(selected, day.outside)}`}>{day.day}</Text>
+        <NativeText
+          style={[
+            styles.dayText,
+            {
+              color: selected
+                ? colors.primaryForeground
+                : day.outside
+                  ? colors.mutedForeground
+                  : colors.foreground,
+            },
+          ]}
+        >
+          {day.day}
+        </NativeText>
         {showDots ? (
-          <View className={`mt-0.5 size-1 rounded-full ${dayDotClass(selected, marked)}`} />
+          <View
+            style={[
+              styles.dot,
+              {
+                backgroundColor: marked
+                  ? selected
+                    ? colors.primaryForeground
+                    : colors.primary
+                  : "transparent",
+              },
+            ]}
+          />
         ) : null}
       </View>
     </Pressable>
@@ -122,39 +162,28 @@ export function useCalendarModel({
 }: CalendarProps) {
   const [innerMonth, setInnerMonth] = useState(() => monthKey(value));
   const month = controlledMonth ?? innerMonth;
-  const [shownMonth, setShownMonth] = useState(month);
-  const [direction, setDirection] = useState(1);
-  if (shownMonth !== month) {
-    setDirection(month > shownMonth ? 1 : -1);
-    setShownMonth(month);
-  }
-  const reduced = useReducedMotion();
-  const dragX = useSharedValue(0);
-  const days = buildMonthGrid(month);
+  const colors = useThemeColors();
   const today = todayKey();
   const selectedKey = value?.slice(0, 10);
-  const weeks = Array.from({ length: 6 }, (_, week) => days.slice(week * 7, week * 7 + 7)).filter(
-    (week) => showOutsideDays || week.some((day) => !day.outside),
+  const setMonth = useCallback(
+    (next: string) => {
+      if (controlledMonth === undefined) setInnerMonth(next);
+      onMonthChange?.(next);
+    },
+    [controlledMonth, onMonthChange],
   );
-
-  const goToMonth = (step: number) => {
-    const next = shiftMonth(month, step);
-    if (controlledMonth === undefined) setInnerMonth(next);
-    onMonthChange?.(next);
-  };
-
-  const dragStyle = useAnimatedStyle(() => ({ transform: [{ translateX: dragX.value }] }));
+  const goToMonth = useCallback(
+    (step: number) => setMonth(shiftMonth(month, step)),
+    [month, setMonth],
+  );
 
   return {
     month,
-    weeks,
     today,
     selectedKey,
     goToMonth,
-    dragX,
-    dragStyle,
-    direction,
-    reduced,
+    setMonth,
+    colors,
     onChange,
     minDate,
     maxDate,
@@ -167,12 +196,21 @@ export function useCalendarModel({
 
 export type CalendarModel = ReturnType<typeof useCalendarModel>;
 
-export function CalendarHeader({ model }: { model: CalendarModel }) {
+export function CalendarHeader({
+  model,
+  width,
+  disabled = false,
+}: {
+  model: CalendarModel;
+  width: number;
+  disabled?: boolean;
+}) {
   return (
     <View className="gap-3 pb-2">
       {model.showHeader ? (
         <View className="min-h-12 flex-row items-center justify-between">
           <Button
+            disabled={disabled}
             variant="ghost"
             size="icon-sm"
             accessibilityLabel={messages.Common.previous_month}
@@ -184,6 +222,7 @@ export function CalendarHeader({ model }: { model: CalendarModel }) {
             {monthCaption(model.month)}
           </Text>
           <Button
+            disabled={disabled}
             variant="ghost"
             size="icon-sm"
             accessibilityLabel={messages.Common.next_month}
@@ -193,71 +232,221 @@ export function CalendarHeader({ model }: { model: CalendarModel }) {
           </Button>
         </View>
       ) : null}
-      <View className="flex-row">
-        {WEEKDAYS.map((label) => (
-          <Text key={label} className="flex-1 text-center text-xs text-muted-foreground">
-            {label}
+      <FlatList
+        horizontal
+        scrollEnabled={false}
+        data={WEEKDAYS}
+        initialNumToRender={7}
+        maxToRenderPerBatch={7}
+        windowSize={21}
+        updateCellsBatchingPeriod={0}
+        removeClippedSubviews={false}
+        keyExtractor={(label) => label}
+        style={{ width, flexGrow: 0 }}
+        contentContainerStyle={{ width }}
+        getItemLayout={(_, index) => ({ length: width / 7, offset: (index * width) / 7, index })}
+        renderItem={({ item }) => (
+          <Text style={{ width: width / 7 }} className="text-center text-xs text-muted-foreground">
+            {item}
           </Text>
-        ))}
-      </View>
+        )}
+      />
     </View>
   );
 }
 
-export function CalendarWeekRow({ week, model }: { week: CalendarDay[]; model: CalendarModel }) {
-  const [width, setWidth] = useState(0);
-  const { dragX, goToMonth, reduced } = model;
-  const resetTiming = useMemo(() => fadeTiming(reduced), [reduced]);
-  const swipe = Gesture.Pan()
-    .activeOffsetX([-16, 16])
-    .failOffsetY([-12, 12])
-    .onUpdate((event) => {
-      dragX.set(event.translationX * DRAG_DAMPING);
-    })
-    .onEnd((event) => {
-      if (
-        Math.abs(event.translationX) > SWIPE_DISTANCE ||
-        Math.abs(event.velocityX) > SWIPE_VELOCITY
-      )
-        scheduleOnRN(goToMonth, event.translationX < 0 ? 1 : -1);
-      dragX.set(withTiming(0, resetTiming));
-    })
-    .onFinalize(() => {
-      if (dragX.get() !== 0) dragX.set(withTiming(0, resetTiming));
-    });
+export function CalendarWeekRow({
+  week,
+  model,
+  width,
+}: {
+  week: CalendarDay[];
+  model: CalendarModel;
+  width: number;
+}) {
   return (
-    <View onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
-      <GestureDetector gesture={swipe}>
-        <Animated.View style={[styles.clip, model.dragStyle]}>
-          <Animated.View key={model.month} entering={monthEntering(model.direction)}>
-            <FlatList
-              horizontal
-              scrollEnabled={false}
-              data={week}
-              keyExtractor={(day) => day.key}
-              style={{ height: Math.max(44, width / 7), flexGrow: 0 }}
-              extraData={[model.selectedKey, model.markedDays, width]}
-              renderItem={({ item: day }) => (
-                <View style={{ width: width / 7 }}>
-                  {day.outside && !model.showOutsideDays ? (
-                    <View />
-                  ) : (
-                    <CalendarCell
-                      day={day}
-                      selected={day.key === model.selectedKey}
-                      today={day.key === model.today}
-                      disabled={isDayDisabled(day.key, model.minDate, model.maxDate)}
-                      marked={model.markedDays?.has(day.key) ?? false}
-                      showDots={model.markedDays !== undefined}
-                      onPress={() => model.onChange(day.key)}
-                    />
-                  )}
-                </View>
-              )}
+    <FlatList
+      horizontal
+      scrollEnabled={false}
+      data={week}
+      keyExtractor={(day) => day.key}
+      style={{ width, height: Math.max(44, width / 7), flexGrow: 0 }}
+      contentContainerStyle={{ width }}
+      getItemLayout={(_, index) => ({ length: width / 7, offset: (index * width) / 7, index })}
+      initialNumToRender={7}
+      maxToRenderPerBatch={7}
+      windowSize={21}
+      updateCellsBatchingPeriod={0}
+      removeClippedSubviews={false}
+      extraData={[model.selectedKey, model.markedDays, width]}
+      renderItem={({ item: day }) => (
+        <View style={{ width: width / 7 }}>
+          {day.outside && !model.showOutsideDays ? null : (
+            <CalendarCell
+              day={day}
+              cellWidth={width / 7}
+              colors={model.colors}
+              selected={day.key === model.selectedKey}
+              today={day.key === model.today}
+              disabled={isDayDisabled(day.key, model.minDate, model.maxDate)}
+              marked={model.markedDays?.has(day.key) ?? false}
+              showDots={model.markedDays !== undefined}
+              onPress={() => model.onChange(day.key)}
             />
-          </Animated.View>
-        </Animated.View>
+          )}
+        </View>
+      )}
+    />
+  );
+}
+
+function CalendarPage({
+  model,
+  width,
+  month,
+  position,
+  active,
+  transitioning,
+  scrollOffset,
+}: {
+  model: CalendarModel;
+  width: number;
+  month: string;
+  position: number;
+  active: boolean;
+  transitioning: boolean;
+  scrollOffset: SharedValue<number>;
+}) {
+  const weeks = monthWeeks(month, model.showOutsideDays);
+  const rowHeight = Math.max(44, width / 7);
+  const pageStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: position * width - scrollOffset.get() }],
+  }));
+  return (
+    <Animated.View
+      testID={`calendar-page-${month}`}
+      collapsable={false}
+      pointerEvents={active && !transitioning ? "auto" : "none"}
+      accessibilityElementsHidden={!active}
+      importantForAccessibility={active ? "auto" : "no-hide-descendants"}
+      style={[
+        {
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width,
+          height: rowHeight * weeks.length,
+          overflow: "hidden",
+        },
+        pageStyle,
+      ]}
+    >
+      <FlatList
+        scrollEnabled={false}
+        showsVerticalScrollIndicator={false}
+        style={{ width, height: rowHeight * weeks.length, flexGrow: 0 }}
+        contentContainerStyle={{ width }}
+        data={weeks}
+        keyExtractor={(week) => week[0].key}
+        getItemLayout={(_, index) => ({ length: rowHeight, offset: rowHeight * index, index })}
+        initialNumToRender={6}
+        maxToRenderPerBatch={6}
+        windowSize={21}
+        updateCellsBatchingPeriod={0}
+        removeClippedSubviews={false}
+        extraData={[model.selectedKey, model.markedDays, width]}
+        renderItem={({ item: week }) => <CalendarWeekRow week={week} model={model} width={width} />}
+      />
+    </Animated.View>
+  );
+}
+
+function MeasuredCalendarMonth({ model, width }: { model: CalendarModel; width: number }) {
+  const pager = useCalendarPager({ month: model.month, width, onMonthChange: model.setMonth });
+  const previous = pager.target < pager.month ? pager.target : shiftMonth(pager.month, -1);
+  const next = pager.target > pager.month ? pager.target : shiftMonth(pager.month, 1);
+  const rowCount = Math.max(
+    monthWeeks(pager.month, model.showOutsideDays).length,
+    monthWeeks(pager.target, model.showOutsideDays).length,
+  );
+  const headerModel = { ...model, month: pager.month, goToMonth: pager.goToMonth };
+  const pageProps = {
+    model,
+    width,
+    transitioning: pager.transitioning,
+    scrollOffset: pager.scrollOffset,
+  };
+  return (
+    <>
+      <CalendarHeader model={headerModel} width={width} disabled={pager.transitioning} />
+      <GestureDetector gesture={pager.gesture}>
+        <View
+          testID="calendar-month-grid"
+          collapsable={false}
+          style={{ width, height: Math.max(44, width / 7) * rowCount, overflow: "hidden" }}
+        >
+          <CalendarPage
+            key={previous}
+            {...pageProps}
+            month={previous}
+            position={pager.position - 1}
+            active={false}
+          />
+          <CalendarPage
+            key={pager.month}
+            {...pageProps}
+            month={pager.month}
+            position={pager.position}
+            active
+          />
+          <CalendarPage
+            key={next}
+            {...pageProps}
+            month={next}
+            position={pager.position + 1}
+            active={false}
+          />
+        </View>
       </GestureDetector>
+    </>
+  );
+}
+
+export function CalendarMonth({
+  model,
+  estimatedWidth,
+}: {
+  model: CalendarModel;
+  estimatedWidth?: number;
+}) {
+  const { width: windowWidth } = useWindowDimensions();
+  const [measuredWidth, setMeasuredWidth] = useState<number | null>(null);
+  const [firstFrame, setFirstFrame] = useState(true);
+  const width = Math.max(7, measuredWidth ?? estimatedWidth ?? windowWidth - 40);
+  const weekCount = monthWeeks(model.month, model.showOutsideDays).length;
+  const minHeight = (model.showHeader ? 84 : 24) + Math.max(44, width / 7) * weekCount;
+  useEffect(() => {
+    let mounted = true;
+    queueMicrotask(() => {
+      if (mounted) setFirstFrame(false);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+  return (
+    <View
+      testID="calendar-month-viewport"
+      style={{ width: "100%", minHeight, overflow: "hidden" }}
+      onLayout={(event) => {
+        const nextWidth = event.nativeEvent.layout.width;
+        if (Number.isFinite(nextWidth) && nextWidth > 0) setMeasuredWidth(nextWidth);
+      }}
+    >
+      <MeasuredCalendarMonth key={width} model={model} width={width} />
+      {firstFrame && measuredWidth === null ? (
+        <CalendarSkeleton width={width} weekCount={weekCount} showHeader={model.showHeader} />
+      ) : null}
     </View>
   );
 }
@@ -267,10 +456,10 @@ export function Calendar(props: CalendarProps) {
   return (
     <FlatList
       showsVerticalScrollIndicator={false}
-      data={model.weeks}
-      keyExtractor={(week) => week[0].key}
-      ListHeaderComponent={<CalendarHeader model={model} />}
-      renderItem={({ item }) => <CalendarWeekRow week={item} model={model} />}
+      data={EMPTY_ROWS}
+      className={props.className}
+      ListHeaderComponent={<CalendarMonth model={model} />}
+      renderItem={() => null}
     />
   );
 }
@@ -280,14 +469,24 @@ export function CalendarSheet(props: CalendarProps) {
   return (
     <BottomSheetFlatList
       showsVerticalScrollIndicator={false}
-      data={model.weeks}
-      keyExtractor={(week) => week[0].key}
+      data={EMPTY_ROWS}
+      className={props.className}
       contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: props.paddingBottom }}
-      ListHeaderComponent={<CalendarHeader model={model} />}
-      renderItem={({ item }) => <CalendarWeekRow week={item} model={model} />}
+      ListHeaderComponent={<CalendarMonth model={model} />}
+      renderItem={() => null}
     />
   );
 }
 
-const styles = StyleSheet.create({ clip: { overflow: "hidden" } });
 export type { CalendarProps };
+
+const styles = StyleSheet.create({
+  indicator: {
+    alignSelf: "center",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  dayText: { fontFamily: "Figtree_400Regular", fontSize: 14, lineHeight: 20 },
+  dot: { width: 4, height: 4, borderRadius: 2, marginTop: 2 },
+});

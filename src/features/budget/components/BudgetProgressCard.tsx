@@ -36,7 +36,7 @@ const PACE_STYLES: Record<
     label: messages.Budget.pace_healthy,
     icon: IconCircleCheck,
     chip: "bg-primary/15",
-    text: "text-foreground",
+    text: "text-primary",
   },
 };
 
